@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "Ecolink",
+    "slug": "client",
+    "icon": "./assets/AppIcons/ecoLinkLogo.png",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+    ],
+    "newArchEnabled": true,
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "icon": "./assets/AppIcons/Assets.xcassets/AppIcon.appiconset/1024.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arthur.trindade.client",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to display your position on the map while using the app."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/AppIcons/android/mipmap-xxxhdpi/ecoLinkLogo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "icon": "./assets/AppIcons/playstore-icon.png",
+      "permissions": [
+        "ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.arthur.trindade.client"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "android": {
+            "compileSdkVersion": 33,
+            "minSdkVersion": 21
+          },
+          "ios": {
+            "deploymentTarget": "13.0"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "76514f27-d52d-4a2b-b8c1-fa24055cbe4c"
+      }
+    },
+    "owner": "arthur.trindade"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "Home": {
+    "bottomTXT": "Este aplicativo só oferece serviços em Brasília"
+  },
+  "Navigation": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "pickup": "Coleta",
+    "overview": "Visão Geral",
+    "scheduledP": "Coleta Agendada"
+  },
+  "Login": {
+    "start": "Fazer login",
+    "email": "Email",
+    "password": "Senha",
+    "buttonLogin": "Entrar",
+    "loginOptions": "Ou entre com",
+    "registerAcc": "Não tem uma conta? <link> Cadastre-se </link>"
+  },
+  "Register": {
+    "headerLink": "Voltar",
+    "inputHeaders": "Registre uma conta",
+    "buttonTXT": "Registre",
+    "username": "Nome",
+    "phoneNumber": "Número de telefone",
+    "address": "Endereço"
+  },
+  "Pickup": {
+    "header": "Nova Doação",
+    "cardTXT": "Adicionar material",
+    "buttonTXT": "Continuar",
+    "type": "Tipo de material *",
+    "metal": "Metal",
+    "plastic": "Plástico",
+    "paper": "Papel",
+    "glass": "Vidro",
+    "quantity": "Quantidade *",
+    "quantityExtra": "Em quilograma",
+    "buttonAccept": "Enviar",
+    "buttonDecline": "Declínio",
+    "errorMessage": "Por favor preencha todos os detalhes"
+  },
+  "PickupFinal": {
+    "description": "Descrição",
+    "descriptionExtra": "Tem algo a dizer sobre esta doação? Escreva aqui.",
+    "photo": "Fotos",
+    "photoExtra": "Inclua uma foto para detalhar a doação!",
+    "buttonTXT": "Doar",
+    "created": "Doação criada com sucesso!"
+  },
+  "Overview": {
+    "title": "Minhas Atividades",
+    "donation": "Doações",
+    "pickup": "Coletas"
+  }
+}

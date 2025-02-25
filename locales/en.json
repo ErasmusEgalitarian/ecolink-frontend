@@ -1,0 +1,56 @@
+{
+  "Home": {
+    "bottomTXT": "This application only provides services in Brasilia"
+  },
+  "Navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "pickup": "Pick up",
+    "overview": "Overview",
+    "scheduledP": "Scheduled Pick up"
+  },
+  "Login": {
+    "start": "Login here",
+    "email": "Email",
+    "password": "Password",
+    "buttonLogin": "Enter",
+    "loginOptions": "Or login with",
+    "registerAcc": "No account yet? <link> Register here </link>"
+  },
+  "Register": {
+    "headerLink": "Back",
+    "inputHeaders": "Register an account",
+    "buttonTXT": "Register",
+    "username": "Name",
+    "phoneNumber": "Phone number",
+    "address": "address"
+  },
+  "Pickup": {
+    "header": "New Donation",
+    "cardTXT": "Add material",
+    "buttonTXT": "Continue",
+    "type": "Type of material *",
+    "metal": "Metal",
+    "plastic": "Plastic",
+    "paper": "Paper",
+    "glass": "Glass",
+    "quantity": "Quantity *",
+    "quantityExtra": "In kilograms",
+    "buttonAccept": "Submit",
+    "buttonDecline": "Decline",
+    "errorMessage": "Please fill in all the details"
+  },
+  "PickupFinal": {
+    "description": "Description",
+    "descriptionExtra": "Do you have anything to say about this donation? Write here.",
+    "photo": "Photos",
+    "photoExtra": "Include a photo to detail your donation!",
+    "buttonTXT": "Donate",
+    "created": "Donation successfully created!"
+  },
+  "Overview": {
+    "title": "My Activity",
+    "donation": "Donations",
+    "pickup": "Pickups"
+  }
+}
