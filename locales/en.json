@@ -5,6 +5,7 @@
   "Navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "admin": "User administration",
     "pickup": "Pick up",
     "overview": "Overview",
     "scheduledP": "Scheduled Pick up"
