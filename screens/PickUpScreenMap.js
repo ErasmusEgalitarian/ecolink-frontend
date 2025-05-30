@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, Text, View, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import MapComponent from '../components/MapComponent';
 
 const PickUpScreenMap = ({ navigation }) => {
     const { t } = useTranslation();
@@ -18,11 +17,11 @@ const PickUpScreenMap = ({ navigation }) => {
     return (
         <View style={styles.container}>
             {/* Mapa com busca e pin */}
-            <MapComponent
+            {/* <MapComponent
                 style={styles.mapComponent}
                 showSearchAndPin={true}
                 onLocationSelected={handleLocationSelected}
-            />
+            /> */}
 
             {/* Botão de Finalizar */}
             {/* <TouchableOpacity style={styles.finishButton} onPress={() => navigation.goBack()}>

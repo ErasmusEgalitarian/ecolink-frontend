@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import LandingScreen from '../screens/LandingScreen';
 import DashboardScreen from '../screens/DashboardScreen';
+import AdminRoleScreen from '../screens/AdminRoleScreen';
 import PickUpScreen from '../screens/PickUpScreen';
 import OverviewScreen from '../screens/OverviewScreen';
 import PickUpScreenFinalStep from "../screens/PickUpScreenFinalStep";
@@ -24,6 +25,7 @@ function HomeStack() {
                 options={{ headerShown: false }} 
             />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
+            <Stack.Screen name="Admin" component={AdminRoleScreen} />
             <Stack.Screen name="Pickup" component={PickUpScreen} options={{ headerShown: false}}/>
             <Stack.Screen name="Overview" component={OverviewScreen} />
         </Stack.Navigator>
@@ -94,6 +96,9 @@ export default function BottomNav({ onLogout }) {  // Accept onLogout as a prop
                             case t('Navigation.home'):
                                 iconName = 'home';
                                 break;
+                            case t('Navigation.admin'):
+                                iconName = 'cog-outline';
+                                break;
                             case t('Navigation.dashboard'):
                                 iconName = 'grid';
                                 break;
@@ -119,6 +124,7 @@ export default function BottomNav({ onLogout }) {  // Accept onLogout as a prop
             >
                 <Tab.Screen name={t('Navigation.home')} component={HomeStack} />
                 <Tab.Screen name={t('Navigation.dashboard')} component={DashboardScreen} />
+                <Tab.Screen name={t('Navigation.admin')} component={AdminRoleScreen} />
                 <Tab.Screen name={t('Navigation.pickup')} component={PickupNavigator} />
                 <Tab.Screen name={t('Navigation.overview')} component={OverviewScreen} />
                 {/* <Tab.Screen name={t('Navigation.scheduledP')} component={ScheduledPickUpScreen} /> */}

@@ -5,6 +5,7 @@
   "Navigation": {
     "home": "Início",
     "dashboard": "Painel",
+    "admin": "Gerenciamento de usuário",
     "pickup": "Coleta",
     "overview": "Visão Geral",
     "scheduledP": "Coleta Agendada"

@@ -42,7 +42,7 @@ const LoginScreen = ({onLogin}) => {
         setLoading(true);
 
         try {                                  //192.168.0.168 replace to 10.0.2.2 if using android emulator or localhost if on web
-            const response = await fetch('http://192.168.0.168:5000/api/auth/login', {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
