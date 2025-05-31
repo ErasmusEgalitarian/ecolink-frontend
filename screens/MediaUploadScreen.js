@@ -124,7 +124,7 @@ const MediaUploadScreen = ({ navigation }) => {
         if (Platform.OS === 'web' && inputFileRef.current) {
           inputFileRef.current.value = null; 
         }
-        navigation.navigate('MediaList'); 
+        navigation.navigate('MediaList', { refresh: true });
       } else {
         const data = await res.json();
         Alert.alert('Upload error', data.message || 'Try again');
@@ -180,7 +180,7 @@ const MediaUploadScreen = ({ navigation }) => {
         <ActivityIndicator size="large" color="#AFD34D" style={{ marginTop: 20 }} />
       ) : (
         <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
-          <Text style={styles.uploadButtonText}>Enviar</Text>
+          <Text style={styles.uploadButtonText}>Upload</Text>
         </TouchableOpacity>
       )}
     </View>

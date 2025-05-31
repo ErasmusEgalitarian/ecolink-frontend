@@ -35,7 +35,6 @@ const MediaListScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchCategories();
-    fetchMedias();
   }, []);
 
   useFocusEffect(
@@ -94,6 +93,7 @@ const MediaListScreen = ({ navigation }) => {
         .filter(item => item && item._id)
         .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
       setMedias(sortedData);
+      console.log('Fetching medias for category:', category);
     } catch {
       Alert.alert('Error fetching medias');
     } finally {
@@ -112,7 +112,6 @@ const MediaListScreen = ({ navigation }) => {
         selectedValue={selectedCategory}
         onValueChange={cat => {
           setSelectedCategory(cat);
-          fetchMedias(cat);
         }}
         style={styles.picker}
       >
