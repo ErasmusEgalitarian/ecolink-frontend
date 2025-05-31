@@ -33,7 +33,7 @@ const MediaUploadScreen = ({ navigation }) => {
     fetch('http://localhost:5000/media/categories')
       .then(res => res.json())
       .then(setCategories)
-      .catch(() => Alert.alert('Erro ao buscar categorias'));
+      .catch(() => Alert.alert('Error fetching medias'));
   }, []);
 
   const pickFileMobile = async () => {
@@ -42,14 +42,14 @@ const MediaUploadScreen = ({ navigation }) => {
       const result = await launchImageLibrary(options);
       if (result.didCancel) return;
       if (result.errorCode) {
-        Alert.alert('Erro', result.errorMessage || 'Erro ao selecionar arquivo');
+        Alert.alert('Erro', result.errorMessage || 'Error selecting file');
         return;
       }
       if (result.assets && result.assets.length > 0) {
         setFile(result.assets[0]);
       }
     } catch {
-      Alert.alert('Erro', 'Erro desconhecido ao selecionar arquivo');
+      Alert.alert('Erro', 'Unknown error selecting file');
     }
   };
 
@@ -62,7 +62,6 @@ const MediaUploadScreen = ({ navigation }) => {
       uri: URL.createObjectURL(selectedFile),
       fileName: selectedFile.name,
       type: selectedFile.type,
-      // no web não tem path nativo, então só usar uri mesmo
     };
     setFile(webFile);
   };
@@ -76,14 +75,14 @@ const MediaUploadScreen = ({ navigation }) => {
   };
 
   const handleUpload = async () => {
-    if (!file) return Alert.alert('Selecione um arquivo');
-    if (!category) return Alert.alert('Selecione uma categoria');
+    if (!file) return Alert.alert('Select file');
+    if (!category) return Alert.alert('Select category');
 
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
-        Alert.alert('Você precisa estar logado');
+        Alert.alert('You need to be logged in');
         setLoading(false);
         return;
       }
@@ -96,7 +95,7 @@ const MediaUploadScreen = ({ navigation }) => {
         if (inputFile && inputFile.files.length > 0) {
           formData.append('file', inputFile.files[0]);
         } else {
-          Alert.alert('Erro', 'Arquivo inválido');
+          Alert.alert('Error', 'Unvalid file');
           setLoading(false);
           return;
         }
@@ -119,19 +118,19 @@ const MediaUploadScreen = ({ navigation }) => {
       });
 
       if (res.ok) {
-        Alert.alert('Sucesso', 'Upload feito com sucesso');
+        Alert.alert('Success', 'Successful upload');
         setFile(null);
         setCategory('');
         if (Platform.OS === 'web' && inputFileRef.current) {
-          inputFileRef.current.value = null; // resetar input no web
+          inputFileRef.current.value = null; 
         }
-        navigation.navigate('MediaList'); // manda pro Feed
+        navigation.navigate('MediaList'); 
       } else {
         const data = await res.json();
-        Alert.alert('Erro no upload', data.message || 'Tente novamente');
+        Alert.alert('Upload error', data.message || 'Try again');
       }
     } catch (err) {
-      Alert.alert('Erro', err.message || 'Algo deu errado');
+      Alert.alert('Error', err.message || 'Something went wrong...');
     } finally {
       setLoading(false);
     }
@@ -139,7 +138,7 @@ const MediaUploadScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* input file invisível para web caso não estejamos no cel */}
+      {/**/}
       {Platform.OS === 'web' && (
         <input
           ref={inputFileRef}
@@ -151,7 +150,7 @@ const MediaUploadScreen = ({ navigation }) => {
       )}
 
       <TouchableOpacity style={styles.pickButton} onPress={pickFile}>
-        <Text style={styles.pickButtonText}>Escolher arquivo</Text>
+        <Text style={styles.pickButtonText}>Select file</Text>
       </TouchableOpacity>
 
       {file && (
@@ -159,7 +158,7 @@ const MediaUploadScreen = ({ navigation }) => {
           {file.type?.startsWith('image') && (
             <Image source={{ uri: file.uri }} style={styles.previewImage} />
           )}
-          <Text style={styles.fileName}>{file.fileName || 'Arquivo selecionado'}</Text>
+          <Text style={styles.fileName}>{file.fileName || 'Selected file'}</Text>
         </View>
       )}
 
@@ -168,9 +167,9 @@ const MediaUploadScreen = ({ navigation }) => {
           selectedValue={category}
           onValueChange={setCategory}
           style={styles.picker}
-          prompt="Escolha uma categoria"
+          prompt="Pick a category"
         >
-          <Picker.Item label="Selecione a categoria" value="" />
+          <Picker.Item label="Pick a category" value="" />
           {categories.map(cat => (
             <Picker.Item key={cat} label={cat} value={cat} />
           ))}

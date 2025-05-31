@@ -27,7 +27,7 @@ const MediaListScreen = ({ navigation }) => {
         }));
       },
       (error) => {
-        console.log('Erro ao pegar tamanho da imagem', error);
+        console.log('Error getting photo size', error);
       }
     );
   };
@@ -66,11 +66,11 @@ const MediaListScreen = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Erro ao carregar categorias');
+      if (!res.ok) throw new Error('Error fetching categories');
       const data = await res.json();
       setCategories(data);
     } catch {
-      Alert.alert('Erro ao buscar categorias');
+      Alert.alert('Error fetching categories');
     }
   };
 
@@ -87,7 +87,7 @@ const MediaListScreen = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Erro ao carregar mídias');
+      if (!res.ok) throw new Error('Error fetching medias');
       const data = await res.json();
 
       const sortedData = data
@@ -95,7 +95,7 @@ const MediaListScreen = ({ navigation }) => {
         .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
       setMedias(sortedData);
     } catch {
-      Alert.alert('Erro ao buscar mídias');
+      Alert.alert('Error fetching medias');
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ const MediaListScreen = ({ navigation }) => {
         }}
         style={styles.picker}
       >
-        <Picker.Item label="Filtro" value="" />
+        <Picker.Item label="Filter" value="" />
         {categories.map(cat => (
           <Picker.Item key={cat} label={cat} value={cat} />
         ))}
@@ -149,14 +149,14 @@ const MediaListScreen = ({ navigation }) => {
             <Text>{new Date(item.uploadedAt).toLocaleString()}</Text>
           </View>
         )}
-        ListEmptyComponent={() => <Text>Nenhuma mídia encontrada</Text>}
+        ListEmptyComponent={() => <Text>Media not found</Text>}
       />
 
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('MediaUpload')}
       >
-        <Text style={styles.addButtonText}>Adicionar Mídia</Text>
+        <Text style={styles.addButtonText}>Add Media</Text>
       </TouchableOpacity>
     </View>
   );
