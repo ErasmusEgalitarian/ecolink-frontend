@@ -11,6 +11,10 @@ import PickUpScreen from '../screens/PickUpScreen';
 import OverviewScreen from '../screens/OverviewScreen';
 import PickUpScreenFinalStep from "../screens/PickUpScreenFinalStep";
 import PickUpScreenMap from "../screens/PickUpScreenMap";
+import MediaUploadScreen from "../screens/MediaUploadScreen";
+import MediaListScreen from "../screens/MediaListScreen";
+import MediaStackNavigator from "../navigation/MediaStackNav"
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -106,6 +110,9 @@ export default function BottomNav({ onLogout }) {  // Accept onLogout as a prop
                             case t('Navigation.scheduledP'):
                                 iconName = 'calendar';
                                 break;
+                            case t('Navigation.mediaList'):
+                                iconName = 'cloud-upload';
+                                break;
                             default:
                                 iconName = 'ellipse';
                         }
@@ -121,6 +128,7 @@ export default function BottomNav({ onLogout }) {  // Accept onLogout as a prop
                 <Tab.Screen name={t('Navigation.dashboard')} component={DashboardScreen} />
                 <Tab.Screen name={t('Navigation.pickup')} component={PickupNavigator} />
                 <Tab.Screen name={t('Navigation.overview')} component={OverviewScreen} />
+                <Tab.Screen name={t('Navigation.mediaList')} component={MediaStackNavigator} />
                 {/* <Tab.Screen name={t('Navigation.scheduledP')} component={ScheduledPickUpScreen} /> */}
             </Tab.Navigator>
         </View>
