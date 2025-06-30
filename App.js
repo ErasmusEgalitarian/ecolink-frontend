@@ -15,7 +15,7 @@ const MyTheme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        background: '#F3F3F3', // Cor de fundo personalizada
+        background: '#F3F3F3', 
     },
 };
 
