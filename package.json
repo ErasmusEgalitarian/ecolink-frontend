@@ -20,7 +20,7 @@
     "@rnmapbox/maps": "^10.1.33",
     "@types/react": "~18.3.12",
     "axios": "^1.9.0",
-    "expo": "^52.0.14",
+    "expo": "^54.0.31",
     "expo-dev-client": "~5.0.8",
     "expo-image-picker": "~16.0.3",
     "expo-status-bar": "~2.0.0",
