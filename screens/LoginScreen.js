@@ -1,227 +1,324 @@
-import React, {useState} from 'react';
+import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useTranslation} from 'react-i18next';
-import GoogleSVG from '../assets/socialButtons/google.svg';
-import FacebookSVG from '../assets/socialButtons/facebook.svg';
-import XSVG from '../assets/socialButtons/x.svg';
-import LangChanger from '../components/LangChanger'
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 
-const {width, height} = Dimensions.get('window');
+const LoginScreen = ({ onLogin }) => {
+  const navigation = useNavigation();
+  const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
 
-const LoginScreen = ({onLogin}) => {
-    const navigation = useNavigation();
-    const {t} = useTranslation();
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
+  const handleNavigateToRegister = () => {
+    navigation.navigate("Register");
+  };
 
-    // Constants for activityindicator loading animation
-    const [loading, setLoading] = useState(false);
+  const handleLogin = async () => {
+    setLoading(true);
 
-    // Handle navigation to registration screen
-    const handleNavigateToRegister = () => {
-        navigation.navigate('Register'); // Navigate to the Registration screen
-    };
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const showLoader = () => {
-        return <ActivityIndicator size="large" color="#AFD34D"/>
-    }
-    // Mock login for now. Later has to be removed for the other handleLogin when backend is running
-    const handleLogin = async () => {
-        setLoading(true);
+      const data = await response.json();
+      console.log("Login Response Data:", data);
 
-        try {                                  //192.168.0.168 replace to 10.0.2.2 if using android emulator or localhost if on web
-            const response = await fetch('http://localhost:5000/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+      if (response.ok) {
+        const userId = data.user?.id;
+        const token = data.token;
 
-            const data = await response.json();
-            console.log('Login Response Data:', data); // Log the response for debugging
-
-            if (response.ok) {
-                const userId = data.user?.id;
-                const token = data.token;
-
-                if (!userId || !token) {
-                    throw new Error('Invalid response from server: Missing user ID or token');
-                }
-
-                await AsyncStorage.setItem('userId', userId);
-                await AsyncStorage.setItem('authToken', token);
-
-                // Notify parent or navigate
-                onLogin(token);
-                Alert.alert('Login Successful', 'Welcome back!');
-            } else {
-                // Handle non-200 response
-                Alert.alert('Login Failed', data.message || 'Invalid credentials');
-            }
-        } catch (error) {
-            console.error('Login Error:', error.message || error); // Log error for debugging
-            Alert.alert('Login Error', 'An error occurred. Please try again.');
-        } finally {
-            setLoading(false);
+        if (!userId || !token) {
+          throw new Error(
+            "Invalid response from server: Missing user ID or token"
+          );
         }
-    };
 
+        await AsyncStorage.setItem("userId", userId);
+        await AsyncStorage.setItem("authToken", token);
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.langSwitcher}>
-                <LangChanger/>
-            </View>
-            <Image style={styles.LoginLogo} source={require('../assets/EcoLinkLogo.png')}/>
+        onLogin(token);
+        Alert.alert("Login Successful", "Welcome back!");
+      } else {
+        Alert.alert("Login Failed", data.message || "Invalid credentials");
+      }
+    } catch (error) {
+      console.error("Login Error:", error.message || error);
+      Alert.alert("Login Error", "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            <View style={styles.inputContainer}>
-                <Text style={styles.txt}>{t('Login.start')}</Text>
-            </View>
-
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={setEmail}
-                    value={email}
-                    placeholder={t('Login.email')}
-                    keyboardType="email-address"
-                />
-            </View>
-
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={setPassword}
-                    value={password}
-                    placeholder={t('Login.password')}
-                    secureTextEntry
-                />
-            </View>
-
-            <View style={styles.buttonSpacing}/>
-
-            {/* Login button toggle with ActivityIndicator */}
-            {loading ? (
-                showLoader()
-            ) : (
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.buttonText}>{t('Login.buttonLogin')}</Text>
-                </TouchableOpacity>
-            )}
-
-            {/* Social buttons, doenst work yet... */}
-            <Text style={styles.txtOptions}>{t('Login.loginOptions')}</Text>
-
-            <View style={styles.socialButtonsContainer}>
-                <TouchableOpacity style={styles.socialButton}>
-                    <GoogleSVG height={24} width={24}/>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                    <FacebookSVG height={24} width={24}/>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                    <XSVG height={24} width={24}/>
-                </TouchableOpacity>
-            </View>
-
-            {/* Link to direct user to registration screen*/}
-            <Text style={{textAlign: 'center'}}>
-                {t('Login.registerAcc', {interpolation: {escapeValue: false}}).split('<link>')[0]}
-                <TouchableOpacity onPress={handleNavigateToRegister}>
-                    <Text style={{color: 'blue', textDecorationLine: 'underline', transform: [{translateY: 4}]}}>
-                        {t('Login.registerAcc', {interpolation: {escapeValue: false}}).split('<link>')[1].split('</link>')[0]}
-                    </Text>
-                </TouchableOpacity>
-                {t('Login.registerAcc', {interpolation: {escapeValue: false}}).split('</link>')[1]}
-            </Text>
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        {/* Header com Logo */}
+        <View style={styles.header}>
+          <Image
+            source={require("../assets/EcoLinkLogo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
-    );
+
+        {/* Card de Login */}
+        <View style={styles.card}>
+          <Text style={styles.title}>{t("Login.title")}</Text>
+          <Text style={styles.subtitle}>{t("Login.subtitle")}</Text>
+
+          {/* Campo E-mail */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>{t("Login.emailLabel")}</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                emailFocused && styles.inputWrapperFocused,
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder={t("Login.emailPlaceholder")}
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={!loading}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+              />
+            </View>
+          </View>
+
+          {/* Campo Senha */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>{t("Login.passwordLabel")}</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                passwordFocused && styles.inputWrapperFocused,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder={t("Login.passwordPlaceholder")}
+                placeholderTextColor="#999"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                editable={!loading}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color="#666"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Link Esqueci minha senha */}
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={styles.forgotPasswordText}>
+              {t("Login.forgotPassword")}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Botão Entrar */}
+          <TouchableOpacity
+            style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.loginButtonText}>
+                {t("Login.loginButton")}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Link Criar Conta */}
+          <View style={styles.registerContainer}>
+            <Text style={styles.registerText}>{t("Login.noAccount")}</Text>
+            <TouchableOpacity onPress={handleNavigateToRegister}>
+              <Text style={styles.registerLink}>
+                {t("Login.createAccount")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        paddingVertical: height * 0.05,
-    },
-    LoginLogo: {
-        marginTop: height * 0.1,
-        marginBottom: height * 0.05,
-        width: width * 0.4,
-        height: height * 0.2,
-        borderRadius: 33,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '80%',
-        marginTop: height * 0.02,
-    },
-    txt: {
-        fontSize: width * 0.04,
-        marginBottom: height * 0.01,
-        alignSelf: 'flex-start',
-    },
-    txtOptions: {
-        fontSize: width * 0.04,
-        marginBottom: height * 0.01,
-        paddingTop: height * 0.02,
-        textAlign: 'center',
-    },
-    input: {
-        height: height * 0.06,
-        borderWidth: 1,
-        padding: width * 0.03,
-        width: '100%',
-    },
-    buttonSpacing: {
-        marginTop: height * 0.05,
-    },
-    loginButton: {
-        backgroundColor: '#AFD34D',
-        paddingVertical: height * 0.015,
-        paddingHorizontal: width * 0.2,
-        borderRadius: 25,
-        alignItems: 'center',
-        width: '80%',
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: width * 0.045,
-        fontWeight: 'bold',
-    },
-    socialButtonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '80%',
-        marginTop: height * 0.03,
-        marginBottom: height * 0.05,
-    },
-    socialButton: {
-        borderColor: '#AFD34D',
-        borderWidth: 2,
-        borderRadius: 10,
-        paddingHorizontal: width * 0.04,
-        paddingVertical: height * 0.01,
-        alignItems: 'center',
-        width: '20%',
-    },
-    langSwitcher: {
-        left: width * 0.5
-    }
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: "#F5F5F5",
+  },
+  container: {
+    flex: 1,
+    width: "100%",
+    maxWidth: 800,
+    alignSelf: "center",
+    paddingHorizontal: 20,
+  },
+  header: {
+    backgroundColor: "#2D6A4F",
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    marginBottom: 30,
+  },
+  logo: {
+    width: 180,
+    height: 60,
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 30,
+    marginHorizontal: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#2D6A4F",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 30,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8F8F8",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 50,
+    transition: "border-color 0.2s",
+  },
+  inputWrapperFocused: {
+    borderColor: "#52B788",
+    borderWidth: 2,
+    backgroundColor: "#FFFFFF",
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    paddingVertical: 0,
+  },
+  eyeIcon: {
+    padding: 5,
+  },
+  forgotPassword: {
+    alignSelf: "flex-end",
+    marginBottom: 25,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: "#2D6A4F",
+    textDecorationLine: "underline",
+  },
+  loginButton: {
+    backgroundColor: "#52B788",
+    borderRadius: 25,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  loginButtonDisabled: {
+    backgroundColor: "#95D5B2",
+    opacity: 0.7,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
+  registerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 5,
+  },
+  registerText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  registerLink: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#2D6A4F",
+    textDecorationLine: "underline",
+  },
 });
-
 
 export default LoginScreen;

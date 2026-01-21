@@ -11,12 +11,16 @@
     "scheduledP": "Coleta Agendada"
   },
   "Login": {
-    "start": "Fazer login",
-    "email": "Email",
-    "password": "Senha",
-    "buttonLogin": "Entrar",
-    "loginOptions": "Ou entre com",
-    "registerAcc": "Não tem uma conta? <link> Cadastre-se </link>"
+    "title": "Login",
+    "subtitle": "Entre e comece a doar!",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "texto@e-mail",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "senha_senha",
+    "forgotPassword": "Esqueci minha senha",
+    "loginButton": "Entrar",
+    "noAccount": "Não possui conta?",
+    "createAccount": "Criar conta"
   },
   "Register": {
     "headerLink": "Voltar",

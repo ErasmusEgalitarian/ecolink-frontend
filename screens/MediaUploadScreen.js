@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,15 +10,15 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { launchImageLibrary } from 'react-native-image-picker';
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const MediaUploadScreen = ({ navigation }) => {
   const [file, setFile] = useState(null);
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,30 +26,50 @@ const MediaUploadScreen = ({ navigation }) => {
   const inputFileRef = useRef(null);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: 'Upload' });
+    navigation.setOptions({ title: "Upload" });
   }, [navigation]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/media/categories')
-      .then(res => res.json())
+    fetch("http://localhost:5000/media/categories")
+      .then((res) => res.json())
       .then(setCategories)
-      .catch(() => Alert.alert('Error fetching medias'));
+      .catch(() => Alert.alert("Error fetching medias"));
   }, []);
 
   const pickFileMobile = async () => {
-    const options = { mediaType: 'mixed', includeBase64: false };
     try {
-      const result = await launchImageLibrary(options);
-      if (result.didCancel) return;
-      if (result.errorCode) {
-        Alert.alert('Erro', result.errorMessage || 'Error selecting file');
+      // Solicitar permissão para acessar a biblioteca de mídia
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== "granted") {
+        Alert.alert(
+          "Permissão negada",
+          "Precisamos de permissão para acessar suas fotos"
+        );
         return;
       }
+
+      // Abrir seletor de mídia
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      if (result.canceled) return;
+
       if (result.assets && result.assets.length > 0) {
-        setFile(result.assets[0]);
+        const asset = result.assets[0];
+        setFile({
+          uri: asset.uri,
+          fileName: asset.fileName || asset.uri.split("/").pop(),
+          type: asset.type === "image" ? "image/jpeg" : "video/mp4",
+        });
       }
-    } catch {
-      Alert.alert('Erro', 'Unknown error selecting file');
+    } catch (error) {
+      Alert.alert("Erro", "Erro ao selecionar arquivo");
+      console.error(error);
     }
   };
 
@@ -67,7 +87,7 @@ const MediaUploadScreen = ({ navigation }) => {
   };
 
   const pickFile = () => {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       inputFileRef.current.click();
     } else {
       pickFileMobile();
@@ -75,42 +95,42 @@ const MediaUploadScreen = ({ navigation }) => {
   };
 
   const handleUpload = async () => {
-    if (!file) return Alert.alert('Select file');
-    if (!category) return Alert.alert('Select category');
+    if (!file) return Alert.alert("Select file");
+    if (!category) return Alert.alert("Select category");
 
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        Alert.alert('You need to be logged in');
+        Alert.alert("You need to be logged in");
         setLoading(false);
         return;
       }
 
       const formData = new FormData();
 
-      if (Platform.OS === 'web') {
+      if (Platform.OS === "web") {
         // pra quando estivermos usando expo no web
         const inputFile = inputFileRef.current;
         if (inputFile && inputFile.files.length > 0) {
-          formData.append('file', inputFile.files[0]);
+          formData.append("file", inputFile.files[0]);
         } else {
-          Alert.alert('Error', 'Unvalid file');
+          Alert.alert("Error", "Unvalid file");
           setLoading(false);
           return;
         }
       } else {
-        formData.append('file', {
+        formData.append("file", {
           uri: file.uri,
-          name: file.fileName || 'file',
-          type: file.type || 'application/octet-stream',
+          name: file.fileName || "file",
+          type: file.type || "application/octet-stream",
         });
       }
 
-      formData.append('category', category);
+      formData.append("category", category);
 
-      const res = await fetch('http://localhost:5000/media/upload', {
-        method: 'POST',
+      const res = await fetch("http://localhost:5000/media/upload", {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -118,19 +138,19 @@ const MediaUploadScreen = ({ navigation }) => {
       });
 
       if (res.ok) {
-        Alert.alert('Success', 'Successful upload');
+        Alert.alert("Success", "Successful upload");
         setFile(null);
-        setCategory('');
-        if (Platform.OS === 'web' && inputFileRef.current) {
-          inputFileRef.current.value = null; 
+        setCategory("");
+        if (Platform.OS === "web" && inputFileRef.current) {
+          inputFileRef.current.value = null;
         }
-        navigation.navigate('MediaList', { refresh: true });
+        navigation.navigate("MediaList", { refresh: true });
       } else {
         const data = await res.json();
-        Alert.alert('Upload error', data.message || 'Try again');
+        Alert.alert("Upload error", data.message || "Try again");
       }
     } catch (err) {
-      Alert.alert('Error', err.message || 'Something went wrong...');
+      Alert.alert("Error", err.message || "Something went wrong...");
     } finally {
       setLoading(false);
     }
@@ -139,12 +159,12 @@ const MediaUploadScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/**/}
-      {Platform.OS === 'web' && (
+      {Platform.OS === "web" && (
         <input
           ref={inputFileRef}
           type="file"
           accept="*/*"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           onChange={onFileChangeWeb}
         />
       )}
@@ -155,10 +175,12 @@ const MediaUploadScreen = ({ navigation }) => {
 
       {file && (
         <View style={styles.fileInfo}>
-          {file.type?.startsWith('image') && (
+          {file.type?.startsWith("image") && (
             <Image source={{ uri: file.uri }} style={styles.previewImage} />
           )}
-          <Text style={styles.fileName}>{file.fileName || 'Selected file'}</Text>
+          <Text style={styles.fileName}>
+            {file.fileName || "Selected file"}
+          </Text>
         </View>
       )}
 
@@ -170,14 +192,18 @@ const MediaUploadScreen = ({ navigation }) => {
           prompt="Pick a category"
         >
           <Picker.Item label="Pick a category" value="" />
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <Picker.Item key={cat} label={cat} value={cat} />
           ))}
         </Picker>
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#AFD34D" style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color="#AFD34D"
+          style={{ marginTop: 20 }}
+        />
       ) : (
         <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
           <Text style={styles.uploadButtonText}>Upload</Text>
@@ -192,31 +218,31 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: width * 0.1,
     paddingTop: height * 0.05,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
   },
   pickButton: {
-    backgroundColor: '#AFD34D',
+    backgroundColor: "#AFD34D",
     paddingVertical: height * 0.015,
     paddingHorizontal: width * 0.2,
     borderRadius: 25,
     marginBottom: 20,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   pickButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: width * 0.045,
   },
   fileInfo: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   previewImage: {
     width: width * 0.5,
     height: height * 0.25,
-    resizeMode: 'contain',
+    resizeMode: "contain",
     marginBottom: 10,
     borderRadius: 10,
   },
@@ -225,27 +251,27 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#AFD34D',
+    borderColor: "#AFD34D",
     borderRadius: 10,
-    width: '100%',
+    width: "100%",
     marginBottom: 30,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   picker: {
-    width: '100%',
+    width: "100%",
     height: 50,
   },
   uploadButton: {
-    backgroundColor: '#AFD34D',
+    backgroundColor: "#AFD34D",
     paddingVertical: height * 0.015,
     paddingHorizontal: width * 0.3,
     borderRadius: 25,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   uploadButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: width * 0.045,
   },
 });

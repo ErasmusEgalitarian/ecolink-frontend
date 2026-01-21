@@ -11,12 +11,16 @@
     "scheduledP": "Scheduled Pick up"
   },
   "Login": {
-    "start": "Login here",
-    "email": "Email",
-    "password": "Password",
-    "buttonLogin": "Enter",
-    "loginOptions": "Or login with",
-    "registerAcc": "No account yet? <link> Register here </link>"
+    "title": "Login",
+    "subtitle": "Login and start donating!",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "text@e-mail",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "password_password",
+    "forgotPassword": "Forgot my password",
+    "loginButton": "Enter",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create account"
   },
   "Register": {
     "headerLink": "Back",
