@@ -1,83 +1,90 @@
-import React, { useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import CreatePickupCards from '../components/CreatePickupCards';
-import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import { View, ScrollView } from "react-native";
+import { useTranslation } from "react-i18next";
+import HeaderWithBack from "../components/HeaderWithBack";
+import InstructionText from "../components/InstructionText";
+import WasteTypeButton from "../components/WasteTypeButton";
+import ErrorModal from "../components/ErrorModal";
+import ActionButton from "../components/ActionButton";
+import { styles } from "../styles/screens/PickUpScreen.styles";
 
-const { width, height } = Dimensions.get('window');
+const PickUpScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const { ecoPontoId, ecoPontoName } = route.params || {};
 
-const PickUpScreen = ({ navigation }) => {
-    const { t } = useTranslation();
-    const [pickupItems, setPickupItems] = useState([]);
-    const [resetTrigger, setResetTrigger] = useState(false);
+  const wasteTypes = [
+    { id: "plastic", label: t("Pickup.plastic"), icon: "water-outline" },
+    { id: "paper", label: t("Pickup.paper"), icon: "document-text-outline" },
+    { id: "glass", label: t("Pickup.glass"), icon: "wine-outline" },
+    { id: "metal", label: t("Pickup.metal"), icon: "hardware-chip-outline" },
+  ];
 
-    // Clears the prompts for the final screen
-    useFocusEffect(
-        React.useCallback(() => {
-            setResetTrigger(true);
-        }, [])
-    );
+  const handleSelectWaste = (wasteId) => {
+    if (selectedItems.includes(wasteId)) {
+      setSelectedItems(selectedItems.filter((id) => id !== wasteId));
+    } else {
+      setSelectedItems([...selectedItems, wasteId]);
+    }
+  };
 
-    // Proceed to the next step of the donation registration
-    const handleNextStep = () => {
-        if (pickupItems.length > 0) {
-            navigation.navigate('PickUpScreenFinalStep', { items: pickupItems });
-        } else {
-            Alert.alert(t('Pickup.emptyAlertTitle'), t('Pickup.emptyAlertMessage'));
-        }
-    };
+  const handleContinue = () => {
+    if (selectedItems.length === 0) {
+      setShowErrorModal(true);
+      return;
+    }
 
-    return (
-        <View style={styles.parent}>
-            <View style={styles.container}>
-                {/* Content Section */}
-                <CreatePickupCards onItemsChange={setPickupItems} />
+    // Avança direto para a tela de foto
+    navigation.navigate("PickUpScreenFinalStep", {
+      items: selectedItems,
+      ecoPontoId,
+      ecoPontoName,
+    });
+  };
 
-                {/* Next Button */}
-                <TouchableOpacity
-                    style={styles.continueButton}
-                    onPress={handleNextStep}
-                >
-                    <Text style={styles.buttonTXT}>{t('Pickup.buttonTXT')}</Text>
-                </TouchableOpacity>
+  return (
+    <View style={styles.container}>
+      <HeaderWithBack onBack={() => navigation.goBack()} />
 
-            </View>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <InstructionText
+          part1={t("Pickup.instructionPart1")}
+          boldText={t("Pickup.instructionBold")}
+          part2={t("Pickup.instructionPart2")}
+        />
+
+        <View style={styles.wasteTypesContainer}>
+          {wasteTypes.map((waste) => (
+            <WasteTypeButton
+              key={waste.id}
+              icon={waste.icon}
+              label={waste.label}
+              isSelected={selectedItems.includes(waste.id)}
+              onPress={() => handleSelectWaste(waste.id)}
+            />
+          ))}
         </View>
-    );
-};
+      </ScrollView>
 
-const styles = StyleSheet.create({
-    parent: {
-        height: '100%',
-        width: '100%',
-    },
-    container: {
-        flex: 1,
-        marginVertical: 12,
-        marginHorizontal: 32,
-        borderRadius: 12,
-        overflow: 'hidden',
-        backgroundColor: '#FFFFFF',
-        padding: 12,
-        elevation: 1,
-    },
-    continueButton: {
-        position: 'absolute',
-        justifyContent: 'center',
-        backgroundColor: '#AFD34D',
-        height: 48,
-        borderRadius: 25,
-        alignSelf: 'center',
-        width: '100%',
-        bottom: 12
-    },
-    buttonTXT: {
-        color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
-        alignSelf: 'center',
-    },
-});
+      <ErrorModal
+        visible={showErrorModal}
+        title={t("Pickup.emptyAlertTitle")}
+        message={t("Pickup.emptyAlertMessage")}
+        onConfirm={() => setShowErrorModal(false)}
+      />
+
+      <ActionButton
+        onPress={handleContinue}
+        text={t("Pickup.continueButton")}
+        disabled={selectedItems.length === 0}
+      />
+    </View>
+  );
+};
 
 export default PickUpScreen;

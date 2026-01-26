@@ -5,11 +5,19 @@
     "icon": "./assets/AppIcons/ecoLinkLogo.png",
     "plugins": [
       [
-        "expo-image-picker",
+        "@rnmapbox/maps",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
+          "RNMapboxMapsImpl": "mapbox",
+          "android": {
+            "compileSdkVersion": 33,
+            "minSdkVersion": 21
+          },
+          "ios": {
+            "deploymentTarget": "13.0"
+          }
         }
-      ]
+      ],
+      "expo-barcode-scanner"
     ],
     "newArchEnabled": true,
     "version": "1.0.0",
@@ -42,21 +50,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsImpl": "mapbox",
-          "android": {
-            "compileSdkVersion": 33,
-            "minSdkVersion": 21
-          },
-          "ios": {
-            "deploymentTarget": "13.0"
-          }
-        }
-      ]
-    ],
     "extra": {
       "eas": {
         "projectId": "76514f27-d52d-4a2b-b8c1-fa24055cbe4c"

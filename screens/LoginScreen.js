@@ -4,7 +4,6 @@ import {
   Alert,
   Image,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,6 +13,9 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import { AUTH_ENDPOINTS, USER_ENDPOINTS } from "../config/api";
+import API_BASE_URL from "../config/api";
+import { styles } from "../styles/screens/LoginScreen.styles";
 
 const LoginScreen = ({ onLogin }) => {
   const navigation = useNavigation();
@@ -24,20 +26,69 @@ const LoginScreen = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const handleNavigateToRegister = () => {
     navigation.navigate("Register");
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+
+    // Limpar erros anteriores
+    setEmailError("");
+    setPasswordError("");
+
+    // Validar email
+    if (!email.trim()) {
+      setEmailError(t("Login.emailRequired"));
+      isValid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError(t("Login.emailInvalid"));
+      isValid = false;
+    }
+
+    // Validar senha
+    if (!password.trim()) {
+      setPasswordError(t("Login.passwordRequired"));
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError(t("Login.passwordTooShort"));
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const handleLogin = async () => {
+    // Validar formulário antes de enviar
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      console.log("Attempting login to:", AUTH_ENDPOINTS.LOGIN);
+      console.log("With credentials:", { email, password: "***" });
+
+      const response = await fetch(AUTH_ENDPOINTS.LOGIN, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
 
       const data = await response.json();
       console.log("Login Response Data:", data);
@@ -48,21 +99,106 @@ const LoginScreen = ({ onLogin }) => {
 
         if (!userId || !token) {
           throw new Error(
-            "Invalid response from server: Missing user ID or token"
+            "Invalid response from server: Missing user ID or token",
           );
         }
 
+        // Salvar token temporariamente para buscar o perfil completo
         await AsyncStorage.setItem("userId", userId);
         await AsyncStorage.setItem("authToken", token);
 
+        // Buscar perfil completo do usuário para obter o role correto
+        console.log("🔍 [Login] Fetching user profile to get correct role...");
+        try {
+          const profileResponse = await fetch(USER_ENDPOINTS.ME, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            const userRole = profileData.data?.roleId?.name || "User";
+
+            console.log("🔍 [Login] Profile data:", profileData.data);
+            console.log("✅ [Login] Correct userRole from profile:", userRole);
+
+            await AsyncStorage.setItem("userRole", userRole);
+          } else {
+            // Fallback: tentar extrair do login response
+            const userRole =
+              data.user?.roleId?.name || data.user?.role || "User";
+            console.log(
+              "⚠️ [Login] Using fallback role from login response:",
+              userRole,
+            );
+            await AsyncStorage.setItem("userRole", userRole);
+          }
+        } catch (profileError) {
+          console.error("⚠️ [Login] Error fetching profile:", profileError);
+          // Fallback: usar role do login response
+          const userRole = data.user?.roleId?.name || data.user?.role || "User";
+          await AsyncStorage.setItem("userRole", userRole);
+        }
+
+        console.log("✅ [Login] Login completed successfully");
+
         onLogin(token);
-        Alert.alert("Login Successful", "Welcome back!");
+        Alert.alert(t("Login.successTitle"), t("Login.successMessage"));
       } else {
-        Alert.alert("Login Failed", data.message || "Invalid credentials");
+        // Tratar erro 400 (Bad Request)
+        console.error(
+          "Login failed with status:",
+          response.status,
+          "Data:",
+          data,
+        );
+
+        // Limpar senha
+        setPassword("");
+
+        if (response.status === 400) {
+          // Bad Request - dados inválidos
+          if (data.message?.toLowerCase().includes("email")) {
+            setEmailError(data.message || t("Login.emailNotFound"));
+          } else if (
+            data.message?.toLowerCase().includes("password") ||
+            data.message?.toLowerCase().includes("senha")
+          ) {
+            setPasswordError(data.message || t("Login.passwordIncorrect"));
+          } else {
+            Alert.alert(
+              t("Login.errorTitle"),
+              data.message || t("Login.invalidCredentials"),
+            );
+          }
+        } else if (response.status === 404) {
+          setEmailError(t("Login.emailNotFound"));
+        } else if (response.status === 401) {
+          setPasswordError(t("Login.passwordIncorrect"));
+        } else {
+          Alert.alert(
+            t("Login.errorTitle"),
+            data.message || t("Login.invalidCredentials"),
+          );
+        }
       }
     } catch (error) {
-      console.error("Login Error:", error.message || error);
-      Alert.alert("Login Error", "An error occurred. Please try again.");
+      console.error("Login Error:", error);
+
+      if (
+        error.message.includes("Network request failed") ||
+        error.message.includes("Failed to fetch")
+      ) {
+        Alert.alert(
+          t("Login.errorTitle"),
+          `Não foi possível conectar ao servidor. Verifique se o backend está rodando em ${API_BASE_URL}`,
+        );
+      } else {
+        Alert.alert(t("Login.errorTitle"), t("Login.connectionError"));
+      }
     } finally {
       setLoading(false);
     }
@@ -92,18 +228,22 @@ const LoginScreen = ({ onLogin }) => {
               style={[
                 styles.inputWrapper,
                 emailFocused && styles.inputWrapperFocused,
+                emailError && styles.inputWrapperError,
               ]}
             >
               <Ionicons
                 name="mail-outline"
                 size={20}
-                color="#666"
+                color={emailError ? "#E63946" : "#666"}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (emailError) setEmailError("");
+                }}
                 placeholder={t("Login.emailPlaceholder")}
                 placeholderTextColor="#999"
                 keyboardType="email-address"
@@ -113,6 +253,9 @@ const LoginScreen = ({ onLogin }) => {
                 onBlur={() => setEmailFocused(false)}
               />
             </View>
+            {emailError ? (
+              <Text style={styles.errorText}>{emailError}</Text>
+            ) : null}
           </View>
 
           {/* Campo Senha */}
@@ -122,18 +265,22 @@ const LoginScreen = ({ onLogin }) => {
               style={[
                 styles.inputWrapper,
                 passwordFocused && styles.inputWrapperFocused,
+                passwordError && styles.inputWrapperError,
               ]}
             >
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color="#666"
+                color={passwordError ? "#E63946" : "#666"}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (passwordError) setPasswordError("");
+                }}
                 placeholder={t("Login.passwordPlaceholder")}
                 placeholderTextColor="#999"
                 secureTextEntry={!showPassword}
@@ -153,6 +300,9 @@ const LoginScreen = ({ onLogin }) => {
                 />
               </TouchableOpacity>
             </View>
+            {passwordError ? (
+              <Text style={styles.errorText}>{passwordError}</Text>
+            ) : null}
           </View>
 
           {/* Link Esqueci minha senha */}
@@ -192,133 +342,5 @@ const LoginScreen = ({ onLogin }) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    backgroundColor: "#F5F5F5",
-  },
-  container: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 800,
-    alignSelf: "center",
-    paddingHorizontal: 20,
-  },
-  header: {
-    backgroundColor: "#2D6A4F",
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 30,
-  },
-  logo: {
-    width: 180,
-    height: 60,
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 30,
-    marginHorizontal: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#2D6A4F",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 30,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F8F8F8",
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 50,
-    transition: "border-color 0.2s",
-  },
-  inputWrapperFocused: {
-    borderColor: "#52B788",
-    borderWidth: 2,
-    backgroundColor: "#FFFFFF",
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-    paddingVertical: 0,
-  },
-  eyeIcon: {
-    padding: 5,
-  },
-  forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: 25,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: "#2D6A4F",
-    textDecorationLine: "underline",
-  },
-  loginButton: {
-    backgroundColor: "#52B788",
-    borderRadius: 25,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  loginButtonDisabled: {
-    backgroundColor: "#95D5B2",
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  registerContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 5,
-  },
-  registerText: {
-    fontSize: 14,
-    color: "#666",
-  },
-  registerLink: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#2D6A4F",
-    textDecorationLine: "underline",
-  },
-});
 
 export default LoginScreen;

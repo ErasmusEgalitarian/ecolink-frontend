@@ -1,108 +1,94 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from "react-native";
-
-const mockUpmaterials = [
-    'glass',
-    'plastic',
-    'metal',
-    'paper',
-];
+import React from "react";
+import { Image, Text, View } from "react-native";
+import { styles } from "../styles/components/OverviewDonationCards.styles";
 
 const MaterialCircles = ({ materials }) => {
-    // Map material types to their corresponding colors
-    const materialColors = {
-        glass: '#6ABF4B',
-        plastic: '#FFDD00',
-        metal: '#0052CC',
-        paper: '#FF5733',
-        default: '#CCCCCC',
-    };
+  // Map material types to their corresponding colors
+  const materialColors = {
+    glass: "#6ABF4B",
+    plastic: "#FFDD00",
+    metal: "#0052CC",
+    paper: "#FF5733",
+    default: "#CCCCCC",
+  };
 
-    return (
-        <View style={styles.materialsContainer}>
-            {materials.map((material, index) => (
-                <View
-                    key={index}
-                    style={[
-                        styles.materialsCircle,
-                        { backgroundColor: materialColors[material] || materialColors.default }
-                    ]}
-                />
-            ))}
-        </View>
-    );
+  return (
+    <View style={styles.materialsContainer}>
+      {materials.map((material, index) => (
+        <View
+          key={index}
+          style={[
+            styles.materialsCircle,
+            {
+              backgroundColor:
+                materialColors[material] || materialColors.default,
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
 };
 
-const OverviewDonationCards = () => {
+const DonationCard = ({ donation, showUserInfo = false }) => {
+  const materialIcons = {
+    metal: require("../assets/materialIcons/recycleMetal.png"),
+    plastic: require("../assets/materialIcons/recyclePlastic.png"),
+    paper: require("../assets/materialIcons/recyclePaper.png"),
+    glass: require("../assets/materialIcons/recycleGlass.png"),
+  };
 
-    const materialIcons = {
-        metal: require('../assets/materialIcons/recycleMetal.png'),
-        plastic: require('../assets/materialIcons/recyclePlastic.png'),
-        paper: require('../assets/materialIcons/recyclePaper.png'),
-        glass: require('../assets/materialIcons/recycleGlass.png'),
-    };
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
-    return (
-        <View style={styles.card}>
-            <View style={styles.cardContent}>
-                <Image style={styles.materialIcon} source={materialIcons.metal}></Image>
-                <View style={styles.cardTXTContainer}>
-                    <Text style={styles.cardTXT}>Donation</Text>
-                    <Text style={[styles.cardSTXT]}>Location</Text>
+  // Extrair username se disponível (para admin view)
+  const username =
+    donation.userId?.username || donation.userId?.email || "Usuário";
 
-                    {/* Render the MaterialCircles component */}
-                    <MaterialCircles materials={mockUpmaterials} />
-                </View>
-            </View>
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardContent}>
+        <Image
+          style={styles.materialIcon}
+          source={materialIcons[donation.materialType] || materialIcons.plastic}
+        />
+        <View style={styles.cardTXTContainer}>
+          {showUserInfo && <Text style={styles.cardUserTXT}>{username}</Text>}
+          <Text style={styles.cardTXT}>
+            {donation.qtdMaterial} {donation.materialType}
+          </Text>
+          <Text style={styles.cardSTXT}>{donation.ecopointId}</Text>
+          <Text style={styles.cardDateTXT}>
+            {formatDate(donation.donationDate)}
+          </Text>
         </View>
-    );
+      </View>
+    </View>
+  );
 };
 
-const styles = StyleSheet.create({
-    card: {
-        backgroundColor: 'white',
-        marginBottom: 12,
-        width: '100%',
-        height: 84,
-        borderRadius: 6,
-        elevation: 3,
-        alignSelf: "center",
-        justifyContent: "center",
-        padding: 12,
-    },
-    cardContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    materialIcon: {
-        width: 60,
-        height: 60,
-        marginRight: 12,
-    },
-    cardTXT: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333333'
-    },
-    cardSTXT: {
-        fontSize: 16,
-        fontWeight: 'medium',
-        color: '#999999',
-        marginBottom: 5
-    },
-    cardTXTContainer: {
-        flexDirection: 'column'
-    },
-    materialsContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    materialsCircle: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        marginRight: 12,
-    },
-});
+const OverviewDonationCards = ({ data = [], showUserInfo = false }) => {
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {data.map((donation) => (
+        <DonationCard
+          key={donation._id}
+          donation={donation}
+          showUserInfo={showUserInfo}
+        />
+      ))}
+    </>
+  );
+};
 
 export default OverviewDonationCards;

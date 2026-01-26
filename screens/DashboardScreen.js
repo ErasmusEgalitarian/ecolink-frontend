@@ -1,17 +1,13 @@
-import React from 'react';
-import {StyleSheet, View, Text, Button } from 'react-native';
+import React from "react";
+import { View, Text, Button } from "react-native";
+import { styles } from "../styles/screens/DashboardScreen.styles";
 
 const DashboardScreen = ({ navigation }) => {
-    return (
-        <View style={styles.container}>
-            <Text></Text>
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text></Text>
+    </View>
+  );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-})
 export default DashboardScreen;

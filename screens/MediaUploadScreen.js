@@ -6,13 +6,14 @@ import {
   Image,
   Picker,
   Platform,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
+import { MEDIA_ENDPOINTS } from "../config/api";
+import { styles } from "../styles/screens/MediaUploadScreen.styles";
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,10 +31,42 @@ const MediaUploadScreen = ({ navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/media/categories")
-      .then((res) => res.json())
-      .then(setCategories)
-      .catch(() => Alert.alert("Error fetching medias"));
+    const fetchCategories = async () => {
+      try {
+        const token = await AsyncStorage.getItem("authToken");
+
+        const res = await fetch(MEDIA_ENDPOINTS.CATEGORIES, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const response = await res.json();
+
+        // Backend retorna: { success: true, data: [...] }
+        const categoriesData = response.success ? response.data : response;
+
+        // Garantir que sempre seja um array
+        if (Array.isArray(categoriesData)) {
+          setCategories(categoriesData);
+        } else {
+          console.error("Categories data is not an array:", categoriesData);
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        Alert.alert("Error", "Failed to load categories");
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   const pickFileMobile = async () => {
@@ -45,7 +78,7 @@ const MediaUploadScreen = ({ navigation }) => {
       if (status !== "granted") {
         Alert.alert(
           "Permissão negada",
-          "Precisamos de permissão para acessar suas fotos"
+          "Precisamos de permissão para acessar suas fotos",
         );
         return;
       }
@@ -95,14 +128,23 @@ const MediaUploadScreen = ({ navigation }) => {
   };
 
   const handleUpload = async () => {
-    if (!file) return Alert.alert("Select file");
-    if (!category) return Alert.alert("Select category");
+    if (!file) {
+      Alert.alert("Erro", "Selecione um arquivo");
+      return;
+    }
+
+    if (!category) {
+      Alert.alert("Erro", "Selecione uma categoria");
+      return;
+    }
 
     setLoading(true);
+
     try {
       const token = await AsyncStorage.getItem("authToken");
+
       if (!token) {
-        Alert.alert("You need to be logged in");
+        Alert.alert("Erro", "Você precisa estar logado");
         setLoading(false);
         return;
       }
@@ -110,16 +152,19 @@ const MediaUploadScreen = ({ navigation }) => {
       const formData = new FormData();
 
       if (Platform.OS === "web") {
-        // pra quando estivermos usando expo no web
+        // Web - pegar arquivo do input file
         const inputFile = inputFileRef.current;
+
         if (inputFile && inputFile.files.length > 0) {
-          formData.append("file", inputFile.files[0]);
+          const webFile = inputFile.files[0];
+          formData.append("file", webFile);
         } else {
-          Alert.alert("Error", "Unvalid file");
+          Alert.alert("Erro", "Arquivo inválido para Web");
           setLoading(false);
           return;
         }
       } else {
+        // Mobile - usar o file do state
         formData.append("file", {
           uri: file.uri,
           name: file.fileName || "file",
@@ -129,7 +174,7 @@ const MediaUploadScreen = ({ navigation }) => {
 
       formData.append("category", category);
 
-      const res = await fetch("http://localhost:5000/media/upload", {
+      const res = await fetch(MEDIA_ENDPOINTS.UPLOAD, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -138,19 +183,31 @@ const MediaUploadScreen = ({ navigation }) => {
       });
 
       if (res.ok) {
-        Alert.alert("Success", "Successful upload");
+        const data = await res.json();
+        Alert.alert("Sucesso", "Upload realizado com sucesso!");
+
+        // Limpar form
         setFile(null);
         setCategory("");
         if (Platform.OS === "web" && inputFileRef.current) {
-          inputFileRef.current.value = null;
+          inputFileRef.current.value = "";
         }
+
+        // Navegar para lista
         navigation.navigate("MediaList", { refresh: true });
       } else {
-        const data = await res.json();
-        Alert.alert("Upload error", data.message || "Try again");
+        const errorData = await res.json();
+        Alert.alert(
+          "Erro no upload",
+          errorData.message || `Erro ${res.status}: Tente novamente`,
+        );
       }
     } catch (err) {
-      Alert.alert("Error", err.message || "Something went wrong...");
+      console.error("Upload exception:", err);
+      Alert.alert(
+        "Erro",
+        err.message || "Algo deu errado. Verifique sua conexão.",
+      );
     } finally {
       setLoading(false);
     }
@@ -192,9 +249,10 @@ const MediaUploadScreen = ({ navigation }) => {
           prompt="Pick a category"
         >
           <Picker.Item label="Pick a category" value="" />
-          {categories.map((cat) => (
-            <Picker.Item key={cat} label={cat} value={cat} />
-          ))}
+          {Array.isArray(categories) &&
+            categories.map((cat) => (
+              <Picker.Item key={cat} label={cat} value={cat} />
+            ))}
         </Picker>
       </View>
 
@@ -205,75 +263,16 @@ const MediaUploadScreen = ({ navigation }) => {
           style={{ marginTop: 20 }}
         />
       ) : (
-        <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={handleUpload}
+          activeOpacity={0.7}
+        >
           <Text style={styles.uploadButtonText}>Upload</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: width * 0.1,
-    paddingTop: height * 0.05,
-    backgroundColor: "#fff",
-    alignItems: "center",
-  },
-  pickButton: {
-    backgroundColor: "#AFD34D",
-    paddingVertical: height * 0.015,
-    paddingHorizontal: width * 0.2,
-    borderRadius: 25,
-    marginBottom: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  pickButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: width * 0.045,
-  },
-  fileInfo: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  previewImage: {
-    width: width * 0.5,
-    height: height * 0.25,
-    resizeMode: "contain",
-    marginBottom: 10,
-    borderRadius: 10,
-  },
-  fileName: {
-    fontSize: width * 0.04,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#AFD34D",
-    borderRadius: 10,
-    width: "100%",
-    marginBottom: 30,
-    overflow: "hidden",
-  },
-  picker: {
-    width: "100%",
-    height: 50,
-  },
-  uploadButton: {
-    backgroundColor: "#AFD34D",
-    paddingVertical: height * 0.015,
-    paddingHorizontal: width * 0.3,
-    borderRadius: 25,
-    width: "100%",
-    alignItems: "center",
-  },
-  uploadButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: width * 0.045,
-  },
-});
 
 export default MediaUploadScreen;

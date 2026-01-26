@@ -1,16 +1,26 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet, Image, Picker } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Dimensions } from 'react-native';
-import ForwardedVideo from 'components/ForwardedVideo';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  Image,
+  Picker,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Dimensions } from "react-native";
+import ForwardedVideo from "../components/ForwardedVideo";
+import { useFocusEffect } from "@react-navigation/native";
+import { MEDIA_ENDPOINTS } from "../config/api";
+import { styles } from "../styles/screens/MediaListScreen.styles";
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 
 const MediaListScreen = ({ navigation }) => {
   const [medias, setMedias] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [imageSizes, setImageSizes] = useState({});
@@ -21,17 +31,16 @@ const MediaListScreen = ({ navigation }) => {
       (imgWidth, imgHeight) => {
         const maxWidth = imgWidth > screenWidth ? screenWidth : imgWidth;
         const ratio = imgHeight / imgWidth;
-        setImageSizes(prev => ({
+        setImageSizes((prev) => ({
           ...prev,
           [id]: { width: maxWidth, height: maxWidth * ratio },
         }));
       },
       (error) => {
-        console.log('Error getting photo size', error);
-      }
+        console.log("Error getting photo size", error);
+      },
     );
   };
-
 
   useEffect(() => {
     fetchCategories();
@@ -40,62 +49,72 @@ const MediaListScreen = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       fetchMedias(selectedCategory);
-    }, [selectedCategory])
+    }, [selectedCategory]),
   );
 
   useEffect(() => {
-    medias.forEach(item => {
-      if (item.type?.startsWith('image') && !imageSizes[item._id]) {
+    medias.forEach((item) => {
+      if (item.type?.startsWith("image") && !imageSizes[item._id]) {
         fetchImageSize(item.url, item._id);
       }
     });
   }, [medias]);
 
-    useLayoutEffect(() => {
-      navigation.setOptions({
-        title: 'Feed',
-      });
-    }, [navigation]);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "Feed",
+    });
+  }, [navigation]);
 
   const fetchCategories = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const res = await fetch('http://localhost:5000/media/categories', {
+      const token = await AsyncStorage.getItem("authToken");
+      const res = await fetch(MEDIA_ENDPOINTS.CATEGORIES, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Error fetching categories');
-      const data = await res.json();
-      setCategories(data);
-    } catch {
-      Alert.alert('Error fetching categories');
+      if (!res.ok) throw new Error("Error fetching categories");
+      const response = await res.json();
+
+      // Backend retorna: { success: true, data: [...] }
+      const categoriesData = response.success ? response.data : response;
+      setCategories(categoriesData);
+    } catch (error) {
+      Alert.alert("Error fetching categories");
     }
   };
 
-  const fetchMedias = async (category = '') => {
+  const fetchMedias = async (category = "") => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       const url = category
-        ? `http://localhost:5000/media?category=${category}`
-        : 'http://localhost:5000/media';
+        ? `${MEDIA_ENDPOINTS.LIST}?category=${category}`
+        : MEDIA_ENDPOINTS.LIST;
 
       const res = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Error fetching medias');
-      const data = await res.json();
 
-      const sortedData = data
-        .filter(item => item && item._id)
+      if (!res.ok) {
+        throw new Error("Error fetching medias");
+      }
+
+      const response = await res.json();
+
+      // Backend retorna: { success: true, data: [...], pagination: {...} }
+      const mediasData = response.success ? response.data : response;
+
+      const sortedData = mediasData
+        .filter((item) => item && item._id)
         .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
       setMedias(sortedData);
-      console.log('Fetching medias for category:', category);
-    } catch {
-      Alert.alert('Error fetching medias');
+    } catch (error) {
+      Alert.alert("Error", "Unable to load media. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -110,33 +129,36 @@ const MediaListScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Picker
         selectedValue={selectedCategory}
-        onValueChange={cat => {
+        onValueChange={(cat) => {
           setSelectedCategory(cat);
         }}
         style={styles.picker}
       >
         <Picker.Item label="Filter" value="" />
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <Picker.Item key={cat} label={cat} value={cat} />
         ))}
       </Picker>
 
       <FlatList
         data={medias}
-        keyExtractor={item => item._id.toString()}
+        keyExtractor={(item) => item._id.toString()}
         renderItem={({ item }) => (
           <View style={styles.mediaItem}>
-            {item.type?.startsWith('image') && (
+            {item.type?.startsWith("image") && (
               <Image
                 source={{ uri: item.url }}
                 style={[
                   styles.mediaImage,
-                  imageSizes[item._id] || { width: screenWidth, height: screenWidth * 0.56 }
+                  imageSizes[item._id] || {
+                    width: screenWidth,
+                    height: screenWidth * 0.56,
+                  },
                 ]}
                 resizeMode="contain"
               />
             )}
-            {item.type?.startsWith('video') && (
+            {item.type?.startsWith("video") && (
               <ForwardedVideo
                 source={{ uri: item.url }}
                 style={styles.mediaVideo}
@@ -153,32 +175,12 @@ const MediaListScreen = ({ navigation }) => {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('MediaUpload')}
+        onPress={() => navigation.navigate("MediaUpload")}
       >
         <Text style={styles.addButtonText}>Add Media</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  picker: { height: 50, marginBottom: 10 },
-  mediaItem: { marginBottom: 20, borderBottomWidth: 1, borderColor: '#ccc', paddingBottom: 10 , overflow: 'hidden'},
-  mediaImage: { marginBottom: 5 },
-  addButton: {
-    backgroundColor: '#AFD34D',
-    padding: 15,
-    borderRadius: 25,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  mediaVideo: {
-    width: '100%',
-    height: screenWidth * 0.56,
-    marginBottom: 10,
-    },
-  addButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-});
 
 export default MediaListScreen;
