@@ -19,7 +19,7 @@
     "@react-navigation/stack": "^6.4.1",
     "@rnmapbox/maps": "^10.1.33",
     "@types/react": "~18.3.12",
-    "axios": "^1.9.0",
+    "axios": "^1.13.5",
     "expo": "^52.0.14",
     "expo-barcode-scanner": "^13.0.1",
     "expo-camera": "~16.0.18",
