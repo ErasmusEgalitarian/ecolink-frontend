@@ -14,11 +14,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { AUTH_ENDPOINTS } from "../config/api";
 import { styles } from "../styles/screens/RegistrationScreen.styles";
 
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#._-]).+$/;
+
 const RegistrationScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [cpf, setCpf] = useState("");
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +32,7 @@ const RegistrationScreen = ({ navigation }) => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [phoneFocused, setPhoneFocused] = useState(false);
+  const [cpfFocused, setCpfFocused] = useState(false);
   const [addressFocused, setAddressFocused] = useState(false);
 
   // Estados de erro para cada campo
@@ -36,6 +40,8 @@ const RegistrationScreen = ({ navigation }) => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [cpfError, setCpfError] = useState("");
+  const [addressError, setAddressError] = useState("");
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,6 +53,62 @@ const RegistrationScreen = ({ navigation }) => {
     return phoneRegex.test(phone.replace(/\D/g, ""));
   };
 
+  const validateCpf = (cpfValue) => {
+    const digits = cpfValue.replace(/\D/g, "");
+    if (!/^\d{11}$/.test(digits)) return false;
+    if (/^(\d)\1{10}$/.test(digits)) return false;
+
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(digits.charAt(i), 10) * (10 - i);
+    }
+    let checkDigit = 11 - (sum % 11);
+    if (checkDigit >= 10) checkDigit = 0;
+    if (checkDigit !== parseInt(digits.charAt(9), 10)) return false;
+
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(digits.charAt(i), 10) * (11 - i);
+    }
+    checkDigit = 11 - (sum % 11);
+    if (checkDigit >= 10) checkDigit = 0;
+
+    return checkDigit === parseInt(digits.charAt(10), 10);
+  };
+
+  const applyServerErrors = (errors = []) => {
+    let handled = false;
+
+    errors.forEach(({ field, message }) => {
+      if (field === "username") {
+        setUsernameError(message);
+        handled = true;
+      }
+      if (field === "email") {
+        setEmailError(message);
+        handled = true;
+      }
+      if (field === "password") {
+        setPasswordError(message);
+        handled = true;
+      }
+      if (field === "phone") {
+        setPhoneError(message);
+        handled = true;
+      }
+      if (field === "cpf") {
+        setCpfError(message);
+        handled = true;
+      }
+      if (field === "address") {
+        setAddressError(message);
+        handled = true;
+      }
+    });
+
+    return handled;
+  };
+
   const validateForm = () => {
     let isValid = true;
 
@@ -55,6 +117,8 @@ const RegistrationScreen = ({ navigation }) => {
     setEmailError("");
     setPasswordError("");
     setPhoneError("");
+    setCpfError("");
+    setAddressError("");
 
     // Validar nome
     if (!username.trim()) {
@@ -78,8 +142,14 @@ const RegistrationScreen = ({ navigation }) => {
     if (!password.trim()) {
       setPasswordError(t("Register.passwordRequired"));
       isValid = false;
-    } else if (password.length < 6) {
+    } else if (password.length < 8) {
       setPasswordError(t("Register.passwordTooShort"));
+      isValid = false;
+    } else if (password.length > 24) {
+      setPasswordError(t("Register.passwordTooLong"));
+      isValid = false;
+    } else if (!PASSWORD_REGEX.test(password)) {
+      setPasswordError(t("Register.passwordInvalid"));
       isValid = false;
     }
 
@@ -89,6 +159,24 @@ const RegistrationScreen = ({ navigation }) => {
       isValid = false;
     } else if (!validatePhone(phoneNumber)) {
       setPhoneError(t("Register.phoneInvalid"));
+      isValid = false;
+    }
+
+    // Validar CPF
+    if (!cpf.trim()) {
+      setCpfError(t("Register.cpfRequired"));
+      isValid = false;
+    } else if (!validateCpf(cpf)) {
+      setCpfError(t("Register.cpfInvalid"));
+      isValid = false;
+    }
+
+    // Validar endereço
+    if (!address.trim()) {
+      setAddressError(t("Register.addressRequired"));
+      isValid = false;
+    } else if (address.trim().length < 5) {
+      setAddressError(t("Register.addressTooShort"));
       isValid = false;
     }
 
@@ -104,11 +192,15 @@ const RegistrationScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
+      const phone = phoneNumber.replace(/\D/g, "");
+      const cleanCpf = cpf.replace(/\D/g, "");
+
       console.log("Attempting registration to:", AUTH_ENDPOINTS.REGISTER);
       console.log("With data:", {
         username,
         email,
-        phoneNumber,
+        phone,
+        cpf: "***",
         address,
         password: "***",
       });
@@ -123,8 +215,9 @@ const RegistrationScreen = ({ navigation }) => {
           username,
           email,
           password,
-          phoneNumber,
-          address: address || undefined, // Enviar undefined se vazio (campo opcional)
+          phone,
+          cpf: cleanCpf,
+          address: address.trim(),
         }),
       });
 
@@ -145,6 +238,10 @@ const RegistrationScreen = ({ navigation }) => {
           data,
         );
 
+        if (data.errors?.length && applyServerErrors(data.errors)) {
+          return;
+        }
+
         if (response.status === 400) {
           // Bad Request - dados inválidos
           if (data.message?.toLowerCase().includes("email")) {
@@ -159,11 +256,18 @@ const RegistrationScreen = ({ navigation }) => {
             data.message?.toLowerCase().includes("telefone")
           ) {
             setPhoneError(data.message);
+          } else if (data.message?.toLowerCase().includes("cpf")) {
+            setCpfError(data.message);
           } else if (
             data.message?.toLowerCase().includes("password") ||
             data.message?.toLowerCase().includes("senha")
           ) {
             setPasswordError(data.message);
+          } else if (
+            data.message?.toLowerCase().includes("address") ||
+            data.message?.toLowerCase().includes("endereço")
+          ) {
+            setAddressError(data.message);
           } else {
             Alert.alert(
               t("Register.errorTitle"),
@@ -378,31 +482,65 @@ const RegistrationScreen = ({ navigation }) => {
             ) : null}
           </View>
 
+          {/* Campo CPF */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>{t("Register.cpfLabel")}</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                cpfFocused && styles.inputWrapperFocused,
+                cpfError && styles.inputWrapperError,
+              ]}
+            >
+              <Ionicons
+                name="card-outline"
+                size={20}
+                color={cpfError ? "#E63946" : "#666"}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                value={cpf}
+                onChangeText={(text) => {
+                  setCpf(text);
+                  if (cpfError) setCpfError("");
+                }}
+                placeholder={t("Register.cpfPlaceholder")}
+                placeholderTextColor="#999"
+                keyboardType="number-pad"
+                editable={!loading}
+                onFocus={() => setCpfFocused(true)}
+                onBlur={() => setCpfFocused(false)}
+              />
+            </View>
+            {cpfError ? (
+              <Text style={styles.errorText}>{cpfError}</Text>
+            ) : null}
+          </View>
+
           {/* Campo Endereço */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              {t("Register.addressLabel")}
-              <Text style={styles.optionalLabel}>
-                {" "}
-                {t("Register.optional")}
-              </Text>
-            </Text>
+            <Text style={styles.label}>{t("Register.addressLabel")}</Text>
             <View
               style={[
                 styles.inputWrapper,
                 addressFocused && styles.inputWrapperFocused,
+                addressError && styles.inputWrapperError,
               ]}
             >
               <Ionicons
                 name="location-outline"
                 size={20}
-                color="#666"
+                color={addressError ? "#E63946" : "#666"}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 value={address}
-                onChangeText={setAddress}
+                onChangeText={(text) => {
+                  setAddress(text);
+                  if (addressError) setAddressError("");
+                }}
                 placeholder={t("Register.addressPlaceholder")}
                 placeholderTextColor="#999"
                 autoCapitalize="words"
@@ -411,6 +549,9 @@ const RegistrationScreen = ({ navigation }) => {
                 onBlur={() => setAddressFocused(false)}
               />
             </View>
+            {addressError ? (
+              <Text style={styles.errorText}>{addressError}</Text>
+            ) : null}
           </View>
 
           {/* Botão Registrar */}
