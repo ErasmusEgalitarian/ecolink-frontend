@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import AppConfirmationModal from "../components/AppConfirmationModal";
 import { styles } from "../styles/screens/ProfileScreen.styles";
 
 const ProfileScreen = ({ navigation, onLogout }) => {
   const { t } = useTranslation();
   const [selectedOption, setSelectedOption] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [userName, setUserName] = useState("Avatar Name");
   const [userEmail, setUserEmail] = useState("avatar@email.com");
 
@@ -59,36 +61,30 @@ const ProfileScreen = ({ navigation, onLogout }) => {
     );
   };
 
+  const performLogout = async () => {
+    try {
+      setShowLogoutModal(false);
+
+      // Limpar AsyncStorage
+      await AsyncStorage.multiRemove([
+        "authToken",
+        "userId",
+        "userName",
+        "userEmail",
+        "userRole",
+      ]);
+
+      // Chamar a função onLogout do App.js para mudar o estado isLoggedIn
+      if (onLogout) {
+        await onLogout();
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
   const handleLogout = () => {
-    Alert.alert(t("Profile.logoutTitle"), t("Profile.logoutMessage"), [
-      {
-        text: t("Profile.cancel"),
-        style: "cancel",
-      },
-      {
-        text: t("Profile.logoutConfirm"),
-        style: "destructive",
-        onPress: async () => {
-          try {
-            // Limpar AsyncStorage
-            await AsyncStorage.multiRemove([
-              "authToken",
-              "userId",
-              "userName",
-              "userEmail",
-              "userRole",
-            ]);
-            
-            // Chamar a função onLogout do App.js para mudar o estado isLoggedIn
-            if (onLogout) {
-              onLogout();
-            }
-          } catch (error) {
-            console.error("Error during logout:", error);
-          }
-        },
-      },
-    ]);
+    setShowLogoutModal(true);
   };
 
   const renderOption = (option, icon, label, onPress) => {
@@ -174,6 +170,17 @@ const ProfileScreen = ({ navigation, onLogout }) => {
           <Text style={styles.logoutText}>{t("Profile.logout")}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <AppConfirmationModal
+        visible={showLogoutModal}
+        title={t("Profile.logoutTitle")}
+        message={t("Profile.logoutMessage")}
+        cancelText={t("Profile.cancel")}
+        confirmText={t("Profile.logoutConfirm")}
+        variant="destructive"
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={performLogout}
+      />
     </View>
   );
 };
