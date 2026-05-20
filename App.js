@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import BottomNav from './components/BottomNav';
 import LoginScreen from './screens/LoginScreen';
@@ -51,25 +52,27 @@ export default function App() {
     };
 
     return (
-        <NavigationContainer theme={MyTheme}>
-            {isLoggedIn ? (
-                <BottomNav onLogout={handleLogout} />
-            ) : (
-                <Stack.Navigator>
-                    <Stack.Screen
-                        name="Login"
-                        options={{ headerShown: false }}
-                    >
-                        {() => <LoginScreen onLogin={handleLogin} />}
-                    </Stack.Screen>
-                    <Stack.Screen
-                        name="Register"
-                        component={RegistrationScreen}
-                        options={{ headerShown: false }}
-                    />
-                </Stack.Navigator>
-            )}
-        </NavigationContainer>
+        <SafeAreaProvider>
+            <NavigationContainer theme={MyTheme}>
+                {isLoggedIn ? (
+                    <BottomNav onLogout={handleLogout} />
+                ) : (
+                    <Stack.Navigator>
+                        <Stack.Screen
+                            name="Login"
+                            options={{ headerShown: false }}
+                        >
+                            {() => <LoginScreen onLogin={handleLogin} />}
+                        </Stack.Screen>
+                        <Stack.Screen
+                            name="Register"
+                            component={RegistrationScreen}
+                            options={{ headerShown: false }}
+                        />
+                    </Stack.Navigator>
+                )}
+            </NavigationContainer>
+        </SafeAreaProvider>
     );
 }
 
