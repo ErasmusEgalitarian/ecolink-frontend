@@ -2,16 +2,15 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
 import { AUTH_ENDPOINTS } from "../config/api";
+import AuthScreenShell from "../components/auth/AuthScreenShell";
+import AuthTextField from "../components/auth/AuthTextField";
+import { authColors } from "../theme/authTheme";
 import { styles } from "../styles/screens/RegistrationScreen.styles";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#._-]).+$/;
@@ -195,16 +194,6 @@ const RegistrationScreen = ({ navigation }) => {
       const phone = phoneNumber.replace(/\D/g, "");
       const cleanCpf = cpf.replace(/\D/g, "");
 
-      console.log("Attempting registration to:", AUTH_ENDPOINTS.REGISTER);
-      console.log("With data:", {
-        username,
-        email,
-        phone,
-        cpf: "***",
-        address,
-        password: "***",
-      });
-
       const response = await fetch(AUTH_ENDPOINTS.REGISTER, {
         method: "POST",
         headers: {
@@ -221,23 +210,12 @@ const RegistrationScreen = ({ navigation }) => {
         }),
       });
 
-      console.log("Response status:", response.status);
-
       const data = await response.json();
-      console.log("Registration Response Data:", data);
 
       if (response.ok) {
         Alert.alert(t("Register.successTitle"), t("Register.successMessage"));
         navigation.navigate("Login");
       } else {
-        // Tratar erro 400 (Bad Request)
-        console.error(
-          "Registration failed with status:",
-          response.status,
-          "Data:",
-          data,
-        );
-
         if (data.errors?.length && applyServerErrors(data.errors)) {
           return;
         }
@@ -285,8 +263,6 @@ const RegistrationScreen = ({ navigation }) => {
         }
       }
     } catch (error) {
-      console.error("Registration Error:", error);
-
       if (
         error.message.includes("Network request failed") ||
         error.message.includes("Failed to fetch")
@@ -303,286 +279,143 @@ const RegistrationScreen = ({ navigation }) => {
     }
   };
 
+  const loginFooter = (
+    <View style={styles.loginContainer}>
+      <Text style={styles.loginText}>{t("Register.hasAccount")}</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        <Text style={styles.loginLink}>{t("Register.backToLogin")}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        {/* Header com Logo */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.navigate("Login")}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Image
-            source={require("../assets/EcoLinkLogo.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
+    <AuthScreenShell footer={loginFooter}>
+      <Text style={styles.title}>{t("Register.title")}</Text>
+      <Text style={styles.subtitle}>{t("Register.subtitle")}</Text>
 
-        {/* Card de Registro */}
-        <View style={styles.card}>
-          <Text style={styles.title}>{t("Register.title")}</Text>
-          <Text style={styles.subtitle}>{t("Register.subtitle")}</Text>
+      <AuthTextField
+        label={t("Register.usernameLabel")}
+        value={username}
+        onChangeText={(text) => {
+          setUsername(text);
+          if (usernameError) setUsernameError("");
+        }}
+        placeholder={t("Register.usernamePlaceholder")}
+        iconName="person-outline"
+        error={usernameError}
+        editable={!loading}
+        autoCapitalize="words"
+        focused={usernameFocused}
+        onFocus={() => setUsernameFocused(true)}
+        onBlur={() => setUsernameFocused(false)}
+      />
 
-          {/* Campo Nome */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>{t("Register.usernameLabel")}</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                usernameFocused && styles.inputWrapperFocused,
-                usernameError && styles.inputWrapperError,
-              ]}
-            >
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={usernameError ? "#E63946" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  if (usernameError) setUsernameError("");
-                }}
-                placeholder={t("Register.usernamePlaceholder")}
-                placeholderTextColor="#999"
-                autoCapitalize="words"
-                editable={!loading}
-                onFocus={() => setUsernameFocused(true)}
-                onBlur={() => setUsernameFocused(false)}
-              />
-            </View>
-            {usernameError ? (
-              <Text style={styles.errorText}>{usernameError}</Text>
-            ) : null}
-          </View>
+      <AuthTextField
+        label={t("Register.emailLabel")}
+        value={email}
+        onChangeText={(text) => {
+          setEmail(text);
+          if (emailError) setEmailError("");
+        }}
+        placeholder={t("Register.emailPlaceholder")}
+        iconName="mail-outline"
+        error={emailError}
+        editable={!loading}
+        keyboardType="email-address"
+        focused={emailFocused}
+        onFocus={() => setEmailFocused(true)}
+        onBlur={() => setEmailFocused(false)}
+      />
 
-          {/* Campo E-mail */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>{t("Register.emailLabel")}</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                emailFocused && styles.inputWrapperFocused,
-                emailError && styles.inputWrapperError,
-              ]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={emailError ? "#E63946" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (emailError) setEmailError("");
-                }}
-                placeholder={t("Register.emailPlaceholder")}
-                placeholderTextColor="#999"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!loading}
-                onFocus={() => setEmailFocused(true)}
-                onBlur={() => setEmailFocused(false)}
-              />
-            </View>
-            {emailError ? (
-              <Text style={styles.errorText}>{emailError}</Text>
-            ) : null}
-          </View>
+      <AuthTextField
+        label={t("Register.passwordLabel")}
+        value={password}
+        onChangeText={(text) => {
+          setPassword(text);
+          if (passwordError) setPasswordError("");
+        }}
+        placeholder={t("Register.passwordPlaceholder")}
+        iconName="lock-closed-outline"
+        error={passwordError}
+        editable={!loading}
+        secureTextEntry={!showPassword}
+        showToggle
+        visible={showPassword}
+        onToggleVisibility={() => setShowPassword(!showPassword)}
+        focused={passwordFocused}
+        onFocus={() => setPasswordFocused(true)}
+        onBlur={() => setPasswordFocused(false)}
+      />
 
-          {/* Campo Senha */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>{t("Register.passwordLabel")}</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                passwordFocused && styles.inputWrapperFocused,
-                passwordError && styles.inputWrapperError,
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={passwordError ? "#E63946" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (passwordError) setPasswordError("");
-                }}
-                placeholder={t("Register.passwordPlaceholder")}
-                placeholderTextColor="#999"
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                editable={!loading}
-                onFocus={() => setPasswordFocused(true)}
-                onBlur={() => setPasswordFocused(false)}
-              />
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color="#666"
-                />
-              </TouchableOpacity>
-            </View>
-            {passwordError ? (
-              <Text style={styles.errorText}>{passwordError}</Text>
-            ) : null}
-          </View>
+      <AuthTextField
+        label={t("Register.phoneLabel")}
+        value={phoneNumber}
+        onChangeText={(text) => {
+          setPhoneNumber(text);
+          if (phoneError) setPhoneError("");
+        }}
+        placeholder={t("Register.phonePlaceholder")}
+        iconName="call-outline"
+        error={phoneError}
+        editable={!loading}
+        keyboardType="phone-pad"
+        focused={phoneFocused}
+        onFocus={() => setPhoneFocused(true)}
+        onBlur={() => setPhoneFocused(false)}
+      />
 
-          {/* Campo Telefone */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>{t("Register.phoneLabel")}</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                phoneFocused && styles.inputWrapperFocused,
-                phoneError && styles.inputWrapperError,
-              ]}
-            >
-              <Ionicons
-                name="call-outline"
-                size={20}
-                color={phoneError ? "#E63946" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={phoneNumber}
-                onChangeText={(text) => {
-                  setPhoneNumber(text);
-                  if (phoneError) setPhoneError("");
-                }}
-                placeholder={t("Register.phonePlaceholder")}
-                placeholderTextColor="#999"
-                keyboardType="phone-pad"
-                editable={!loading}
-                onFocus={() => setPhoneFocused(true)}
-                onBlur={() => setPhoneFocused(false)}
-              />
-            </View>
-            {phoneError ? (
-              <Text style={styles.errorText}>{phoneError}</Text>
-            ) : null}
-          </View>
+      <AuthTextField
+        label={t("Register.cpfLabel")}
+        value={cpf}
+        onChangeText={(text) => {
+          setCpf(text);
+          if (cpfError) setCpfError("");
+        }}
+        placeholder={t("Register.cpfPlaceholder")}
+        iconName="card-outline"
+        error={cpfError}
+        editable={!loading}
+        keyboardType="number-pad"
+        focused={cpfFocused}
+        onFocus={() => setCpfFocused(true)}
+        onBlur={() => setCpfFocused(false)}
+      />
 
-          {/* Campo CPF */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>{t("Register.cpfLabel")}</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                cpfFocused && styles.inputWrapperFocused,
-                cpfError && styles.inputWrapperError,
-              ]}
-            >
-              <Ionicons
-                name="card-outline"
-                size={20}
-                color={cpfError ? "#E63946" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={cpf}
-                onChangeText={(text) => {
-                  setCpf(text);
-                  if (cpfError) setCpfError("");
-                }}
-                placeholder={t("Register.cpfPlaceholder")}
-                placeholderTextColor="#999"
-                keyboardType="number-pad"
-                editable={!loading}
-                onFocus={() => setCpfFocused(true)}
-                onBlur={() => setCpfFocused(false)}
-              />
-            </View>
-            {cpfError ? (
-              <Text style={styles.errorText}>{cpfError}</Text>
-            ) : null}
-          </View>
+      <AuthTextField
+        label={t("Register.addressLabel")}
+        value={address}
+        onChangeText={(text) => {
+          setAddress(text);
+          if (addressError) setAddressError("");
+        }}
+        placeholder={t("Register.addressPlaceholder")}
+        iconName="location-outline"
+        error={addressError}
+        editable={!loading}
+        autoCapitalize="words"
+        focused={addressFocused}
+        onFocus={() => setAddressFocused(true)}
+        onBlur={() => setAddressFocused(false)}
+      />
 
-          {/* Campo Endereço */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>{t("Register.addressLabel")}</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                addressFocused && styles.inputWrapperFocused,
-                addressError && styles.inputWrapperError,
-              ]}
-            >
-              <Ionicons
-                name="location-outline"
-                size={20}
-                color={addressError ? "#E63946" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={address}
-                onChangeText={(text) => {
-                  setAddress(text);
-                  if (addressError) setAddressError("");
-                }}
-                placeholder={t("Register.addressPlaceholder")}
-                placeholderTextColor="#999"
-                autoCapitalize="words"
-                editable={!loading}
-                onFocus={() => setAddressFocused(true)}
-                onBlur={() => setAddressFocused(false)}
-              />
-            </View>
-            {addressError ? (
-              <Text style={styles.errorText}>{addressError}</Text>
-            ) : null}
-          </View>
-
-          {/* Botão Registrar */}
-          <TouchableOpacity
-            style={[
-              styles.registerButton,
-              loading && styles.registerButtonDisabled,
-            ]}
-            onPress={handleRegister}
-            disabled={loading}
-            activeOpacity={0.8}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.registerButtonText}>
-                {t("Register.registerButton")}
-              </Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Link Voltar para Login */}
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>{t("Register.hasAccount")}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-              <Text style={styles.loginLink}>{t("Register.backToLogin")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+      <TouchableOpacity
+        style={[
+          styles.registerButton,
+          loading && styles.registerButtonDisabled,
+        ]}
+        onPress={handleRegister}
+        disabled={loading}
+        activeOpacity={0.85}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color={authColors.white} />
+        ) : (
+          <Text style={styles.registerButtonText}>
+            {t("Register.registerButton")}
+          </Text>
+        )}
+      </TouchableOpacity>
+    </AuthScreenShell>
   );
 };
 
