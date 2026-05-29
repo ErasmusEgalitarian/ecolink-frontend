@@ -12,7 +12,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import { BarCodeScanner } from "expo-barcode-scanner";
 import { styles } from "../styles/screens/QRScannerScreen.styles";
 
 const QRScannerScreen = ({ navigation }) => {
@@ -149,7 +148,7 @@ const QRScannerScreen = ({ navigation }) => {
               type={Camera.Constants.Type.back}
               onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
               barCodeScannerSettings={{
-                barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
+                barCodeTypes: ["qr"],
               }}
             /> */}
             {/* Overlay com cantos */}

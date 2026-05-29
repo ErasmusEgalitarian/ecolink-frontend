@@ -17,7 +17,7 @@
           }
         }
       ],
-      "expo-barcode-scanner"
+      "expo-asset"
     ],
     "newArchEnabled": true,
     "version": "1.0.0",
