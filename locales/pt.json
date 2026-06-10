@@ -70,6 +70,7 @@
     "phoneInvalid": "Telefone inválido (use 10 ou 11 dígitos)",
     "cpfRequired": "Por favor, insira seu CPF",
     "cpfInvalid": "CPF inválido (use 11 dígitos válidos)",
+    "cpfExists": "Este CPF já está cadastrado",
     "addressRequired": "Por favor, insira seu endereço",
     "addressTooShort": "O endereço deve ter no mínimo 5 caracteres",
     "emailExists": "Este e-mail já está cadastrado",
@@ -78,6 +79,24 @@
     "errorTitle": "Erro no cadastro",
     "errorMessage": "Algo deu errado. Tente novamente.",
     "connectionError": "Erro de conexão. Tente novamente."
+  },
+  "EmailVerification": {
+    "title": "Verifique seu e-mail",
+    "subtitle": "Digite o código de 6 dígitos enviado para:",
+    "helperText": "Você pode colar o código completo de uma vez.",
+    "verifyButton": "Validar código",
+    "resendButton": "Reenviar código",
+    "resendCooldown": "Reenviar em {{seconds}}s",
+    "codeRequired": "Digite o código de 6 dígitos",
+    "invalidCode": "Código de verificação inválido",
+    "expiredCode": "Este código expirou. Solicite um novo.",
+    "connectionError": "Erro de conexão. Tente novamente.",
+    "resendSuccess": "Enviamos um novo código para seu e-mail.",
+    "resendError": "Não foi possível reenviar o código. Tente novamente.",
+    "rateLimited": "Aguarde antes de solicitar outro código.",
+    "verifiedTitle": "E-mail verificado!",
+    "verifiedRegisterMessage": "Sua conta está ativa.",
+    "verifiedLoginMessage": "Sua conta está ativa."
   },
   "Pickup": {
     "header": "Nova Doação",

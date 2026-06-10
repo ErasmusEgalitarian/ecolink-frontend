@@ -7,14 +7,15 @@ import {
   View,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
-import { AUTH_ENDPOINTS, USER_ENDPOINTS } from "../config/api";
+import { AUTH_ENDPOINTS } from "../config/api";
 import API_BASE_URL from "../config/api";
 import AuthScreenShell from "../components/auth/AuthScreenShell";
 import AuthTextField from "../components/auth/AuthTextField";
+import VerificationCodeCard from "../components/auth/VerificationCodeCard";
 import { authColors } from "../theme/authTheme";
 import { styles } from "../styles/screens/LoginScreen.styles";
+import { persistAuthSession } from "../utils/authSession";
 
 const LoginScreen = ({ onLogin }) => {
   const navigation = useNavigation();
@@ -27,6 +28,7 @@ const LoginScreen = ({ onLogin }) => {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   const handleNavigateToRegister = () => {
     navigation.navigate("Register");
@@ -70,57 +72,30 @@ const LoginScreen = ({ onLogin }) => {
     setLoading(true);
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+
       const response = await fetch(AUTH_ENDPOINTS.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        const userId = data.user?.id;
-        const token = data.token;
-
-        if (!userId || !token) {
-          throw new Error(
-            "Invalid response from server: Missing user ID or token",
-          );
-        }
-
-        await AsyncStorage.setItem("userId", userId);
-        await AsyncStorage.setItem("authToken", token);
-
-        try {
-          const profileResponse = await fetch(USER_ENDPOINTS.ME, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            const userRole = profileData.data?.roleId?.name || "User";
-            await AsyncStorage.setItem("userRole", userRole);
-          } else {
-            const userRole =
-              data.user?.roleId?.name || data.user?.role || "User";
-            await AsyncStorage.setItem("userRole", userRole);
-          }
-        } catch {
-          const userRole = data.user?.roleId?.name || data.user?.role || "User";
-          await AsyncStorage.setItem("userRole", userRole);
-        }
-
+        const token = await persistAuthSession(data);
         onLogin(token);
         Alert.alert(t("Login.successTitle"), t("Login.successMessage"));
       } else {
         setPassword("");
+
+        if (response.status === 403 && data.code === "EMAIL_UNVERIFIED") {
+          setVerificationEmail(normalizedEmail);
+          return;
+        }
 
         if (response.status === 400) {
           if (data.message?.toLowerCase().includes("email")) {
@@ -164,6 +139,21 @@ const LoginScreen = ({ onLogin }) => {
     }
   };
 
+  const handleVerificationComplete = async (authData) => {
+    if (!authData?.token) {
+      Alert.alert(
+        t("EmailVerification.verifiedTitle"),
+        t("EmailVerification.verifiedLoginMessage"),
+      );
+      setVerificationEmail("");
+      setPassword("");
+      return;
+    }
+
+    const token = await persistAuthSession(authData);
+    onLogin(token);
+  };
+
   const registerFooter = (
     <View style={styles.registerContainer}>
       <Text style={styles.registerText}>{t("Login.noAccount")}</Text>
@@ -172,6 +162,17 @@ const LoginScreen = ({ onLogin }) => {
       </TouchableOpacity>
     </View>
   );
+
+  if (verificationEmail) {
+    return (
+      <AuthScreenShell footer={registerFooter}>
+        <VerificationCodeCard
+          email={verificationEmail}
+          onVerified={handleVerificationComplete}
+        />
+      </AuthScreenShell>
+    );
+  }
 
   return (
     <AuthScreenShell footer={registerFooter}>

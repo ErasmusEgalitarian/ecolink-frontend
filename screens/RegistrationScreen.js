@@ -10,12 +10,14 @@ import { useTranslation } from "react-i18next";
 import { AUTH_ENDPOINTS } from "../config/api";
 import AuthScreenShell from "../components/auth/AuthScreenShell";
 import AuthTextField from "../components/auth/AuthTextField";
+import VerificationCodeCard from "../components/auth/VerificationCodeCard";
 import { authColors } from "../theme/authTheme";
 import { styles } from "../styles/screens/RegistrationScreen.styles";
+import { persistAuthSession } from "../utils/authSession";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#._-]).+$/;
 
-const RegistrationScreen = ({ navigation }) => {
+const RegistrationScreen = ({ navigation, onLogin }) => {
   const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -25,6 +27,7 @@ const RegistrationScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   // Estados de foco para cada campo
   const [usernameFocused, setUsernameFocused] = useState(false);
@@ -193,6 +196,7 @@ const RegistrationScreen = ({ navigation }) => {
     try {
       const phone = phoneNumber.replace(/\D/g, "");
       const cleanCpf = cpf.replace(/\D/g, "");
+      const normalizedEmail = email.trim().toLowerCase();
 
       const response = await fetch(AUTH_ENDPOINTS.REGISTER, {
         method: "POST",
@@ -202,7 +206,7 @@ const RegistrationScreen = ({ navigation }) => {
         },
         body: JSON.stringify({
           username,
-          email,
+          email: normalizedEmail,
           password,
           phone,
           cpf: cleanCpf,
@@ -213,8 +217,7 @@ const RegistrationScreen = ({ navigation }) => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert(t("Register.successTitle"), t("Register.successMessage"));
-        navigation.navigate("Login");
+        setVerificationEmail(normalizedEmail);
       } else {
         if (data.errors?.length && applyServerErrors(data.errors)) {
           return;
@@ -253,8 +256,19 @@ const RegistrationScreen = ({ navigation }) => {
             );
           }
         } else if (response.status === 409) {
-          // Conflito - email já existe
-          setEmailError(t("Register.emailExists"));
+          const conflictField = data.field || "";
+          const conflictCode = data.code || "";
+          const conflictMessage = data.message?.toLowerCase() || "";
+
+          if (
+            conflictField === "cpf" ||
+            conflictCode.includes("CPF") ||
+            conflictMessage.includes("cpf")
+          ) {
+            setCpfError(t("Register.cpfExists"));
+          } else {
+            setEmailError(t("Register.emailExists"));
+          }
         } else {
           Alert.alert(
             t("Register.errorTitle"),
@@ -279,6 +293,24 @@ const RegistrationScreen = ({ navigation }) => {
     }
   };
 
+  const handleVerificationComplete = async (authData) => {
+    if (!authData?.token) {
+      Alert.alert(
+        t("EmailVerification.verifiedTitle"),
+        t("EmailVerification.verifiedRegisterMessage"),
+      );
+      navigation.navigate("Login");
+      return;
+    }
+
+    const token = await persistAuthSession(authData);
+    if (onLogin) {
+      onLogin(token);
+    } else {
+      navigation.navigate("Login");
+    }
+  };
+
   const loginFooter = (
     <View style={styles.loginContainer}>
       <Text style={styles.loginText}>{t("Register.hasAccount")}</Text>
@@ -287,6 +319,17 @@ const RegistrationScreen = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
+
+  if (verificationEmail) {
+    return (
+      <AuthScreenShell footer={loginFooter}>
+        <VerificationCodeCard
+          email={verificationEmail}
+          onVerified={handleVerificationComplete}
+        />
+      </AuthScreenShell>
+    );
+  }
 
   return (
     <AuthScreenShell footer={loginFooter}>

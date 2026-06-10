@@ -66,9 +66,15 @@ export default function App() {
                         </Stack.Screen>
                         <Stack.Screen
                             name="Register"
-                            component={RegistrationScreen}
                             options={{ headerShown: false }}
-                        />
+                        >
+                            {(props) => (
+                                <RegistrationScreen
+                                    {...props}
+                                    onLogin={handleLogin}
+                                />
+                            )}
+                        </Stack.Screen>
                     </Stack.Navigator>
                 )}
             </NavigationContainer>

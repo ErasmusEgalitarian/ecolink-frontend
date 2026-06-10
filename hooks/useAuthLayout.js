@@ -20,8 +20,8 @@ export const useAuthLayout = () => {
     const sheetOverlap = isCompact ? 24 : 36;
 
     const headerHeight = Math.min(
-      Math.max(height * (isCompact ? 0.24 : 0.3), 128),
-      height * 0.36,
+      Math.max(height * (isCompact ? 0.22 : 0.26), 116),
+      height * 0.32,
     );
 
     const logoWidth = Math.min(

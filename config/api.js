@@ -2,9 +2,8 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Configuração da API
-const API_BASE_URL = __DEV__
-  ? "http://localhost:5000"
-  : "http://localhost:5000"; // Alterar para URL de produção quando necessário
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 // ==================== AXIOS INSTANCE ====================
 // Instância do axios com interceptor automático de token
@@ -35,6 +34,8 @@ export const AUTH_ENDPOINTS = {
   LOGIN: `${API_BASE_URL}/api/auth/login`,
   REGISTER: `${API_BASE_URL}/api/auth/register`,
   LOGOUT: `${API_BASE_URL}/api/auth/logout`,
+  VERIFY_EMAIL: `${API_BASE_URL}/api/auth/verify-email`,
+  RESEND_VERIFICATION_CODE: `${API_BASE_URL}/api/auth/resend-verification-code`,
 };
 
 // Endpoints de usuários

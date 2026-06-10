@@ -13,13 +13,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: authColors.pageBackground,
   },
-  topSheetBlock: {
-    width: "100%",
-    maxWidth: 640,
-    height: 24,
-    alignSelf: "center",
-    backgroundColor: authColors.topSheetBlockBackground,
-  },
   header: {
     backgroundColor: authColors.pageBackground,
     alignItems: "center",

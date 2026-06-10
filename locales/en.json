@@ -70,6 +70,7 @@
     "phoneInvalid": "Invalid phone number (use 10 or 11 digits)",
     "cpfRequired": "Please enter your CPF",
     "cpfInvalid": "Invalid CPF (use 11 valid digits)",
+    "cpfExists": "This CPF is already registered",
     "addressRequired": "Please enter your address",
     "addressTooShort": "Address must be at least 5 characters",
     "emailExists": "This email is already registered",
@@ -78,6 +79,24 @@
     "errorTitle": "Registration error",
     "errorMessage": "Something went wrong. Please try again.",
     "connectionError": "Connection error. Please try again."
+  },
+  "EmailVerification": {
+    "title": "Verify your email",
+    "subtitle": "Enter the 6-digit code we sent to:",
+    "helperText": "You can paste the full code at once.",
+    "verifyButton": "Validate code",
+    "resendButton": "Resend code",
+    "resendCooldown": "Resend in {{seconds}}s",
+    "codeRequired": "Enter the 6-digit code",
+    "invalidCode": "Invalid verification code",
+    "expiredCode": "This code has expired. Request a new one.",
+    "connectionError": "Connection error. Please try again.",
+    "resendSuccess": "We sent a new code to your email.",
+    "resendError": "Could not resend the code. Please try again.",
+    "rateLimited": "Please wait before requesting another code.",
+    "verifiedTitle": "Email verified!",
+    "verifiedRegisterMessage": "Your account is active.",
+    "verifiedLoginMessage": "Your account is active."
   },
   "Pickup": {
     "header": "New Donation",

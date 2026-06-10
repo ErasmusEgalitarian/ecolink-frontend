@@ -32,8 +32,6 @@ const AuthScreenShell = ({ children, footer }) => {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          <View style={styles.topSheetBlock} />
-
           <View
             style={[
               styles.header,

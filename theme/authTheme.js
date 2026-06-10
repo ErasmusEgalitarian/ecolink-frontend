@@ -15,7 +15,6 @@ export const authColors = {
   error: "#E63946",
   errorBackground: "#FFF5F5",
   white: "#FFFFFF",
-  topSheetBlockBackground: "#D9D9D9",
 };
 
 export const authTypography = {
