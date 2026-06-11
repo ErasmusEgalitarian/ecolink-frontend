@@ -36,7 +36,15 @@ const LoginScreen = ({ onLogin }) => {
 
   const validateEmail = (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
+    return emailRegex.test(value.trim());
+  };
+
+  const handleEmailBlur = () => {
+    setEmailFocused(false);
+
+    if (email.trim() && !validateEmail(email)) {
+      setEmailError(t("Login.emailInvalid"));
+    }
   };
 
   const validateForm = () => {
@@ -151,6 +159,10 @@ const LoginScreen = ({ onLogin }) => {
     }
 
     const token = await persistAuthSession(authData);
+    Alert.alert(
+      t("EmailVerification.verifiedTitle"),
+      t("EmailVerification.verifiedLoginMessage"),
+    );
     onLogin(token);
   };
 
@@ -193,7 +205,7 @@ const LoginScreen = ({ onLogin }) => {
         keyboardType="email-address"
         focused={emailFocused}
         onFocus={() => setEmailFocused(true)}
-        onBlur={() => setEmailFocused(false)}
+        onBlur={handleEmailBlur}
       />
 
       <AuthTextField

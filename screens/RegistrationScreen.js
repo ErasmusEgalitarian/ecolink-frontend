@@ -16,6 +16,38 @@ import { styles } from "../styles/screens/RegistrationScreen.styles";
 import { persistAuthSession } from "../utils/authSession";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#._-]).+$/;
+const PASSWORD_REQUIREMENTS = [
+  {
+    key: "minLength",
+    labelKey: "Register.passwordRequirementMinLength",
+    isMet: (value) => value.length >= 8,
+  },
+  {
+    key: "maxLength",
+    labelKey: "Register.passwordRequirementMaxLength",
+    isMet: (value) => value.length <= 24,
+  },
+  {
+    key: "lowercase",
+    labelKey: "Register.passwordRequirementLowercase",
+    isMet: (value) => /[a-z]/.test(value),
+  },
+  {
+    key: "uppercase",
+    labelKey: "Register.passwordRequirementUppercase",
+    isMet: (value) => /[A-Z]/.test(value),
+  },
+  {
+    key: "number",
+    labelKey: "Register.passwordRequirementNumber",
+    isMet: (value) => /\d/.test(value),
+  },
+  {
+    key: "special",
+    labelKey: "Register.passwordRequirementSpecial",
+    isMet: (value) => /[@$!%*?&#._-]/.test(value),
+  },
+];
 
 const RegistrationScreen = ({ navigation, onLogin }) => {
   const { t } = useTranslation();
@@ -47,7 +79,18 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return emailRegex.test(email.trim());
+  };
+
+  const getMissingPasswordRequirements = (value) =>
+    PASSWORD_REQUIREMENTS.filter((requirement) => !requirement.isMet(value));
+
+  const handleEmailBlur = () => {
+    setEmailFocused(false);
+
+    if (email.trim() && !validateEmail(email)) {
+      setEmailError(t("Register.emailInvalid"));
+    }
   };
 
   const validatePhone = (phone) => {
@@ -185,6 +228,10 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
     return isValid;
   };
 
+  const missingPasswordRequirements = getMissingPasswordRequirements(password);
+  const showPasswordRequirements =
+    password.length > 0 && missingPasswordRequirements.length > 0;
+
   const handleRegister = async () => {
     // Validar formulário antes de enviar
     if (!validateForm()) {
@@ -304,6 +351,11 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
     }
 
     const token = await persistAuthSession(authData);
+    Alert.alert(
+      t("EmailVerification.verifiedTitle"),
+      t("EmailVerification.verifiedRegisterMessage"),
+    );
+
     if (onLogin) {
       onLogin(token);
     } else {
@@ -367,7 +419,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         keyboardType="email-address"
         focused={emailFocused}
         onFocus={() => setEmailFocused(true)}
-        onBlur={() => setEmailFocused(false)}
+        onBlur={handleEmailBlur}
       />
 
       <AuthTextField
@@ -389,6 +441,22 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onFocus={() => setPasswordFocused(true)}
         onBlur={() => setPasswordFocused(false)}
       />
+
+      {showPasswordRequirements ? (
+        <View style={styles.passwordRequirementsContainer}>
+          <Text style={styles.passwordRequirementsTitle}>
+            {t("Register.passwordRequirementsTitle")}
+          </Text>
+          {missingPasswordRequirements.map((requirement) => (
+            <Text
+              key={requirement.key}
+              style={styles.passwordRequirementMissing}
+            >
+              {t(requirement.labelKey)}
+            </Text>
+          ))}
+        </View>
+      ) : null}
 
       <AuthTextField
         label={t("Register.phoneLabel")}

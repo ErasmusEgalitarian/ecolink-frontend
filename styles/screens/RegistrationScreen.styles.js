@@ -24,6 +24,27 @@ export const styles = StyleSheet.create({
   registerButtonText: {
     ...authTypography.button,
   },
+  passwordRequirementsContainer: {
+    backgroundColor: authColors.errorBackground,
+    borderColor: authColors.error,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: -8,
+    marginBottom: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  passwordRequirementsTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: authColors.error,
+    marginBottom: 6,
+  },
+  passwordRequirementMissing: {
+    fontSize: 12,
+    color: authColors.error,
+    lineHeight: 18,
+  },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
