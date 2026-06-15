@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import BottomNav from './components/BottomNav';
+import LangChanger from './components/LangChanger';
 import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
 import './i18n';
@@ -78,15 +78,7 @@ export default function App() {
                     </Stack.Navigator>
                 )}
             </NavigationContainer>
+            <LangChanger />
         </SafeAreaProvider>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#14213D',
-        padding: 15,
-        color: '#008CBA',
-    },
-});
