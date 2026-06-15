@@ -17,6 +17,15 @@ export const styles = StyleSheet.create({
   forgotPasswordText: {
     ...authTypography.forgotPassword,
   },
+  formError: {
+    color: authColors.error,
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 18,
+    marginTop: -6,
+    marginBottom: 14,
+    textAlign: "center",
+  },
   loginButton: {
     backgroundColor: authColors.actionGreen,
     borderRadius: 10,

@@ -28,6 +28,7 @@ const LoginScreen = ({ onLogin }) => {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [formError, setFormError] = useState("");
   const [verificationEmail, setVerificationEmail] = useState("");
   const [connectionError, setConnectionError] = useState(false);
 
@@ -53,6 +54,7 @@ const LoginScreen = ({ onLogin }) => {
 
     setEmailError("");
     setPasswordError("");
+    setFormError("");
 
     if (!email.trim()) {
       setEmailError(t("Login.emailRequired"));
@@ -73,6 +75,12 @@ const LoginScreen = ({ onLogin }) => {
     return isValid;
   };
 
+  const showInvalidCredentials = () => {
+    setEmailError("");
+    setFormError("");
+    setPasswordError(t("Login.invalidCredentials"));
+  };
+
   const handleLogin = async () => {
     if (!validateForm()) {
       return;
@@ -80,6 +88,7 @@ const LoginScreen = ({ onLogin }) => {
 
     setLoading(true);
     setConnectionError(false);
+    setFormError("");
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -106,37 +115,15 @@ const LoginScreen = ({ onLogin }) => {
         return;
       }
 
-      setPassword("");
-
-      if (error.status === 403 && data.code === "EMAIL_UNVERIFIED") {
-        setVerificationEmail(normalizedEmail);
+      if (error.status === 429 || data.code === "LOGIN_RATE_LIMIT_EXCEEDED") {
+        setEmailError("");
+        setPasswordError("");
+        setFormError(t("Login.tooManyAttempts"));
         return;
       }
 
-      if (error.status === 400) {
-        if (data.message?.toLowerCase().includes("email")) {
-          setEmailError(data.message || t("Login.emailNotFound"));
-        } else if (
-          data.message?.toLowerCase().includes("password") ||
-          data.message?.toLowerCase().includes("senha")
-        ) {
-          setPasswordError(data.message || t("Login.passwordIncorrect"));
-        } else {
-          Alert.alert(
-            t("Login.errorTitle"),
-            data.message || error.message || t("Login.invalidCredentials"),
-          );
-        }
-      } else if (error.status === 404) {
-        setEmailError(t("Login.emailNotFound"));
-      } else if (error.status === 401) {
-        setPasswordError(t("Login.passwordIncorrect"));
-      } else {
-        Alert.alert(
-          t("Login.errorTitle"),
-          data.message || error.message || t("Login.invalidCredentials"),
-        );
-      }
+      setPassword("");
+      showInvalidCredentials();
     } finally {
       setLoading(false);
     }
@@ -192,6 +179,7 @@ const LoginScreen = ({ onLogin }) => {
         onChangeText={(text) => {
           setEmail(text);
           if (emailError) setEmailError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Login.emailPlaceholder")}
         iconName="person-outline"
@@ -209,6 +197,7 @@ const LoginScreen = ({ onLogin }) => {
         onChangeText={(text) => {
           setPassword(text);
           if (passwordError) setPasswordError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Login.passwordPlaceholder")}
         iconName="lock-closed-outline"
@@ -226,6 +215,8 @@ const LoginScreen = ({ onLogin }) => {
       {connectionError ? (
         <ConnectionErrorCard onRetry={handleLogin} />
       ) : null}
+
+      {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
       <TouchableOpacity style={styles.forgotPassword}>
         <Text style={styles.forgotPasswordText}>

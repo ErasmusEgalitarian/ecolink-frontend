@@ -126,29 +126,69 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
   const applyServerErrors = (errors = []) => {
     let handled = false;
 
+    const getFieldErrorMessage = (field, message = "") => {
+      const normalizedMessage = message.toLowerCase();
+
+      if (field === "username") {
+        return t("Register.usernameInvalid");
+      }
+
+      if (field === "email") {
+        return normalizedMessage.includes("@aluno.unb.br")
+          ? t("Register.emailDomain")
+          : t("Register.emailInvalid");
+      }
+
+      if (field === "password") {
+        if (normalizedMessage.includes("at most")) {
+          return t("Register.passwordTooLong");
+        }
+
+        if (normalizedMessage.includes("at least")) {
+          return t("Register.passwordTooShort");
+        }
+
+        return t("Register.passwordInvalid");
+      }
+
+      if (field === "phone") {
+        return t("Register.phoneInvalid");
+      }
+
+      if (field === "cpf") {
+        return t("Register.cpfInvalid");
+      }
+
+      if (field === "address") {
+        return t("Register.addressTooShort");
+      }
+
+      return t("Register.errorMessage");
+    };
+
     errors.forEach(({ field, message }) => {
       if (field === "username") {
-        setUsernameError(message);
+        setUsernameError(getFieldErrorMessage(field, message));
         handled = true;
       }
       if (field === "email") {
-        setEmailError(message);
+        setEmailError(getFieldErrorMessage(field, message));
         handled = true;
       }
       if (field === "password") {
-        setPasswordError(message);
+        setPasswordError(getFieldErrorMessage(field, message));
         handled = true;
       }
       if (field === "phone") {
-        setPhoneError(message);
+        setPhoneError(getFieldErrorMessage(field, message));
         handled = true;
       }
       if (field === "cpf") {
-        setCpfError(message);
+        setCpfError(getFieldErrorMessage(field, message));
         handled = true;
       }
       if (field === "address") {
-        setAddressError(message);
+        setAddressError(getFieldErrorMessage(field, message));
         handled = true;
       }
     });
@@ -274,37 +314,42 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         return;
       }
 
+      if (
+        error.status === 429 ||
+        data.code === "REGISTER_RATE_LIMIT_EXCEEDED"
+      ) {
+        Alert.alert(t("Register.errorTitle"), t("Register.tooManyAttempts"));
+        return;
+      }
+
       if (error.status === 400) {
         // Bad Request - dados inválidos
         if (data.message?.toLowerCase().includes("email")) {
-          setEmailError(data.message || t("Register.emailExists"));
+          setEmailError(t("Register.emailInvalid"));
         } else if (
           data.message?.toLowerCase().includes("username") ||
           data.message?.toLowerCase().includes("nome")
         ) {
-          setUsernameError(data.message);
+          setUsernameError(t("Register.usernameInvalid"));
         } else if (
           data.message?.toLowerCase().includes("phone") ||
           data.message?.toLowerCase().includes("telefone")
         ) {
-          setPhoneError(data.message);
+          setPhoneError(t("Register.phoneInvalid"));
         } else if (data.message?.toLowerCase().includes("cpf")) {
-          setCpfError(data.message);
+          setCpfError(t("Register.cpfInvalid"));
         } else if (
           data.message?.toLowerCase().includes("password") ||
           data.message?.toLowerCase().includes("senha")
         ) {
-          setPasswordError(data.message);
+          setPasswordError(t("Register.passwordInvalid"));
         } else if (
           data.message?.toLowerCase().includes("address") ||
           data.message?.toLowerCase().includes("endereço")
         ) {
-          setAddressError(data.message);
+          setAddressError(t("Register.addressTooShort"));
         } else {
-          Alert.alert(
-            t("Register.errorTitle"),
-            data.message || error.message || t("Register.errorMessage"),
-          );
+          Alert.alert(t("Register.errorTitle"), t("Register.errorMessage"));
         }
       } else if (error.status === 409) {
         const conflictField = data.field || "";
@@ -321,10 +366,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
           setEmailError(t("Register.emailExists"));
         }
       } else {
-        Alert.alert(
-          t("Register.errorTitle"),
-          data.message || error.message || t("Register.errorMessage"),
-        );
+        Alert.alert(t("Register.errorTitle"), t("Register.errorMessage"));
       }
     } finally {
       setLoading(false);
