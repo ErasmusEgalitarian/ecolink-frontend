@@ -16,8 +16,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import OverviewPickupCards from "../components/OverviewPickupCards";
 import OverviewDonationCards from "../components/OverviewDonationCards";
 import WelcomeModal from "../components/WelcomeModal";
+import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { debugAdminStatus } from "../utils/debugAdmin";
-import { DONATION_ENDPOINTS } from "../config/api";
+import { api, DONATION_ROUTES, isApiConnectionError } from "../config/api";
 import { styles } from "../styles/screens/OverviewScreen.styles";
 
 const ScheduledPickUpScreen = ({ navigation }) => {
@@ -30,6 +31,7 @@ const ScheduledPickUpScreen = ({ navigation }) => {
   const [showEmptyState, setShowEmptyState] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
 
   // Check if user is admin
   useEffect(() => {
@@ -55,7 +57,7 @@ const ScheduledPickUpScreen = ({ navigation }) => {
       } else if (selectedTab === "allDonations" && isAdmin) {
         fetchAllDonations();
       }
-    }, [selectedTab, isAdmin])
+    }, [selectedTab, isAdmin]),
   );
 
   // Check if user is admin
@@ -104,6 +106,8 @@ const ScheduledPickUpScreen = ({ navigation }) => {
 
   const fetchUserDonations = async () => {
     setLoading(true);
+    setConnectionError(false);
+
     try {
       const token = await AsyncStorage.getItem("authToken");
 
@@ -113,27 +117,21 @@ const ScheduledPickUpScreen = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch(`${DONATION_ENDPOINTS.LIST}/my`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const response = await api.get(DONATION_ROUTES.MY);
+      const result = response.data;
       const donations = result.data || [];
 
       setDonationData(donations);
       setShowEmptyState(donations.length === 0);
     } catch (error) {
       console.error("Error fetching donations:", error);
-      setDonationData([]);
-      setShowEmptyState(true);
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+        setShowEmptyState(false);
+      } else {
+        setDonationData([]);
+        setShowEmptyState(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -141,6 +139,8 @@ const ScheduledPickUpScreen = ({ navigation }) => {
 
   const fetchAllDonations = async () => {
     setLoading(true);
+    setConnectionError(false);
+
     try {
       const token = await AsyncStorage.getItem("authToken");
 
@@ -150,30 +150,33 @@ const ScheduledPickUpScreen = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch(DONATION_ENDPOINTS.LIST, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const response = await api.get(DONATION_ROUTES.LIST);
+      const result = response.data;
       const donations = result.data || [];
 
       setAllDonationsData(donations);
       setShowEmptyState(donations.length === 0);
     } catch (error) {
       console.error("Error fetching all donations:", error);
-      setAllDonationsData([]);
-      setShowEmptyState(true);
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+        setShowEmptyState(false);
+      } else {
+        setAllDonationsData([]);
+        setShowEmptyState(true);
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetryDonations = () => {
+    if (selectedTab === "allDonations" && isAdmin) {
+      fetchAllDonations();
+      return;
+    }
+
+    fetchUserDonations();
   };
 
   const handleNavigateToCreateDonation = () => {
@@ -215,6 +218,10 @@ const ScheduledPickUpScreen = ({ navigation }) => {
           <ActivityIndicator size="large" color="#52B788" />
         </View>
       );
+    }
+
+    if (connectionError) {
+      return <ConnectionErrorCard onRetry={handleRetryDonations} />;
     }
 
     if (showEmptyState) {

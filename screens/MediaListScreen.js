@@ -8,11 +8,11 @@ import {
   Image,
   Picker,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Dimensions } from "react-native";
 import ForwardedVideo from "../components/ForwardedVideo";
 import { useFocusEffect } from "@react-navigation/native";
-import { MEDIA_ENDPOINTS } from "../config/api";
+import { api, MEDIA_ROUTES, isApiConnectionError } from "../config/api";
+import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { styles } from "../styles/screens/MediaListScreen.styles";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -22,6 +22,7 @@ const MediaListScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
 
   const [imageSizes, setImageSizes] = useState({});
 
@@ -67,46 +68,38 @@ const MediaListScreen = ({ navigation }) => {
   }, [navigation]);
 
   const fetchCategories = async () => {
+    setConnectionError(false);
+
     try {
-      const token = await AsyncStorage.getItem("authToken");
-      const res = await fetch(MEDIA_ENDPOINTS.CATEGORIES, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error("Error fetching categories");
-      const response = await res.json();
+      const response = await api.get(MEDIA_ROUTES.CATEGORIES);
 
       // Backend retorna: { success: true, data: [...] }
-      const categoriesData = response.success ? response.data : response;
+      const categoriesData = response.data.success
+        ? response.data.data
+        : response.data;
       setCategories(categoriesData);
     } catch (error) {
-      Alert.alert("Error fetching categories");
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+      } else {
+        Alert.alert("Error fetching categories");
+      }
     }
   };
 
   const fetchMedias = async (category = "") => {
     setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem("authToken");
-      const url = category
-        ? `${MEDIA_ENDPOINTS.LIST}?category=${category}`
-        : MEDIA_ENDPOINTS.LIST;
+    setConnectionError(false);
 
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    try {
+      const response = await api.get(MEDIA_ROUTES.LIST, {
+        params: category ? { category } : undefined,
       });
 
-      if (!res.ok) {
-        throw new Error("Error fetching medias");
-      }
-
-      const response = await res.json();
-
       // Backend retorna: { success: true, data: [...], pagination: {...} }
-      const mediasData = response.success ? response.data : response;
+      const mediasData = response.data.success
+        ? response.data.data
+        : response.data;
 
       const sortedData = mediasData
         .filter((item) => item && item._id)
@@ -114,7 +107,11 @@ const MediaListScreen = ({ navigation }) => {
 
       setMedias(sortedData);
     } catch (error) {
-      Alert.alert("Error", "Unable to load media. Please try again.");
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+      } else {
+        Alert.alert("Error", "Unable to load media. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -123,6 +120,11 @@ const MediaListScreen = ({ navigation }) => {
   const onCategoryChange = (cat) => {
     setSelectedCategory(cat);
     fetchMedias(cat);
+  };
+
+  const handleRetryConnection = () => {
+    fetchCategories();
+    fetchMedias(selectedCategory);
   };
 
   return (
@@ -139,6 +141,10 @@ const MediaListScreen = ({ navigation }) => {
           <Picker.Item key={cat} label={cat} value={cat} />
         ))}
       </Picker>
+
+      {connectionError ? (
+        <ConnectionErrorCard onRetry={handleRetryConnection} />
+      ) : null}
 
       <FlatList
         data={medias}

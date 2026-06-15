@@ -16,6 +16,11 @@
     "overview": "Overview",
     "scheduledP": "Scheduled Pick up"
   },
+  "Api": {
+    "connectionTitle": "Could not connect to the server",
+    "connectionMessage": "The connection took too long or the server is unavailable. Check your internet connection and try again.",
+    "retry": "Try again"
+  },
   "Login": {
     "title": "Login",
     "subtitle": "Login and start donating!",

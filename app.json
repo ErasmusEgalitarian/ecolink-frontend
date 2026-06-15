@@ -17,7 +17,8 @@
           }
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-localization"
     ],
     "newArchEnabled": true,
     "version": "1.0.0",

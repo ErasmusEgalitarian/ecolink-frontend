@@ -8,11 +8,11 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import { AUTH_ENDPOINTS } from "../config/api";
-import API_BASE_URL from "../config/api";
+import { api, AUTH_ROUTES, isApiConnectionError } from "../config/api";
 import AuthScreenShell from "../components/auth/AuthScreenShell";
 import AuthTextField from "../components/auth/AuthTextField";
 import VerificationCodeCard from "../components/auth/VerificationCodeCard";
+import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { authColors } from "../theme/authTheme";
 import { styles } from "../styles/screens/LoginScreen.styles";
 import { persistAuthSession } from "../utils/authSession";
@@ -29,6 +29,7 @@ const LoginScreen = ({ onLogin }) => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [connectionError, setConnectionError] = useState(false);
 
   const handleNavigateToRegister = () => {
     navigation.navigate("Register");
@@ -78,69 +79,63 @@ const LoginScreen = ({ onLogin }) => {
     }
 
     setLoading(true);
+    setConnectionError(false);
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      const normalizedEmail = email.trim().toLowerCase();
-
-      const response = await fetch(AUTH_ENDPOINTS.LOGIN, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+      const response = await api.post(
+        AUTH_ROUTES.LOGIN,
+        {
+          email: normalizedEmail,
+          password,
         },
-        body: JSON.stringify({ email: normalizedEmail, password }),
-      });
+        {
+          headers: { Accept: "application/json" },
+        },
+      );
 
-      const data = await response.json();
+      const token = await persistAuthSession(response.data);
+      onLogin(token);
+      Alert.alert(t("Login.successTitle"), t("Login.successMessage"));
+    } catch (error) {
+      const data = error.data || {};
 
-      if (response.ok) {
-        const token = await persistAuthSession(data);
-        onLogin(token);
-        Alert.alert(t("Login.successTitle"), t("Login.successMessage"));
-      } else {
-        setPassword("");
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+        return;
+      }
 
-        if (response.status === 403 && data.code === "EMAIL_UNVERIFIED") {
-          setVerificationEmail(normalizedEmail);
-          return;
-        }
+      setPassword("");
 
-        if (response.status === 400) {
-          if (data.message?.toLowerCase().includes("email")) {
-            setEmailError(data.message || t("Login.emailNotFound"));
-          } else if (
-            data.message?.toLowerCase().includes("password") ||
-            data.message?.toLowerCase().includes("senha")
-          ) {
-            setPasswordError(data.message || t("Login.passwordIncorrect"));
-          } else {
-            Alert.alert(
-              t("Login.errorTitle"),
-              data.message || t("Login.invalidCredentials"),
-            );
-          }
-        } else if (response.status === 404) {
-          setEmailError(t("Login.emailNotFound"));
-        } else if (response.status === 401) {
-          setPasswordError(t("Login.passwordIncorrect"));
+      if (error.status === 403 && data.code === "EMAIL_UNVERIFIED") {
+        setVerificationEmail(normalizedEmail);
+        return;
+      }
+
+      if (error.status === 400) {
+        if (data.message?.toLowerCase().includes("email")) {
+          setEmailError(data.message || t("Login.emailNotFound"));
+        } else if (
+          data.message?.toLowerCase().includes("password") ||
+          data.message?.toLowerCase().includes("senha")
+        ) {
+          setPasswordError(data.message || t("Login.passwordIncorrect"));
         } else {
           Alert.alert(
             t("Login.errorTitle"),
-            data.message || t("Login.invalidCredentials"),
+            data.message || error.message || t("Login.invalidCredentials"),
           );
         }
-      }
-    } catch (error) {
-      if (
-        error.message.includes("Network request failed") ||
-        error.message.includes("Failed to fetch")
-      ) {
+      } else if (error.status === 404) {
+        setEmailError(t("Login.emailNotFound"));
+      } else if (error.status === 401) {
+        setPasswordError(t("Login.passwordIncorrect"));
+      } else {
         Alert.alert(
           t("Login.errorTitle"),
-          `Não foi possível conectar ao servidor. Verifique se o backend está rodando em ${API_BASE_URL}`,
+          data.message || error.message || t("Login.invalidCredentials"),
         );
-      } else {
-        Alert.alert(t("Login.errorTitle"), t("Login.connectionError"));
       }
     } finally {
       setLoading(false);
@@ -227,6 +222,10 @@ const LoginScreen = ({ onLogin }) => {
         onFocus={() => setPasswordFocused(true)}
         onBlur={() => setPasswordFocused(false)}
       />
+
+      {connectionError ? (
+        <ConnectionErrorCard onRetry={handleLogin} />
+      ) : null}
 
       <TouchableOpacity style={styles.forgotPassword}>
         <Text style={styles.forgotPasswordText}>

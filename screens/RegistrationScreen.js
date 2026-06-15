@@ -7,10 +7,11 @@ import {
   View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { AUTH_ENDPOINTS } from "../config/api";
+import { api, AUTH_ROUTES, isApiConnectionError } from "../config/api";
 import AuthScreenShell from "../components/auth/AuthScreenShell";
 import AuthTextField from "../components/auth/AuthTextField";
 import VerificationCodeCard from "../components/auth/VerificationCodeCard";
+import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { authColors } from "../theme/authTheme";
 import { styles } from "../styles/screens/RegistrationScreen.styles";
 import { persistAuthSession } from "../utils/authSession";
@@ -60,6 +61,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [connectionError, setConnectionError] = useState(false);
 
   // Estados de foco para cada campo
   const [usernameFocused, setUsernameFocused] = useState(false);
@@ -239,101 +241,90 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
     }
 
     setLoading(true);
+    setConnectionError(false);
 
     try {
       const phone = phoneNumber.replace(/\D/g, "");
       const cleanCpf = cpf.replace(/\D/g, "");
       const normalizedEmail = email.trim().toLowerCase();
 
-      const response = await fetch(AUTH_ENDPOINTS.REGISTER, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
+      await api.post(
+        AUTH_ROUTES.REGISTER,
+        {
           username,
           email: normalizedEmail,
           password,
           phone,
           cpf: cleanCpf,
           address: address.trim(),
-        }),
-      });
+        },
+        { headers: { Accept: "application/json" } },
+      );
 
-      const data = await response.json();
+      setVerificationEmail(normalizedEmail);
+    } catch (error) {
+      const data = error.data || {};
 
-      if (response.ok) {
-        setVerificationEmail(normalizedEmail);
-      } else {
-        if (data.errors?.length && applyServerErrors(data.errors)) {
-          return;
-        }
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+        return;
+      }
 
-        if (response.status === 400) {
-          // Bad Request - dados inválidos
-          if (data.message?.toLowerCase().includes("email")) {
-            setEmailError(data.message || t("Register.emailExists"));
-          } else if (
-            data.message?.toLowerCase().includes("username") ||
-            data.message?.toLowerCase().includes("nome")
-          ) {
-            setUsernameError(data.message);
-          } else if (
-            data.message?.toLowerCase().includes("phone") ||
-            data.message?.toLowerCase().includes("telefone")
-          ) {
-            setPhoneError(data.message);
-          } else if (data.message?.toLowerCase().includes("cpf")) {
-            setCpfError(data.message);
-          } else if (
-            data.message?.toLowerCase().includes("password") ||
-            data.message?.toLowerCase().includes("senha")
-          ) {
-            setPasswordError(data.message);
-          } else if (
-            data.message?.toLowerCase().includes("address") ||
-            data.message?.toLowerCase().includes("endereço")
-          ) {
-            setAddressError(data.message);
-          } else {
-            Alert.alert(
-              t("Register.errorTitle"),
-              data.message || t("Register.errorMessage"),
-            );
-          }
-        } else if (response.status === 409) {
-          const conflictField = data.field || "";
-          const conflictCode = data.code || "";
-          const conflictMessage = data.message?.toLowerCase() || "";
+      if (data.errors?.length && applyServerErrors(data.errors)) {
+        return;
+      }
 
-          if (
-            conflictField === "cpf" ||
-            conflictCode.includes("CPF") ||
-            conflictMessage.includes("cpf")
-          ) {
-            setCpfError(t("Register.cpfExists"));
-          } else {
-            setEmailError(t("Register.emailExists"));
-          }
+      if (error.status === 400) {
+        // Bad Request - dados inválidos
+        if (data.message?.toLowerCase().includes("email")) {
+          setEmailError(data.message || t("Register.emailExists"));
+        } else if (
+          data.message?.toLowerCase().includes("username") ||
+          data.message?.toLowerCase().includes("nome")
+        ) {
+          setUsernameError(data.message);
+        } else if (
+          data.message?.toLowerCase().includes("phone") ||
+          data.message?.toLowerCase().includes("telefone")
+        ) {
+          setPhoneError(data.message);
+        } else if (data.message?.toLowerCase().includes("cpf")) {
+          setCpfError(data.message);
+        } else if (
+          data.message?.toLowerCase().includes("password") ||
+          data.message?.toLowerCase().includes("senha")
+        ) {
+          setPasswordError(data.message);
+        } else if (
+          data.message?.toLowerCase().includes("address") ||
+          data.message?.toLowerCase().includes("endereço")
+        ) {
+          setAddressError(data.message);
         } else {
           Alert.alert(
             t("Register.errorTitle"),
-            data.message || t("Register.errorMessage"),
+            data.message || error.message || t("Register.errorMessage"),
           );
         }
-      }
-    } catch (error) {
-      if (
-        error.message.includes("Network request failed") ||
-        error.message.includes("Failed to fetch")
-      ) {
+      } else if (error.status === 409) {
+        const conflictField = data.field || "";
+        const conflictCode = data.code || "";
+        const conflictMessage = data.message?.toLowerCase() || "";
+
+        if (
+          conflictField === "cpf" ||
+          conflictCode.includes("CPF") ||
+          conflictMessage.includes("cpf")
+        ) {
+          setCpfError(t("Register.cpfExists"));
+        } else {
+          setEmailError(t("Register.emailExists"));
+        }
+      } else {
         Alert.alert(
           t("Register.errorTitle"),
-          "Não foi possível conectar ao servidor. Verifique se o backend está rodando em http://localhost:5000",
+          data.message || error.message || t("Register.errorMessage"),
         );
-      } else {
-        Alert.alert(t("Register.errorTitle"), t("Register.connectionError"));
       }
     } finally {
       setLoading(false);
@@ -508,6 +499,10 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onFocus={() => setAddressFocused(true)}
         onBlur={() => setAddressFocused(false)}
       />
+
+      {connectionError ? (
+        <ConnectionErrorCard onRetry={handleRegister} />
+      ) : null}
 
       <TouchableOpacity
         style={[

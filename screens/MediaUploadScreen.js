@@ -10,9 +10,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
-import { MEDIA_ENDPOINTS } from "../config/api";
+import {
+  api,
+  API_UPLOAD_TIMEOUT_MS,
+  MEDIA_ROUTES,
+  isApiConnectionError,
+} from "../config/api";
+import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { styles } from "../styles/screens/MediaUploadScreen.styles";
 
 const { width, height } = Dimensions.get("window");
@@ -22,6 +27,7 @@ const MediaUploadScreen = ({ navigation }) => {
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
 
   // referencia para input file no web
   const inputFileRef = useRef(null);
@@ -30,42 +36,38 @@ const MediaUploadScreen = ({ navigation }) => {
     navigation.setOptions({ title: "Upload" });
   }, [navigation]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const token = await AsyncStorage.getItem("authToken");
+  const fetchCategories = async () => {
+    setConnectionError(false);
 
-        const res = await fetch(MEDIA_ENDPOINTS.CATEGORIES, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+    try {
+      const response = await api.get(MEDIA_ROUTES.CATEGORIES);
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+      // Backend retorna: { success: true, data: [...] }
+      const categoriesData = response.data.success
+        ? response.data.data
+        : response.data;
 
-        const response = await res.json();
-
-        // Backend retorna: { success: true, data: [...] }
-        const categoriesData = response.success ? response.data : response;
-
-        // Garantir que sempre seja um array
-        if (Array.isArray(categoriesData)) {
-          setCategories(categoriesData);
-        } else {
-          console.error("Categories data is not an array:", categoriesData);
-          setCategories([]);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        Alert.alert("Error", "Failed to load categories");
+      // Garantir que sempre seja um array
+      if (Array.isArray(categoriesData)) {
+        setCategories(categoriesData);
+      } else {
+        console.error("Categories data is not an array:", categoriesData);
         setCategories([]);
       }
-    };
+      setConnectionError(false);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategories([]);
 
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+      } else {
+        Alert.alert("Error", "Failed to load categories");
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -139,16 +141,9 @@ const MediaUploadScreen = ({ navigation }) => {
     }
 
     setLoading(true);
+    setConnectionError(false);
 
     try {
-      const token = await AsyncStorage.getItem("authToken");
-
-      if (!token) {
-        Alert.alert("Erro", "Você precisa estar logado");
-        setLoading(false);
-        return;
-      }
-
       const formData = new FormData();
 
       if (Platform.OS === "web") {
@@ -174,40 +169,33 @@ const MediaUploadScreen = ({ navigation }) => {
 
       formData.append("category", category);
 
-      const res = await fetch(MEDIA_ENDPOINTS.UPLOAD, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
+      await api.post(MEDIA_ROUTES.UPLOAD, formData, {
+        timeout: API_UPLOAD_TIMEOUT_MS,
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        Alert.alert("Sucesso", "Upload realizado com sucesso!");
+      Alert.alert("Sucesso", "Upload realizado com sucesso!");
+      setConnectionError(false);
 
-        // Limpar form
-        setFile(null);
-        setCategory("");
-        if (Platform.OS === "web" && inputFileRef.current) {
-          inputFileRef.current.value = "";
-        }
-
-        // Navegar para lista
-        navigation.navigate("MediaList", { refresh: true });
-      } else {
-        const errorData = await res.json();
-        Alert.alert(
-          "Erro no upload",
-          errorData.message || `Erro ${res.status}: Tente novamente`,
-        );
+      // Limpar form
+      setFile(null);
+      setCategory("");
+      if (Platform.OS === "web" && inputFileRef.current) {
+        inputFileRef.current.value = "";
       }
+
+      // Navegar para lista
+      navigation.navigate("MediaList", { refresh: true });
     } catch (err) {
       console.error("Upload exception:", err);
-      Alert.alert(
-        "Erro",
-        err.message || "Algo deu errado. Verifique sua conexão.",
-      );
+
+      if (isApiConnectionError(err)) {
+        setConnectionError(true);
+      } else {
+        Alert.alert(
+          "Erro no upload",
+          err.data?.message || err.message || "Erro ao enviar arquivo.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -229,6 +217,12 @@ const MediaUploadScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.pickButton} onPress={pickFile}>
         <Text style={styles.pickButtonText}>Select file</Text>
       </TouchableOpacity>
+
+      {connectionError ? (
+        <ConnectionErrorCard
+          onRetry={file && category ? handleUpload : fetchCategories}
+        />
+      ) : null}
 
       {file && (
         <View style={styles.fileInfo}>
