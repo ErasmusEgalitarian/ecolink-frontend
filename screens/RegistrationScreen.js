@@ -61,6 +61,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationNotice, setVerificationNotice] = useState("");
   const [connectionError, setConnectionError] = useState(false);
 
   // Estados de foco para cada campo
@@ -78,6 +79,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
   const [phoneError, setPhoneError] = useState("");
   const [cpfError, setCpfError] = useState("");
   const [addressError, setAddressError] = useState("");
+  const [formError, setFormError] = useState("");
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -196,6 +198,13 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
     return handled;
   };
 
+  const getRateLimitMessage = (retryAfter) => {
+    const seconds = Number(retryAfter);
+    return Number.isFinite(seconds) && seconds > 0
+      ? t("Register.tooManyAttemptsWithTime", { seconds })
+      : t("Register.tooManyAttempts");
+  };
+
   const validateForm = () => {
     let isValid = true;
 
@@ -206,6 +215,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
     setPhoneError("");
     setCpfError("");
     setAddressError("");
+    setFormError("");
 
     // Validar nome
     if (!username.trim()) {
@@ -282,13 +292,14 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
 
     setLoading(true);
     setConnectionError(false);
+    setFormError("");
 
     try {
       const phone = phoneNumber.replace(/\D/g, "");
       const cleanCpf = cpf.replace(/\D/g, "");
       const normalizedEmail = email.trim().toLowerCase();
 
-      await api.post(
+      const response = await api.post(
         AUTH_ROUTES.REGISTER,
         {
           username,
@@ -300,6 +311,14 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         },
         { headers: { Accept: "application/json" } },
       );
+
+      if (response.data?.code === "VERIFICATION_CODE_SENT") {
+        setVerificationNotice(
+          response.status === 200
+            ? t("Register.pendingVerificationCodeSent")
+            : t("Register.verificationCodeSent"),
+        );
+      }
 
       setVerificationEmail(normalizedEmail);
     } catch (error) {
@@ -318,7 +337,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         error.status === 429 ||
         data.code === "REGISTER_RATE_LIMIT_EXCEEDED"
       ) {
-        Alert.alert(t("Register.errorTitle"), t("Register.tooManyAttempts"));
+        setFormError(getRateLimitMessage(data.retryAfter));
         return;
       }
 
@@ -396,6 +415,11 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
     }
   };
 
+  const handleBackFromVerification = () => {
+    setVerificationEmail("");
+    setVerificationNotice("");
+  };
+
   const loginFooter = (
     <View style={styles.loginContainer}>
       <Text style={styles.loginText}>{t("Register.hasAccount")}</Text>
@@ -410,6 +434,8 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
       <AuthScreenShell footer={loginFooter}>
         <VerificationCodeCard
           email={verificationEmail}
+          initialSuccessMessage={verificationNotice}
+          onBack={handleBackFromVerification}
           onVerified={handleVerificationComplete}
         />
       </AuthScreenShell>
@@ -427,6 +453,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onChangeText={(text) => {
           setUsername(text);
           if (usernameError) setUsernameError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Register.usernamePlaceholder")}
         iconName="person-outline"
@@ -444,6 +471,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onChangeText={(text) => {
           setEmail(text);
           if (emailError) setEmailError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Register.emailPlaceholder")}
         iconName="mail-outline"
@@ -461,6 +489,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onChangeText={(text) => {
           setPassword(text);
           if (passwordError) setPasswordError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Register.passwordPlaceholder")}
         iconName="lock-closed-outline"
@@ -497,6 +526,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onChangeText={(text) => {
           setPhoneNumber(text);
           if (phoneError) setPhoneError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Register.phonePlaceholder")}
         iconName="call-outline"
@@ -514,6 +544,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onChangeText={(text) => {
           setCpf(text);
           if (cpfError) setCpfError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Register.cpfPlaceholder")}
         iconName="card-outline"
@@ -531,6 +562,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
         onChangeText={(text) => {
           setAddress(text);
           if (addressError) setAddressError("");
+          if (formError) setFormError("");
         }}
         placeholder={t("Register.addressPlaceholder")}
         iconName="location-outline"
@@ -545,6 +577,8 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
       {connectionError ? (
         <ConnectionErrorCard onRetry={handleRegister} />
       ) : null}
+
+      {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
       <TouchableOpacity
         style={[

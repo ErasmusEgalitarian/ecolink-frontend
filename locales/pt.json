@@ -40,6 +40,8 @@
     "passwordIncorrect": "E-mail ou senha incorretos",
     "invalidCredentials": "E-mail ou senha incorretos",
     "tooManyAttempts": "Muitas tentativas de login. Aguarde alguns minutos e tente novamente.",
+    "tooManyAttemptsWithTime": "Muitas tentativas de login. Tente novamente em {{seconds}}s.",
+    "emailUnverified": "Sua conta ainda não foi verificada. Informe o código enviado para seu e-mail.",
     "successTitle": "Login realizado!",
     "successMessage": "Bem-vindo de volta!",
     "errorTitle": "Erro no login",
@@ -94,7 +96,10 @@
     "errorTitle": "Erro no cadastro",
     "errorMessage": "Algo deu errado. Tente novamente.",
     "connectionError": "Erro de conexão. Tente novamente.",
-    "tooManyAttempts": "Muitas tentativas de cadastro. Aguarde alguns minutos e tente novamente."
+    "tooManyAttempts": "Muitas tentativas de cadastro. Aguarde alguns minutos e tente novamente.",
+    "tooManyAttemptsWithTime": "Muitas tentativas de cadastro. Tente novamente em {{seconds}}s.",
+    "verificationCodeSent": "Enviamos um código de verificação para seu e-mail.",
+    "pendingVerificationCodeSent": "Já existe uma conta pendente para este e-mail. Enviamos um novo código de verificação."
   },
   "EmailVerification": {
     "title": "Verifique seu e-mail",
@@ -110,6 +115,8 @@
     "resendSuccess": "Enviamos um novo código para seu e-mail.",
     "resendError": "Não foi possível reenviar o código. Tente novamente.",
     "rateLimited": "Aguarde antes de solicitar outro código.",
+    "rateLimitedWithTime": "Aguarde {{seconds}}s antes de solicitar outro código.",
+    "alreadyVerified": "Este e-mail já foi verificado.",
     "verifiedTitle": "E-mail verificado!",
     "verifiedRegisterMessage": "Sua conta está ativa.",
     "verifiedLoginMessage": "Sua conta está ativa."

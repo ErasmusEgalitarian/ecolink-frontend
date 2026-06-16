@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { api, AUTH_ROUTES, isApiConnectionError } from "../../config/api";
 import { authColors } from "../../theme/authTheme";
@@ -16,12 +17,17 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 const sanitizeCode = (value) => value.replace(/\D/g, "").slice(0, CODE_LENGTH);
 
-const VerificationCodeCard = ({ email, onVerified }) => {
+const VerificationCodeCard = ({
+  email,
+  onVerified,
+  onBack,
+  initialSuccessMessage = "",
+}) => {
   const { t } = useTranslation();
   const [codeDigits, setCodeDigits] = useState(Array(CODE_LENGTH).fill(""));
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(initialSuccessMessage);
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -100,6 +106,13 @@ const VerificationCodeCard = ({ email, onVerified }) => {
     );
   };
 
+  const getRateLimitMessage = (retryAfter) => {
+    const seconds = Number(retryAfter);
+    return Number.isFinite(seconds) && seconds > 0
+      ? t("EmailVerification.rateLimitedWithTime", { seconds })
+      : t("EmailVerification.rateLimited");
+  };
+
   const handleVerifyCode = async () => {
     if (!canVerify) {
       setError(t("EmailVerification.codeRequired"));
@@ -127,9 +140,12 @@ const VerificationCodeCard = ({ email, onVerified }) => {
       } else if (data.code === "EMAIL_VERIFICATION_EXPIRED") {
         setError(t("EmailVerification.expiredCode"));
       } else if (data.code === "EMAIL_ALREADY_VERIFIED") {
+        setSuccessMessage(t("EmailVerification.alreadyVerified"));
         await onVerified?.();
+      } else if (data.code === "INVALID_VERIFICATION_CODE") {
+        setError(t("EmailVerification.invalidCode"));
       } else {
-        setError(data.message || t("EmailVerification.invalidCode"));
+        setError(t("EmailVerification.invalidCode"));
       }
     } finally {
       setVerifying(false);
@@ -163,13 +179,17 @@ const VerificationCodeCard = ({ email, onVerified }) => {
 
       if (isApiConnectionError(error)) {
         setError(t("Api.connectionMessage"));
-      } else if (error.status === 429) {
+      } else if (
+        error.status === 429 ||
+        data.code === "RESEND_VERIFICATION_CODE_RATE_LIMIT_EXCEEDED"
+      ) {
         startCooldown(data.retryAfter);
-        setError(t("EmailVerification.rateLimited"));
+        setError(getRateLimitMessage(data.retryAfter));
       } else if (data.code === "EMAIL_ALREADY_VERIFIED") {
+        setSuccessMessage(t("EmailVerification.alreadyVerified"));
         await onVerified?.();
       } else {
-        setError(data.message || t("EmailVerification.resendError"));
+        setError(t("EmailVerification.resendError"));
       }
     } finally {
       setResending(false);
@@ -183,6 +203,21 @@ const VerificationCodeCard = ({ email, onVerified }) => {
 
   return (
     <View>
+      {onBack ? (
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={onBack}
+          disabled={verifying || resending}
+          activeOpacity={0.75}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={22}
+            color={authColors.primaryDark}
+          />
+        </TouchableOpacity>
+      ) : null}
+
       <Text style={styles.title}>{t("EmailVerification.title")}</Text>
       <Text style={styles.subtitle}>{t("EmailVerification.subtitle")}</Text>
       <Text style={styles.emailText}>{email}</Text>

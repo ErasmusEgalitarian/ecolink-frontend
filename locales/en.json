@@ -40,6 +40,8 @@
     "passwordIncorrect": "Incorrect email or password",
     "invalidCredentials": "Incorrect email or password",
     "tooManyAttempts": "Too many login attempts. Please wait a few minutes and try again.",
+    "tooManyAttemptsWithTime": "Too many login attempts. Try again in {{seconds}}s.",
+    "emailUnverified": "Your account has not been verified yet. Enter the code sent to your email.",
     "successTitle": "Login successful!",
     "successMessage": "Welcome back!",
     "errorTitle": "Login error",
@@ -94,7 +96,10 @@
     "errorTitle": "Registration error",
     "errorMessage": "Something went wrong. Please try again.",
     "connectionError": "Connection error. Please try again.",
-    "tooManyAttempts": "Too many registration attempts. Please wait a few minutes and try again."
+    "tooManyAttempts": "Too many registration attempts. Please wait a few minutes and try again.",
+    "tooManyAttemptsWithTime": "Too many registration attempts. Try again in {{seconds}}s.",
+    "verificationCodeSent": "We sent a verification code to your email.",
+    "pendingVerificationCodeSent": "There is already a pending account for this email. We sent a new verification code."
   },
   "EmailVerification": {
     "title": "Verify your email",
@@ -110,6 +115,8 @@
     "resendSuccess": "We sent a new code to your email.",
     "resendError": "Could not resend the code. Please try again.",
     "rateLimited": "Please wait before requesting another code.",
+    "rateLimitedWithTime": "Please wait {{seconds}}s before requesting another code.",
+    "alreadyVerified": "This email has already been verified.",
     "verifiedTitle": "Email verified!",
     "verifiedRegisterMessage": "Your account is active.",
     "verifiedLoginMessage": "Your account is active."

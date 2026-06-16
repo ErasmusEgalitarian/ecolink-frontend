@@ -2,6 +2,12 @@ import { StyleSheet } from "react-native";
 import { authColors, authSpacing, authTypography } from "../../theme/authTheme";
 
 export const styles = StyleSheet.create({
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 18,
+    paddingVertical: 4,
+    paddingRight: 12,
+  },
   title: {
     ...authTypography.title,
     marginBottom: authSpacing.titleBottom,

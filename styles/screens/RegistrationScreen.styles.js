@@ -45,6 +45,15 @@ export const styles = StyleSheet.create({
     color: authColors.error,
     lineHeight: 18,
   },
+  formError: {
+    color: authColors.error,
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 18,
+    marginTop: -4,
+    marginBottom: 14,
+    textAlign: "center",
+  },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
