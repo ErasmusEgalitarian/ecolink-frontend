@@ -1,5 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { clearAuthStorage, isTokenExpired } from "../utils/authToken";
 
 // Configuração da API
 const API_BASE_URL =
@@ -16,6 +17,28 @@ export const API_ERROR_TYPES = {
   UNKNOWN: "unknown",
 };
 
+let onAuthExpired = null;
+let isHandlingAuthFailure = false;
+
+export const setOnAuthExpired = (handler) => {
+  onAuthExpired = handler;
+};
+
+const handleAuthFailure = async () => {
+  if (isHandlingAuthFailure) {
+    return;
+  }
+
+  isHandlingAuthFailure = true;
+
+  try {
+    await clearAuthStorage();
+    onAuthExpired?.();
+  } finally {
+    isHandlingAuthFailure = false;
+  }
+};
+
 // ==================== AXIOS INSTANCE ====================
 // Instância do axios com interceptor automático de token
 export const api = axios.create({
@@ -28,6 +51,13 @@ api.interceptors.request.use(
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (token) {
+        if (isTokenExpired(token)) {
+          await handleAuthFailure();
+          return Promise.reject(
+            new Error("Session expired. Please log in again."),
+          );
+        }
+
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -47,6 +77,17 @@ const getServerMessage = (data) => {
   return data.message || data.error || null;
 };
 
+const isAuthFailureResponse = (error) => {
+  const status = error?.response?.status;
+  const message = (getServerMessage(error?.response?.data) || "").toLowerCase();
+
+  if (status === 401) {
+    return true;
+  }
+
+  return status === 400 && message.includes("invalid token");
+};
+
 export const normalizeApiError = (error) => {
   if (error?.isApiError) {
     return error;
@@ -61,13 +102,14 @@ export const normalizeApiError = (error) => {
     status === 504 ||
     message.toLowerCase().includes("timeout");
   const isNetwork = !error?.response;
+  const isAuth = isAuthFailureResponse(error);
 
   let type = API_ERROR_TYPES.UNKNOWN;
   if (isTimeout) {
     type = API_ERROR_TYPES.TIMEOUT;
   } else if (isNetwork) {
     type = API_ERROR_TYPES.NETWORK;
-  } else if (status === 401 || status === 403) {
+  } else if (isAuth) {
     type = API_ERROR_TYPES.AUTH;
   } else if (status) {
     type = API_ERROR_TYPES.HTTP;
@@ -75,9 +117,11 @@ export const normalizeApiError = (error) => {
 
   const apiError = new Error(
     getServerMessage(data) ||
-      (isTimeout
-        ? "Tempo limite excedido ao conectar com o servidor."
-        : "Erro ao comunicar com o servidor."),
+      (isAuth
+        ? "Sessão expirada. Faça login novamente."
+        : isTimeout
+          ? "Tempo limite excedido ao conectar com o servidor."
+          : "Erro ao comunicar com o servidor."),
   );
 
   apiError.name = "ApiError";
@@ -96,7 +140,13 @@ export const isApiConnectionError = (error) =>
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(normalizeApiError(error)),
+  async (error) => {
+    if (isAuthFailureResponse(error)) {
+      await handleAuthFailure();
+    }
+
+    return Promise.reject(normalizeApiError(error));
+  },
 );
 
 // ==================== ENDPOINTS ====================

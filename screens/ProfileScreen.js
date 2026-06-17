@@ -5,6 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppConfirmationModal from "../components/AppConfirmationModal";
+import { clearAuthStorage } from "../utils/authToken";
 import { styles } from "../styles/screens/ProfileScreen.styles";
 
 const ProfileScreen = ({ navigation, onLogout }) => {
@@ -66,13 +67,7 @@ const ProfileScreen = ({ navigation, onLogout }) => {
       setShowLogoutModal(false);
 
       // Limpar AsyncStorage
-      await AsyncStorage.multiRemove([
-        "authToken",
-        "userId",
-        "userName",
-        "userEmail",
-        "userRole",
-      ]);
+      await clearAuthStorage();
 
       // Chamar a função onLogout do App.js para mudar o estado isLoggedIn
       if (onLogout) {

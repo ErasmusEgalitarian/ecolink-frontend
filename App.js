@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,6 +9,8 @@ import BottomNav from './components/BottomNav';
 import LangChanger from './components/LangChanger';
 import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
+import { setOnAuthExpired } from './config/api';
+import { clearAuthStorage, getStoredAuthToken } from './utils/authToken';
 import './i18n';
 
 const Stack = createNativeStackNavigator();
@@ -21,35 +24,49 @@ const MyTheme = {
 };
 
 export default function App() {
+    const [isAuthReady, setIsAuthReady] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Check whether the user has logged in with useEffect hook
     useEffect(() => {
+        setOnAuthExpired(() => {
+            setIsLoggedIn(false);
+        });
+
         const checkAuth = async () => {
-            const token = await AsyncStorage.getItem('authToken');
-            // !!token means turning the token value to a boolean to verify if its not null
+            const token = await getStoredAuthToken();
             setIsLoggedIn(!!token);
+            setIsAuthReady(true);
         };
+
         checkAuth();
     }, []);
 
-    // Assign the token from the backend
     const handleLogin = async (token) => {
         await AsyncStorage.setItem('authToken', token);
         setIsLoggedIn(true);
     };
 
-    // To logout the user from app
     const handleLogout = async () => {
-        await AsyncStorage.multiRemove([
-            'authToken',
-            'userId',
-            'userName',
-            'userEmail',
-            'userRole',
-        ]);
+        await clearAuthStorage();
         setIsLoggedIn(false);
     };
+
+    if (!isAuthReady) {
+        return (
+            <SafeAreaProvider>
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: '#F3F3F3',
+                    }}
+                >
+                    <ActivityIndicator size="large" />
+                </View>
+            </SafeAreaProvider>
+        );
+    }
 
     return (
         <SafeAreaProvider>
