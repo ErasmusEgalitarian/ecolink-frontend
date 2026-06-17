@@ -26,6 +26,7 @@
     "expo-camera": "~17.0.10",
     "expo-dev-client": "~6.0.21",
     "expo-image-picker": "~17.0.11",
+    "expo-localization": "~17.0.9",
     "expo-status-bar": "~3.0.9",
     "i18next": "^23.16.4",
     "react": "19.1.0",

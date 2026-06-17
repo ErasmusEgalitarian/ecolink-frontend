@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { USER_ENDPOINTS } from "../config/api";
+import { api, USER_ROUTES } from "../config/api";
 
 export const persistAuthSession = async (authData) => {
   const token = authData?.token;
@@ -21,22 +21,14 @@ export const persistAuthSession = async (authData) => {
   }
 
   try {
-    const profileResponse = await fetch(USER_ENDPOINTS.ME, {
-      method: "GET",
+    const profileResponse = await api.get(USER_ROUTES.ME, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
       },
     });
 
-    if (profileResponse.ok) {
-      const profileData = await profileResponse.json();
-      const userRole = profileData.data?.roleId?.name || "User";
-      await AsyncStorage.setItem("userRole", userRole);
-    } else {
-      const userRole = authData.user?.roleId?.name || authData.user?.role || "User";
-      await AsyncStorage.setItem("userRole", userRole);
-    }
+    const userRole = profileResponse.data?.data?.roleId?.name || "User";
+    await AsyncStorage.setItem("userRole", userRole);
   } catch {
     const userRole = authData.user?.roleId?.name || authData.user?.role || "User";
     await AsyncStorage.setItem("userRole", userRole);

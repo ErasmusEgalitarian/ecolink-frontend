@@ -16,6 +16,11 @@
     "overview": "Visão Geral",
     "scheduledP": "Coleta Agendada"
   },
+  "Api": {
+    "connectionTitle": "Não foi possível conectar ao servidor",
+    "connectionMessage": "A conexão demorou demais ou o servidor está indisponível. Verifique sua internet e tente novamente.",
+    "retry": "Tentar novamente"
+  },
   "Login": {
     "title": "Login",
     "subtitle": "Entre e comece a doar!",
@@ -31,9 +36,10 @@
     "emailInvalid": "E-mail inválido",
     "passwordRequired": "Por favor, insira sua senha",
     "passwordTooShort": "A senha deve ter no mínimo 6 caracteres",
-    "emailNotFound": "E-mail não encontrado",
-    "passwordIncorrect": "Senha incorreta",
-    "invalidCredentials": "Credenciais inválidas",
+    "emailNotFound": "E-mail ou senha incorretos",
+    "passwordIncorrect": "E-mail ou senha incorretos",
+    "invalidCredentials": "E-mail ou senha incorretos",
+    "tooManyAttempts": "Muitas tentativas de login. Aguarde alguns minutos e tente novamente.",
     "successTitle": "Login realizado!",
     "successMessage": "Bem-vindo de volta!",
     "errorTitle": "Erro no login",
@@ -60,8 +66,10 @@
     "backToLogin": "Fazer login",
     "usernameRequired": "Por favor, insira seu nome",
     "usernameTooShort": "O nome deve ter no mínimo 3 caracteres",
+    "usernameInvalid": "Nome inválido",
     "emailRequired": "Por favor, insira seu e-mail",
     "emailInvalid": "E-mail inválido",
+    "emailDomain": "Use um e-mail institucional @aluno.unb.br",
     "passwordRequired": "Por favor, insira uma senha",
     "passwordTooShort": "A senha deve ter no mínimo 8 caracteres",
     "passwordTooLong": "A senha deve ter no máximo 24 caracteres",
@@ -85,7 +93,8 @@
     "successMessage": "Conta criada com sucesso!",
     "errorTitle": "Erro no cadastro",
     "errorMessage": "Algo deu errado. Tente novamente.",
-    "connectionError": "Erro de conexão. Tente novamente."
+    "connectionError": "Erro de conexão. Tente novamente.",
+    "tooManyAttempts": "Muitas tentativas de cadastro. Aguarde alguns minutos e tente novamente."
   },
   "EmailVerification": {
     "title": "Verifique seu e-mail",

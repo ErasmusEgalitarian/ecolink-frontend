@@ -63,6 +63,9 @@ export const styles = StyleSheet.create({
     color: "red",
     fontSize: 16,
   },
+  connectionCardContainer: {
+    paddingHorizontal: 32,
+  },
   roleBadge: {
     backgroundColor: "#007bff",
     paddingHorizontal: 8,

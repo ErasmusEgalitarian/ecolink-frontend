@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { AUTH_ENDPOINTS } from "../../config/api";
+import { api, AUTH_ROUTES, isApiConnectionError } from "../../config/api";
 import { authColors } from "../../theme/authTheme";
 import { styles } from "../../styles/components/VerificationCodeCard.styles";
 
@@ -15,14 +15,6 @@ const CODE_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 60;
 
 const sanitizeCode = (value) => value.replace(/\D/g, "").slice(0, CODE_LENGTH);
-
-const getMessageFromResponse = async (response) => {
-  try {
-    return await response.json();
-  } catch {
-    return {};
-  }
-};
 
 const VerificationCodeCard = ({ email, onVerified }) => {
   const { t } = useTranslation();
@@ -119,30 +111,26 @@ const VerificationCodeCard = ({ email, onVerified }) => {
     setSuccessMessage("");
 
     try {
-      const response = await fetch(AUTH_ENDPOINTS.VERIFY_EMAIL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, code }),
-      });
-      const data = await getMessageFromResponse(response);
+      const response = await api.post(
+        AUTH_ROUTES.VERIFY_EMAIL,
+        { email, code },
+        { headers: { Accept: "application/json" } },
+      );
 
-      if (response.ok) {
-        await onVerified?.(data);
-        return;
-      }
+      await onVerified?.(response.data);
+      return;
+    } catch (error) {
+      const data = error.data || {};
 
-      if (data.code === "EMAIL_VERIFICATION_EXPIRED") {
+      if (isApiConnectionError(error)) {
+        setError(t("Api.connectionMessage"));
+      } else if (data.code === "EMAIL_VERIFICATION_EXPIRED") {
         setError(t("EmailVerification.expiredCode"));
       } else if (data.code === "EMAIL_ALREADY_VERIFIED") {
         await onVerified?.();
       } else {
         setError(data.message || t("EmailVerification.invalidCode"));
       }
-    } catch {
-      setError(t("EmailVerification.connectionError"));
     } finally {
       setVerifying(false);
     }
@@ -158,25 +146,24 @@ const VerificationCodeCard = ({ email, onVerified }) => {
     setSuccessMessage("");
 
     try {
-      const response = await fetch(AUTH_ENDPOINTS.RESEND_VERIFICATION_CODE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-      const data = await getMessageFromResponse(response);
+      const response = await api.post(
+        AUTH_ROUTES.RESEND_VERIFICATION_CODE,
+        { email },
+        { headers: { Accept: "application/json" } },
+      );
+      const data = response.data || {};
 
-      if (response.ok) {
-        setCodeDigits(Array(CODE_LENGTH).fill(""));
-        focusInput(0);
-        setSuccessMessage(t("EmailVerification.resendSuccess"));
-        startCooldown(data.retryAfter);
-        return;
-      }
+      setCodeDigits(Array(CODE_LENGTH).fill(""));
+      focusInput(0);
+      setSuccessMessage(t("EmailVerification.resendSuccess"));
+      startCooldown(data.retryAfter);
+      return;
+    } catch (error) {
+      const data = error.data || {};
 
-      if (response.status === 429) {
+      if (isApiConnectionError(error)) {
+        setError(t("Api.connectionMessage"));
+      } else if (error.status === 429) {
         startCooldown(data.retryAfter);
         setError(t("EmailVerification.rateLimited"));
       } else if (data.code === "EMAIL_ALREADY_VERIFIED") {
@@ -184,8 +171,6 @@ const VerificationCodeCard = ({ email, onVerified }) => {
       } else {
         setError(data.message || t("EmailVerification.resendError"));
       }
-    } catch {
-      setError(t("EmailVerification.connectionError"));
     } finally {
       setResending(false);
     }

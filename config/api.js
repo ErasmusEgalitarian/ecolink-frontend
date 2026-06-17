@@ -5,10 +5,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
+export const API_TIMEOUT_MS = 15000;
+export const API_UPLOAD_TIMEOUT_MS = 60000;
+
+export const API_ERROR_TYPES = {
+  TIMEOUT: "timeout",
+  NETWORK: "network",
+  HTTP: "http",
+  AUTH: "auth",
+  UNKNOWN: "unknown",
+};
+
 // ==================== AXIOS INSTANCE ====================
 // Instância do axios com interceptor automático de token
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
+  timeout: API_TIMEOUT_MS,
 });
 
 api.interceptors.request.use(
@@ -16,6 +28,7 @@ api.interceptors.request.use(
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (token) {
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (e) {
@@ -28,39 +41,99 @@ api.interceptors.request.use(
   },
 );
 
+const getServerMessage = (data) => {
+  if (!data) return null;
+  if (typeof data === "string") return data;
+  return data.message || data.error || null;
+};
+
+export const normalizeApiError = (error) => {
+  if (error?.isApiError) {
+    return error;
+  }
+
+  const status = error?.response?.status;
+  const data = error?.response?.data;
+  const message = error?.message || "";
+  const isTimeout =
+    error?.code === "ECONNABORTED" ||
+    status === 408 ||
+    status === 504 ||
+    message.toLowerCase().includes("timeout");
+  const isNetwork = !error?.response;
+
+  let type = API_ERROR_TYPES.UNKNOWN;
+  if (isTimeout) {
+    type = API_ERROR_TYPES.TIMEOUT;
+  } else if (isNetwork) {
+    type = API_ERROR_TYPES.NETWORK;
+  } else if (status === 401 || status === 403) {
+    type = API_ERROR_TYPES.AUTH;
+  } else if (status) {
+    type = API_ERROR_TYPES.HTTP;
+  }
+
+  const apiError = new Error(
+    getServerMessage(data) ||
+      (isTimeout
+        ? "Tempo limite excedido ao conectar com o servidor."
+        : "Erro ao comunicar com o servidor."),
+  );
+
+  apiError.name = "ApiError";
+  apiError.isApiError = true;
+  apiError.type = type;
+  apiError.status = status;
+  apiError.data = data;
+  apiError.originalError = error;
+
+  return apiError;
+};
+
+export const isApiConnectionError = (error) =>
+  error?.type === API_ERROR_TYPES.TIMEOUT ||
+  error?.type === API_ERROR_TYPES.NETWORK;
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => Promise.reject(normalizeApiError(error)),
+);
+
 // ==================== ENDPOINTS ====================
-// Endpoints de autenticação
-export const AUTH_ENDPOINTS = {
-  LOGIN: `${API_BASE_URL}/api/auth/login`,
-  REGISTER: `${API_BASE_URL}/api/auth/register`,
-  LOGOUT: `${API_BASE_URL}/api/auth/logout`,
-  VERIFY_EMAIL: `${API_BASE_URL}/api/auth/verify-email`,
-  RESEND_VERIFICATION_CODE: `${API_BASE_URL}/api/auth/resend-verification-code`,
+export const AUTH_ROUTES = {
+  LOGIN: "/auth/login",
+  REGISTER: "/auth/register",
+  LOGOUT: "/auth/logout",
+  VERIFY_EMAIL: "/auth/verify-email",
+  RESEND_VERIFICATION_CODE: "/auth/resend-verification-code",
 };
 
-// Endpoints de usuários
-export const USER_ENDPOINTS = {
-  ME: `${API_BASE_URL}/api/users/me`,
-  PROFILE: `${API_BASE_URL}/api/users/profile`,
-  UPDATE: `${API_BASE_URL}/api/users/update`,
+export const USER_ROUTES = {
+  LIST: "/users",
+  ME: "/users/me",
+  PROFILE: "/users/profile",
+  UPDATE: "/users/update",
 };
 
-// Endpoints de doações
-export const DONATION_ENDPOINTS = {
-  CREATE: `${API_BASE_URL}/api/donation`,
-  LIST: `${API_BASE_URL}/api/donation`,
-  MY: `${API_BASE_URL}/api/donation/my`,
-  BY_ID: (id) => `${API_BASE_URL}/api/donation/${id}`,
+export const ROLE_ROUTES = {
+  LIST: "/roles",
+  EDIT: (userId) => `/roles/edit/${userId}`,
 };
 
-// Endpoints de mídia
-export const MEDIA_ENDPOINTS = {
-  UPLOAD: `${API_BASE_URL}/api/media/upload`,
-  LIST: `${API_BASE_URL}/api/media`,
-  CATEGORIES: `${API_BASE_URL}/api/media/categories`,
-  BY_ID: (id) => `${API_BASE_URL}/api/media/${id}`,
-  UPDATE: (id) => `${API_BASE_URL}/api/media/${id}`,
-  DELETE: (id) => `${API_BASE_URL}/api/media/${id}`,
+export const DONATION_ROUTES = {
+  CREATE: "/donation",
+  LIST: "/donation",
+  MY: "/donation/my",
+  BY_ID: (id) => `/donation/${id}`,
+};
+
+export const MEDIA_ROUTES = {
+  UPLOAD: "/media/upload",
+  LIST: "/media",
+  CATEGORIES: "/media/categories",
+  BY_ID: (id) => `/media/${id}`,
+  UPDATE: (id) => `/media/${id}`,
+  DELETE: (id) => `/media/${id}`,
 };
 
 export default API_BASE_URL;

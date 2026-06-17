@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DONATION_ENDPOINTS } from "../config/api";
+import { api, DONATION_ROUTES } from "../config/api";
 
 /**
  * Hook customizado para gerenciar doações do usuário
@@ -24,19 +24,8 @@ export const useDonations = () => {
         throw new Error("User not authenticated");
       }
 
-      const response = await fetch(`${DONATION_ENDPOINTS.LIST}/my`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const response = await api.get(DONATION_ROUTES.MY);
+      const result = response.data;
       const donationsData = result.data || [];
 
       setDonations(donationsData);

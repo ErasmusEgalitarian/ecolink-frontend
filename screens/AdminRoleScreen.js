@@ -9,8 +9,14 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import { api } from "../config/api";
+import {
+  api,
+  ROLE_ROUTES,
+  USER_ROUTES,
+  isApiConnectionError,
+} from "../config/api";
 import { Ionicons } from "@expo/vector-icons";
+import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { styles } from "../styles/screens/AdminRoleScreen.styles";
 
 const AdminRoleScreen = ({ navigation }) => {
@@ -19,6 +25,7 @@ const AdminRoleScreen = ({ navigation }) => {
 
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [connectionError, setConnectionError] = useState(false);
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRoleId, setSelectedRoleId] = useState("");
@@ -28,11 +35,16 @@ const AdminRoleScreen = ({ navigation }) => {
     try {
       setLoading(true);
       setErro(null);
+      setConnectionError(false);
 
-      const response_users = await api.get("/users");
+      const response_users = await api.get(USER_ROUTES.LIST);
       setUsers(response_users.data);
     } catch (error) {
-      setErro("Failed to load users");
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+      } else {
+        setErro("Failed to load users");
+      }
     } finally {
       setLoading(false);
     }
@@ -42,11 +54,16 @@ const AdminRoleScreen = ({ navigation }) => {
     try {
       setLoading(true);
       setErro(null);
+      setConnectionError(false);
 
-      const response_roles = await api.get("/roles");
+      const response_roles = await api.get(ROLE_ROUTES.LIST);
       setRoles(response_roles.data);
     } catch (error) {
-      setErro("Failed to load users");
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+      } else {
+        setErro("Failed to load roles");
+      }
     } finally {
       setLoading(false);
     }
@@ -73,17 +90,27 @@ const AdminRoleScreen = ({ navigation }) => {
     const selectedRole = roles.find((r) => r._id === selectedRoleId);
 
     try {
-      await api.put(`/roles/edit/${selectedUser._id}`, {
+      setConnectionError(false);
+      await api.put(ROLE_ROUTES.EDIT(selectedUser._id), {
         roleId: selectedRole._id,
       });
       fetchData();
     } catch (error) {
       console.error("Failed to update role:", error);
-      const message = error.response?.data?.error || "Failed to update role";
-      setErro(message);
+      if (isApiConnectionError(error)) {
+        setConnectionError(true);
+      } else {
+        const message = error.data?.error || "Failed to update role";
+        setErro(message);
+      }
     } finally {
       closeModal();
     }
+  };
+
+  const retryFetchData = () => {
+    fetchData();
+    fetchRoles();
   };
 
   const renderItem = ({ item: user }) => (
@@ -103,6 +130,11 @@ const AdminRoleScreen = ({ navigation }) => {
   return (
     <View style={styles.parent}>
       {erro && <Text style={styles.errorText}>{erro}</Text>}
+      {connectionError ? (
+        <View style={styles.connectionCardContainer}>
+          <ConnectionErrorCard onRetry={retryFetchData} />
+        </View>
+      ) : null}
 
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />

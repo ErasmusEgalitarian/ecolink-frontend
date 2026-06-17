@@ -12,7 +12,13 @@ import ErrorModal from "../components/ErrorModal";
 import CancelModal from "../components/CancelModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { useCameraSimulator, useAuth } from "../hooks/useDonationHelpers";
-import { MEDIA_ENDPOINTS, DONATION_ENDPOINTS } from "../config/api";
+import {
+  api,
+  API_UPLOAD_TIMEOUT_MS,
+  MEDIA_ROUTES,
+  DONATION_ROUTES,
+  isApiConnectionError,
+} from "../config/api";
 import { styles } from "../styles/screens/PickUpScreenFinalStep.styles";
 
 const MOCK_MEDIA_ID = "6976eb4ce17e92b4602d49fc";
@@ -64,7 +70,6 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
     if (isMockMode(imageUri)) return null;
 
     try {
-      const { token } = await getCredentials();
       const formData = new FormData();
 
       formData.append("file", {
@@ -74,19 +79,11 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
       });
       formData.append("category", "Storage");
 
-      const response = await fetch(MEDIA_ENDPOINTS.UPLOAD, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
+      const response = await api.post(MEDIA_ROUTES.UPLOAD, formData, {
+        timeout: API_UPLOAD_TIMEOUT_MS,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Upload failed");
-      }
-
-      const data = await response.json();
-      return data._id;
+      return response.data?._id || response.data?.data?._id;
     } catch (error) {
       console.error("Upload error:", error);
       throw error;
@@ -103,8 +100,7 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         setShowErrorModal(true);
         return;
       }
-
-      const { userId, token, success } = await getCredentials();
+      const { userId, success } = await getCredentials();
 
       if (!success) {
         setErrorMessage({
@@ -127,6 +123,7 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
 
       let successCount = 0;
       let failedItems = [];
+      let hasConnectionFailure = false;
 
       for (const itemId of items) {
         const payload = {
@@ -138,23 +135,17 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         };
 
         try {
-          const response = await fetch(DONATION_ENDPOINTS.CREATE, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            failedItems.push({ item: itemId, error: errorData.message });
-          } else {
-            successCount++;
-          }
+          await api.post(DONATION_ROUTES.CREATE, payload);
+          successCount++;
         } catch (error) {
-          failedItems.push({ item: itemId, error: error.message });
+          if (isApiConnectionError(error)) {
+            hasConnectionFailure = true;
+          }
+
+          failedItems.push({
+            item: itemId,
+            error: error.data?.message || error.message,
+          });
         }
       }
 
@@ -166,13 +157,17 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         setShowSuccessModal(true);
       } else {
         throw new Error(
-          `Falha ao criar doações. Erros: ${failedItems.map((f) => `${f.item}: ${f.error}`).join(", ")}`,
+          hasConnectionFailure
+            ? t("Api.connectionMessage")
+            : `Falha ao criar doações. Erros: ${failedItems.map((f) => `${f.item}: ${f.error}`).join(", ")}`,
         );
       }
     } catch (error) {
       setErrorMessage({
         title: t("PickupFinal.errorTitle"),
-        message: error.message || "Ocorreu um erro ao criar a doação.",
+        message: isApiConnectionError(error)
+          ? t("Api.connectionMessage")
+          : error.message || "Ocorreu um erro ao criar a doação.",
       });
       setShowErrorModal(true);
     }
