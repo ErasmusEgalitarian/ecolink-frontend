@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import {
+    useFonts,
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
+} from '@expo-google-fonts/montserrat';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import AppShell from './components/AppShell';
 import BottomNav from './components/BottomNav';
 import LangChanger from './components/LangChanger';
 import LoginScreen from './screens/LoginScreen';
@@ -24,6 +32,12 @@ const MyTheme = {
 };
 
 export default function App() {
+    const [fontsLoaded] = useFonts({
+        Montserrat_400Regular,
+        Montserrat_500Medium,
+        Montserrat_600SemiBold,
+        Montserrat_700Bold,
+    });
     const [isAuthReady, setIsAuthReady] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -51,7 +65,7 @@ export default function App() {
         setIsLoggedIn(false);
     };
 
-    if (!isAuthReady) {
+    if (!isAuthReady || !fontsLoaded) {
         return (
             <SafeAreaProvider>
                 <View
@@ -62,38 +76,47 @@ export default function App() {
                         backgroundColor: '#F3F3F3',
                     }}
                 >
-                    <ActivityIndicator size="large" />
+                    <ActivityIndicator size="large" color="#52B788" />
                 </View>
             </SafeAreaProvider>
         );
     }
 
+    if (isLoggedIn) {
+        return (
+            <SafeAreaProvider>
+                <AppShell>
+                    <NavigationContainer theme={MyTheme}>
+                        <BottomNav onLogout={handleLogout} />
+                    </NavigationContainer>
+                </AppShell>
+            </SafeAreaProvider>
+        );
+    }
+
+    // ── Auth screens: unchanged, full-width, as they were before ──────────────
     return (
         <SafeAreaProvider>
             <NavigationContainer theme={MyTheme}>
-                {isLoggedIn ? (
-                    <BottomNav onLogout={handleLogout} />
-                ) : (
-                    <Stack.Navigator>
-                        <Stack.Screen
-                            name="Login"
-                            options={{ headerShown: false }}
-                        >
-                            {() => <LoginScreen onLogin={handleLogin} />}
-                        </Stack.Screen>
-                        <Stack.Screen
-                            name="Register"
-                            options={{ headerShown: false }}
-                        >
-                            {(props) => (
-                                <RegistrationScreen
-                                    {...props}
-                                    onLogin={handleLogin}
-                                />
-                            )}
-                        </Stack.Screen>
-                    </Stack.Navigator>
-                )}
+                <Stack.Navigator>
+                    <Stack.Screen
+                        name="Login"
+                        options={{ headerShown: false }}
+                    >
+                        {() => <LoginScreen onLogin={handleLogin} />}
+                    </Stack.Screen>
+                    <Stack.Screen
+                        name="Register"
+                        options={{ headerShown: false }}
+                    >
+                        {(props) => (
+                            <RegistrationScreen
+                                {...props}
+                                onLogin={handleLogin}
+                            />
+                        )}
+                    </Stack.Screen>
+                </Stack.Navigator>
             </NavigationContainer>
             <LangChanger />
         </SafeAreaProvider>

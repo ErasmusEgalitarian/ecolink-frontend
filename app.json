@@ -18,7 +18,8 @@
         }
       ],
       "expo-asset",
-      "expo-localization"
+      "expo-localization",
+      "expo-font"
     ],
     "newArchEnabled": true,
     "version": "1.0.0",

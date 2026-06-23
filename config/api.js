@@ -177,6 +177,14 @@ export const DONATION_ROUTES = {
   BY_ID: (id) => `/donation/${id}`,
 };
 
+export const SEMESTER_ROUTES = {
+  LIST: "/semesters",
+  CURRENT: "/semesters/current",
+  CURRENT_PROGRESS: "/semesters/current/progress",
+  PROGRESS: "/semesters/progress",
+  BY_ID_PROGRESS: (id) => `/semesters/${id}/progress`,
+};
+
 export const MEDIA_ROUTES = {
   UPLOAD: "/media/upload",
   LIST: "/media",

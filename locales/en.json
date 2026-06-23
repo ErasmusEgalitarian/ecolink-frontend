@@ -2,6 +2,19 @@
   "Home": {
     "bottomTXT": "This application only provides services in Brasilia"
   },
+  "Dashboard": {
+    "greeting": "Welcome,",
+    "semesterTitle": "Your donations \nthis semester",
+    "ecopoints": "Available\nEcopoints",
+    "generalDonations": "General\nDonations",
+    "donate": "Make a donation",
+    "motivational_start": "Let's get started!",
+    "motivational_going": "Keep it up!",
+    "motivational_half": "Almost halfway there!",
+    "motivational_more": "More than halfway!",
+    "motivational_almost": "Almost there!",
+    "motivational_done": "Goal achieved!"
+  },
   "BottomNav": {
     "donations": "Donations",
     "map": "Map",
@@ -224,6 +237,7 @@
     "logoutMessage": "Are you sure you want to logout?",
     "logoutConfirm": "Logout",
     "cancel": "Cancel",
+    "changeLanguage": "Language",
     "comingSoon": "Coming soon",
     "chartFeatureMessage": "The charts feature will be available soon!",
     "passwordFeatureMessage": "The password change feature will be available soon!"

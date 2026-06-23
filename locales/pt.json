@@ -2,6 +2,19 @@
   "Home": {
     "bottomTXT": "Este aplicativo só oferece serviços em Brasília"
   },
+  "Dashboard": {
+    "greeting": "Bem vindo,",
+    "semesterTitle": "Suas doações \nesse semestre",
+    "ecopoints": "Ecopontos\ndisponíveis",
+    "generalDonations": "Doações\nGerais",
+    "donate": "Realizar doação",
+    "motivational_start": "Vamos começar!",
+    "motivational_going": "Continue assim!",
+    "motivational_half": "Está quase na metade!",
+    "motivational_more": "Mais da metade!",
+    "motivational_almost": "Quase lá!",
+    "motivational_done": "Meta alcançada!"
+  },
   "BottomNav": {
     "donations": "Doações",
     "map": "Mapa",
@@ -228,6 +241,7 @@
     "logoutMessage": "Tem certeza que deseja sair?",
     "logoutConfirm": "Sair",
     "cancel": "Cancelar",
+    "changeLanguage": "Idioma",
     "comingSoon": "Em breve",
     "chartFeatureMessage": "A funcionalidade de gráficos estará disponível em breve!",
     "passwordFeatureMessage": "A funcionalidade de alteração de senha estará disponível em breve!"

@@ -6,14 +6,18 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppConfirmationModal from "../components/AppConfirmationModal";
 import { clearAuthStorage } from "../utils/authToken";
+import { LANGUAGE_STORAGE_KEY, normalizeLanguage } from "../utils/language";
 import { styles } from "../styles/screens/ProfileScreen.styles";
 
 const ProfileScreen = ({ navigation, onLogout }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedOption, setSelectedOption] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [userName, setUserName] = useState("Avatar Name");
   const [userEmail, setUserEmail] = useState("avatar@email.com");
+  const [currentLanguage, setCurrentLanguage] = useState(
+    normalizeLanguage(i18n.language)
+  );
 
   useEffect(() => {
     loadUserData();
@@ -80,6 +84,13 @@ const ProfileScreen = ({ navigation, onLogout }) => {
 
   const handleLogout = () => {
     setShowLogoutModal(true);
+  };
+
+  const handleToggleLanguage = async () => {
+    const next = currentLanguage === "pt" ? "en" : "pt";
+    await i18n.changeLanguage(next);
+    await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+    setCurrentLanguage(next);
   };
 
   const renderOption = (option, icon, label, onPress) => {
@@ -153,6 +164,28 @@ const ProfileScreen = ({ navigation, onLogout }) => {
             t("Profile.changePassword"),
             handleChangePassword
           )}
+
+          {/* Language toggle */}
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={handleToggleLanguage}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name="language-outline"
+              size={20}
+              color="#52B788"
+              style={styles.optionIcon}
+            />
+            <Text style={styles.optionText}>
+              {t("Profile.changeLanguage")}
+            </Text>
+            <View style={styles.languageBadge}>
+              <Text style={styles.languageBadgeText}>
+                {currentLanguage.toUpperCase()}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* Logout Button */}

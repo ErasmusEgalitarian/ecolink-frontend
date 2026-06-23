@@ -8,6 +8,7 @@ import { styles } from "../styles/components/BottomNav.styles";
 
 import LandingScreen from "../screens/LandingScreen";
 import DashboardScreen from "../screens/DashboardScreen";
+
 import AdminRoleScreen from "../screens/AdminRoleScreen";
 import PickUpScreen from "../screens/PickUpScreen";
 import OverviewScreen from "../screens/OverviewScreen";
@@ -39,10 +40,15 @@ function ContentScreen() {
   );
 }
 
-// Stack Navigator para Doações (OverviewScreen + fluxo de criação)
+// Stack Navigator para Doações (DashboardScreen é a raiz; OverviewScreen acessível via "Doações Gerais")
 function DonationsStack() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="DashboardScreen"
+        component={DashboardScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="OverviewScreen"
         component={OverviewScreen}
