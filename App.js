@@ -8,6 +8,7 @@ import BottomNav from './components/BottomNav';
 import LangChanger from './components/LangChanger';
 import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import './i18n';
 
 const Stack = createNativeStackNavigator();
@@ -75,6 +76,11 @@ export default function App() {
                                 />
                             )}
                         </Stack.Screen>
+                        <Stack.Screen
+                            name="ForgotPassword"
+                            component={ForgotPasswordScreen}
+                            options={{ headerShown: false }}
+                        />
                     </Stack.Navigator>
                 )}
             </NavigationContainer>

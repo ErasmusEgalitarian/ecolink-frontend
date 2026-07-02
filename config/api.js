@@ -106,6 +106,8 @@ export const AUTH_ROUTES = {
   LOGOUT: "/auth/logout",
   VERIFY_EMAIL: "/auth/verify-email",
   RESEND_VERIFICATION_CODE: "/auth/resend-verification-code",
+  FORGOT_PASSWORD: "/auth/forgot-password",
+  RESET_PASSWORD: "/auth/reset-password",
 };
 
 export const USER_ROUTES = {
