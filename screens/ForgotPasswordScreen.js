@@ -144,6 +144,19 @@ const ForgotPasswordScreen = () => {
             visible={showPassword}
             onToggleVisibility={() => setShowPassword(!showPassword)}
           />
+          <TouchableOpacity 
+            style={{ marginTop: 15, alignItems: 'center' }} 
+            onPress={() => {
+                setStep(1);
+                setToken("");
+                setNewPassword("");
+                setFormError("");
+            }}
+          >
+            <Text style={{ color: authColors.primary, fontWeight: '600' }}>
+              O token expirou? Voltar e pedir um novo.
+            </Text>
+          </TouchableOpacity>
         </>
       )}
 
