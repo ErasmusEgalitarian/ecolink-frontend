@@ -44,6 +44,15 @@
     "unknownWeight": "Amount unavailable",
     "unknownTime": "Date unavailable"
   },
+  "MyDonations": {
+    "title": "Your donations",
+    "summary": "You have already donated <bold>{{donated}}g</bold> of {{goal}}g.",
+    "goalHint": "Hit your goal to guarantee your credits!",
+    "historyTitle": "Donation history",
+    "exportHistory": "Export history",
+    "emptyTitle": "No donations this semester",
+    "emptyMessage": "Your donations for this semester will appear here after you make your first one."
+  },
   "BottomNav": {
     "donations": "Donations",
     "map": "Map",

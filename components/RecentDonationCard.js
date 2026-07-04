@@ -11,7 +11,7 @@ import {
 } from "../utils/donationDisplay";
 import { styles } from "../styles/components/RecentDonationCard.styles";
 
-const RecentDonationCard = ({ donation }) => {
+const RecentDonationCard = ({ donation, materialColor }) => {
   const { t } = useTranslation();
 
   if (!donation) {
@@ -20,12 +20,13 @@ const RecentDonationCard = ({ donation }) => {
 
   const materialType = donation.materialType;
   const materialLabel = t(getDonationMaterialLabelKey(materialType));
-  const materialColor = getRecentDonationMaterialColor(materialType);
+  const resolvedMaterialColor =
+    materialColor ?? getRecentDonationMaterialColor(materialType);
 
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
-        <Text style={[styles.materialName, { color: materialColor }]}>
+        <Text style={[styles.materialName, { color: resolvedMaterialColor }]}>
           {materialLabel}
         </Text>
         <Text style={styles.timeAgo}>

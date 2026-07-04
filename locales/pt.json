@@ -44,6 +44,15 @@
     "unknownWeight": "Quantidade não informada",
     "unknownTime": "Data não informada"
   },
+  "MyDonations": {
+    "title": "Suas doações",
+    "summary": "Você já doou <bold>{{donated}}g</bold> de {{goal}}g.",
+    "goalHint": "Bata sua meta para garantir seus créditos!",
+    "historyTitle": "Histórico de doações",
+    "exportHistory": "Exportar histórico",
+    "emptyTitle": "Nenhuma doação neste semestre",
+    "emptyMessage": "Suas doações deste semestre aparecerão aqui assim que você realizar a primeira."
+  },
   "BottomNav": {
     "donations": "Doações",
     "map": "Mapa",
