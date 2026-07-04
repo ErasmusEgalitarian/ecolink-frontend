@@ -41,9 +41,14 @@ const handleAuthFailure = async () => {
 
 // ==================== AXIOS INSTANCE ====================
 // Instância do axios com interceptor automático de token
+// O header abaixo pula a página de aviso do localtunnel (apenas em ambiente de
+// teste via *.loca.lt). Em produção não é enviado, então o CORS não é afetado.
+const isLocalTunnel = API_BASE_URL.includes(".loca.lt");
+
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   timeout: API_TIMEOUT_MS,
+  headers: isLocalTunnel ? { "Bypass-Tunnel-Reminder": "true" } : undefined,
 });
 
 api.interceptors.request.use(
@@ -175,6 +180,15 @@ export const DONATION_ROUTES = {
   LIST: "/donation",
   MY: "/donation/my",
   BY_ID: (id) => `/donation/${id}`,
+};
+
+export const ECOPOINT_ROUTES = {
+  AVAILABLE: "/ecopoints/available",
+};
+
+export const LOCATION_ROUTES = {
+  AVAILABLE: "/locations/available",
+  BY_ID: (id) => `/locations/${id}`,
 };
 
 export const SEMESTER_ROUTES = {
