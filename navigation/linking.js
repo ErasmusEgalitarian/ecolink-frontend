@@ -29,6 +29,7 @@ export const appLinking = {
           PickUpScreenMap: "mapa",
           AvailableEcopointsScreen: "ecopontos",
           EcopointDetailScreen: "ecopontos/:locationId",
+          EcopointFaqScreen: "ecopontos/faq",
         },
       },
       Mapa: {

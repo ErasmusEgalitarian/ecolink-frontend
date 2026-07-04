@@ -21,6 +21,7 @@ import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
+import EcopointFaqScreen from "../screens/EcopointFaqScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -84,6 +85,11 @@ function DonationsStack() {
       <Stack.Screen
         name="EcopointDetailScreen"
         component={EcopointDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EcopointFaqScreen"
+        component={EcopointFaqScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

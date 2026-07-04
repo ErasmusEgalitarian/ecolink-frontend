@@ -285,5 +285,25 @@
     "activeLabel": "Active?",
     "activeYes": "Yes",
     "activeNo": "No"
+  },
+  "EcopointFaq": {
+    "helpButton": "Help about ecopoint status",
+    "title": "How to know the Ecopoint status?",
+    "activeTitle": "Active",
+    "activeDescriptionPart1": "The active ecopoint is ",
+    "activeDescriptionBold": "ready",
+    "activeDescriptionPart2": " to be used!",
+    "fullTitle": "Full",
+    "fullDescriptionPart1": "The ecopoint in yellow means the bin is working correctly, but it is ",
+    "fullDescriptionBold": "full",
+    "fullDescriptionPart2": ". It will be emptied soon and will be available for use again!",
+    "offlineTitle": "Offline",
+    "offlineDescriptionPart1": "The ecopoint in gray means it is ",
+    "offlineDescriptionBold": "without communication",
+    "offlineDescriptionPart2": " with the system. In this case, the displayed status may not be up to date.",
+    "closedTitle": "Closed",
+    "closedDescriptionPart1": "The ecopoint in red means it is ",
+    "closedDescriptionBold": "closed",
+    "closedDescriptionPart2": " and is not available for donations at the moment."
   }
 }

@@ -74,6 +74,10 @@ const AvailableEcopointsScreen = ({ navigation }) => {
     });
   };
 
+  const handleHelp = () => {
+    navigation.navigate("EcopointFaqScreen");
+  };
+
   const handleEnableLocation = async () => {
     const result = await refreshLocation({ request: true });
     if (
@@ -212,8 +216,9 @@ const AvailableEcopointsScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.helpButton}
+            onPress={handleHelp}
             activeOpacity={0.8}
-            accessibilityLabel="?"
+            accessibilityLabel={t("EcopointFaq.helpButton")}
           >
             <Text style={styles.helpButtonText}>?</Text>
           </TouchableOpacity>

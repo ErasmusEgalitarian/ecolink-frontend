@@ -14,7 +14,6 @@ export const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
   },
   backButton: {
@@ -24,20 +23,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "#29A66C",
     justifyContent: "center",
     alignItems: "center",
-  },
-  helpButton: {
-    width: 33,
-    height: 32,
-    borderRadius: 85,
-    backgroundColor: "#B5E8D0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  helpButtonText: {
-    fontFamily: "Montserrat_600SemiBold",
-    fontSize: 16,
-    lineHeight: 21,
-    color: "#809CAD",
   },
   title: {
     fontFamily: "Montserrat_700Bold",

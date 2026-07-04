@@ -201,14 +201,6 @@ const EcopointDetailScreen = ({ navigation, route }) => {
           >
             <Ionicons name="arrow-back" size={16} color="#FDFEFF" />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.helpButton}
-            activeOpacity={0.8}
-            accessibilityLabel="?"
-          >
-            <Text style={styles.helpButtonText}>?</Text>
-          </TouchableOpacity>
         </View>
 
         {renderContent()}

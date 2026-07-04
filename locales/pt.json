@@ -289,5 +289,25 @@
     "activeLabel": "Ativo?",
     "activeYes": "Sim",
     "activeNo": "Não"
+  },
+  "EcopointFaq": {
+    "helpButton": "Ajuda sobre status do ecoponto",
+    "title": "Como saber o status do Ecoponto?",
+    "activeTitle": "Ativo",
+    "activeDescriptionPart1": "O ecoponto ativo está ",
+    "activeDescriptionBold": "pronto",
+    "activeDescriptionPart2": " para ser utilizado!",
+    "fullTitle": "Cheio",
+    "fullDescriptionPart1": "O ecoponto na cor amarela significa que a lixeira está funcionando corretamente, porém está ",
+    "fullDescriptionBold": "cheia",
+    "fullDescriptionPart2": ". Em breve ela será esvaziada e ficará disponível para uso novamente!",
+    "offlineTitle": "Offline",
+    "offlineDescriptionPart1": "O ecoponto na cor cinza significa que ele está ",
+    "offlineDescriptionBold": "sem comunicação",
+    "offlineDescriptionPart2": " com o sistema. Nesse caso, o status exibido pode não estar atualizado.",
+    "closedTitle": "Fechado",
+    "closedDescriptionPart1": "O ecoponto na cor vermelha significa que ele está ",
+    "closedDescriptionBold": "fechado",
+    "closedDescriptionPart2": " e não está disponível para doações no momento."
   }
 }
