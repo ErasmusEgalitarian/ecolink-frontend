@@ -10,7 +10,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import DonutChart from "../components/DonutChart";
 import ConnectionErrorCard from "../components/ConnectionErrorCard";
@@ -27,7 +26,6 @@ const GeneralDonationsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [connectionError, setConnectionError] = useState(false);
   const [stats, setStats] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -49,32 +47,14 @@ const GeneralDonationsScreen = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      let active = true;
-
-      const load = async () => {
-        try {
-          const role = await AsyncStorage.getItem("userRole");
-          if (active) setIsAdmin(role === "Admin");
-        } catch {
-          if (active) setIsAdmin(false);
-        }
-
-        if (active) await fetchStats();
-      };
-
-      load();
-      return () => {
-        active = false;
-      };
+      fetchStats();
     }, [fetchStats]),
   );
 
   const handleBack = () => goBackInDonationsStack(navigation);
 
   const handleRecentDonations = () => {
-    navigation.navigate("OverviewScreen", {
-      initialTab: isAdmin ? "allDonations" : "myDonations",
-    });
+    navigation.navigate("RecentDonationsScreen");
   };
 
   const handleDonate = () => navigation.navigate("QRScannerScreen");

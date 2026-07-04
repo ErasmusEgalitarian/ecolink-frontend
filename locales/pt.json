@@ -26,6 +26,24 @@
     "summaryQuantity": "{{count}} quantidades",
     "recentButton": "Ver doações recentes"
   },
+  "RecentDonations": {
+    "title": "Doações recentes",
+    "emptyTitle": "Nenhuma doação recente",
+    "emptyMessage": "Suas doações aparecerão aqui assim que você realizar a primeira.",
+    "justNow": "Agora",
+    "minutesAgo": "Há {{count}} minuto",
+    "minutesAgo_plural": "Há {{count}} minutos",
+    "hoursAgo": "Há {{count}} hora",
+    "hoursAgo_plural": "Há {{count}} horas",
+    "daysAgo": "Há {{count}} dia",
+    "daysAgo_plural": "Há {{count}} dias",
+    "weightGrams": "{{count}} grama",
+    "weightGrams_plural": "{{count}} gramas",
+    "unknownMaterial": "Material",
+    "unknownLocation": "Local não informado",
+    "unknownWeight": "Quantidade não informada",
+    "unknownTime": "Data não informada"
+  },
   "BottomNav": {
     "donations": "Doações",
     "map": "Mapa",
