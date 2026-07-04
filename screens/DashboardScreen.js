@@ -185,6 +185,7 @@ const DashboardScreen = ({ navigation }) => {
   const handleDonate    = () => navigation.navigate("QRScannerScreen");
   const handleOverview  = () => navigation.navigate("GeneralDonationsScreen");
   const handleEcopoints = () => navigation.navigate("AvailableEcopointsScreen");
+  const handleMyDonations = () => navigation.navigate("MyDonationsScreen");
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -213,7 +214,12 @@ const DashboardScreen = ({ navigation }) => {
         </View>
 
         {/* Progress Card */}
-        <View style={styles.progressCard}>
+        <TouchableOpacity
+          style={styles.progressCard}
+          onPress={handleMyDonations}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+        >
           <Text style={styles.progressCardTitle}>
             {t("Dashboard.semesterTitle")}
           </Text>
@@ -240,7 +246,7 @@ const DashboardScreen = ({ navigation }) => {
               />
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Quick-access Cards */}
         <View style={styles.cardsRow}>

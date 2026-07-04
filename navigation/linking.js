@@ -24,6 +24,7 @@ export const appLinking = {
           DashboardScreen: "",
           GeneralDonationsScreen: "gerais",
           RecentDonationsScreen: "recentes",
+          MyDonationsScreen: "minhas",
           OverviewScreen: "historico",
           QRScannerScreen: "scanner",
           PickUpScreen: "coleta",
