@@ -183,7 +183,7 @@ const DashboardScreen = ({ navigation }) => {
   const percentage        = goalAmount > 0 ? donatedAmount / goalAmount : 0;
 
   const handleDonate    = () => navigation.navigate("QRScannerScreen");
-  const handleOverview  = () => navigation.navigate("OverviewScreen");
+  const handleOverview  = () => navigation.navigate("GeneralDonationsScreen");
   const handleEcopoints = () => navigation.navigate("AvailableEcopointsScreen");
 
   return (

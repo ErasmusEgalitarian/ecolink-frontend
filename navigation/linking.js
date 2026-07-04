@@ -22,6 +22,7 @@ export const appLinking = {
         path: "doacoes",
         screens: {
           DashboardScreen: "",
+          GeneralDonationsScreen: "gerais",
           OverviewScreen: "historico",
           QRScannerScreen: "scanner",
           PickUpScreen: "coleta",

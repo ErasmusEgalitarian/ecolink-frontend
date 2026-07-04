@@ -15,6 +15,17 @@
     "motivational_almost": "Quase lá!",
     "motivational_done": "Meta alcançada!"
   },
+  "GeneralDonations": {
+    "title": "Doações gerais",
+    "subtitle": "Este gráfico mostra todas as doações feitas no semestre atual",
+    "materialMetal": "Metal",
+    "materialPaper": "Papel",
+    "materialPlastic": "Plástico",
+    "materialGlass": "Vidro",
+    "summaryPrefix": "Soma geral de resíduo coletado neste semestre: ",
+    "summaryQuantity": "{{count}} quantidades",
+    "recentButton": "Ver doações recentes"
+  },
   "BottomNav": {
     "donations": "Doações",
     "map": "Mapa",

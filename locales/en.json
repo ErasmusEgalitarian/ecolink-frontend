@@ -15,6 +15,17 @@
     "motivational_almost": "Almost there!",
     "motivational_done": "Goal achieved!"
   },
+  "GeneralDonations": {
+    "title": "General donations",
+    "subtitle": "This chart shows all donations made in the current semester",
+    "materialMetal": "Metal",
+    "materialPaper": "Paper",
+    "materialPlastic": "Plastic",
+    "materialGlass": "Glass",
+    "summaryPrefix": "Total waste collected this semester: ",
+    "summaryQuantity": "{{count}} quantities",
+    "recentButton": "View recent donations"
+  },
   "BottomNav": {
     "donations": "Donations",
     "map": "Map",

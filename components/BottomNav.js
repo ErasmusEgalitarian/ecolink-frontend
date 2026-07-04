@@ -22,6 +22,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
+import GeneralDonationsScreen from "../screens/GeneralDonationsScreen";
 import { createDonationsTabPressListener } from "../utils/donationsNavigation";
 
 const Stack = createNativeStackNavigator();
@@ -51,6 +52,11 @@ function DonationsStack() {
       <Stack.Screen
         name="DashboardScreen"
         component={DashboardScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GeneralDonationsScreen"
+        component={GeneralDonationsScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

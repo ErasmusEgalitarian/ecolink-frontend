@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 
 import EcopointCard from "../components/EcopointCard";
 import ConnectionErrorCard from "../components/ConnectionErrorCard";
-import { returnToScreen } from "../utils/donationsNavigation";
+import { goBackInDonationsStack } from "../utils/donationsNavigation";
 import { useUserLocation } from "../hooks/useUserLocation";
 import { useAvailableEcopoints } from "../hooks/useAvailableEcopoints";
 import { styles } from "../styles/screens/AvailableEcopointsScreen.styles";
@@ -43,9 +43,7 @@ const AvailableEcopointsScreen = ({ navigation }) => {
     }, [coords, fetchAvailable]),
   );
 
-  const handleBack = () => {
-    returnToScreen(navigation, "DashboardScreen");
-  };
+  const handleBack = () => goBackInDonationsStack(navigation);
 
   const handleDonate = () => {
     const parent = navigation.getParent();

@@ -195,6 +195,7 @@ export const SEMESTER_ROUTES = {
   LIST: "/semesters",
   CURRENT: "/semesters/current",
   CURRENT_PROGRESS: "/semesters/current/progress",
+  CURRENT_DONATION_STATS: "/semesters/current/donation-stats",
   PROGRESS: "/semesters/progress",
   BY_ID_PROGRESS: (id) => `/semesters/${id}/progress`,
 };
