@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import {
+    useFonts,
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
+} from '@expo-google-fonts/montserrat';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import AppShell from './components/AppShell';
 import BottomNav from './components/BottomNav';
 import LangChanger from './components/LangChanger';
 import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
+import { setOnAuthExpired } from './config/api';
+import { clearAuthStorage, getStoredAuthToken } from './utils/authToken';
+import { appLinking, authLinking } from './navigation/linking';
 import './i18n';
 
 const Stack = createNativeStackNavigator();
@@ -21,62 +33,91 @@ const MyTheme = {
 };
 
 export default function App() {
+    const [fontsLoaded] = useFonts({
+        Montserrat_400Regular,
+        Montserrat_500Medium,
+        Montserrat_600SemiBold,
+        Montserrat_700Bold,
+    });
+    const [isAuthReady, setIsAuthReady] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Check whether the user has logged in with useEffect hook
     useEffect(() => {
+        setOnAuthExpired(() => {
+            setIsLoggedIn(false);
+        });
+
         const checkAuth = async () => {
-            const token = await AsyncStorage.getItem('authToken');
-            // !!token means turning the token value to a boolean to verify if its not null
+            const token = await getStoredAuthToken();
             setIsLoggedIn(!!token);
+            setIsAuthReady(true);
         };
+
         checkAuth();
     }, []);
 
-    // Assign the token from the backend
     const handleLogin = async (token) => {
         await AsyncStorage.setItem('authToken', token);
         setIsLoggedIn(true);
     };
 
-    // To logout the user from app
     const handleLogout = async () => {
-        await AsyncStorage.multiRemove([
-            'authToken',
-            'userId',
-            'userName',
-            'userEmail',
-            'userRole',
-        ]);
+        await clearAuthStorage();
         setIsLoggedIn(false);
     };
 
+    if (!isAuthReady || !fontsLoaded) {
+        return (
+            <SafeAreaProvider>
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: '#F3F3F3',
+                    }}
+                >
+                    <ActivityIndicator size="large" color="#52B788" />
+                </View>
+            </SafeAreaProvider>
+        );
+    }
+
+    if (isLoggedIn) {
+        return (
+            <SafeAreaProvider>
+                <AppShell>
+                    <NavigationContainer theme={MyTheme} linking={appLinking}>
+                        <BottomNav onLogout={handleLogout} />
+                    </NavigationContainer>
+                </AppShell>
+            </SafeAreaProvider>
+        );
+    }
+
+    // ── Auth screens: unchanged, full-width, as they were before ──────────────
     return (
         <SafeAreaProvider>
-            <NavigationContainer theme={MyTheme}>
-                {isLoggedIn ? (
-                    <BottomNav onLogout={handleLogout} />
-                ) : (
-                    <Stack.Navigator>
-                        <Stack.Screen
-                            name="Login"
-                            options={{ headerShown: false }}
-                        >
-                            {() => <LoginScreen onLogin={handleLogin} />}
-                        </Stack.Screen>
-                        <Stack.Screen
-                            name="Register"
-                            options={{ headerShown: false }}
-                        >
-                            {(props) => (
-                                <RegistrationScreen
-                                    {...props}
-                                    onLogin={handleLogin}
-                                />
-                            )}
-                        </Stack.Screen>
-                    </Stack.Navigator>
-                )}
+            <NavigationContainer theme={MyTheme} linking={authLinking}>
+                <Stack.Navigator>
+                    <Stack.Screen
+                        name="Login"
+                        options={{ headerShown: false }}
+                    >
+                        {() => <LoginScreen onLogin={handleLogin} />}
+                    </Stack.Screen>
+                    <Stack.Screen
+                        name="Register"
+                        options={{ headerShown: false }}
+                    >
+                        {(props) => (
+                            <RegistrationScreen
+                                {...props}
+                                onLogin={handleLogin}
+                            />
+                        )}
+                    </Stack.Screen>
+                </Stack.Navigator>
             </NavigationContainer>
             <LangChanger />
         </SafeAreaProvider>

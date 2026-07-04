@@ -12,6 +12,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 100,
   },
+  ecopointLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1A7048",
+    marginBottom: 16,
+  },
   wasteTypesContainer: {
     gap: 16,
   },

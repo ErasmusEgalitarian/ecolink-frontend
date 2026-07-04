@@ -1,5 +1,7 @@
 import React from "react";
 import { Image, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { getDonationLocationLabel } from "../utils/donationDisplay";
 import { styles } from "../styles/components/OverviewDonationCards.styles";
 
 const MaterialCircles = ({ materials }) => {
@@ -31,6 +33,7 @@ const MaterialCircles = ({ materials }) => {
 };
 
 const DonationCard = ({ donation, showUserInfo = false }) => {
+  const { t } = useTranslation();
   const materialIcons = {
     metal: require("../assets/materialIcons/recycleMetal.png"),
     plastic: require("../assets/materialIcons/recyclePlastic.png"),
@@ -63,7 +66,9 @@ const DonationCard = ({ donation, showUserInfo = false }) => {
           <Text style={styles.cardTXT}>
             {donation.qtdMaterial} {donation.materialType}
           </Text>
-          <Text style={styles.cardSTXT}>{donation.ecopointId}</Text>
+          <Text style={styles.cardSTXT}>
+            {getDonationLocationLabel(donation, t)}
+          </Text>
           <Text style={styles.cardDateTXT}>
             {formatDate(donation.donationDate)}
           </Text>

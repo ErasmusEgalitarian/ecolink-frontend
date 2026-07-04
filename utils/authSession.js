@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api, USER_ROUTES } from "../config/api";
 
+export { clearAuthStorage, getStoredAuthToken, isTokenExpired } from "./authToken";
+
 export const persistAuthSession = async (authData) => {
   const token = authData?.token;
   const userId = authData?.user?.id;

@@ -8,6 +8,7 @@ import { styles } from "../styles/components/BottomNav.styles";
 
 import LandingScreen from "../screens/LandingScreen";
 import DashboardScreen from "../screens/DashboardScreen";
+
 import AdminRoleScreen from "../screens/AdminRoleScreen";
 import PickUpScreen from "../screens/PickUpScreen";
 import OverviewScreen from "../screens/OverviewScreen";
@@ -18,6 +19,13 @@ import MediaListScreen from "../screens/MediaListScreen";
 import MediaStackNavigator from "../navigation/MediaStackNav";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
+import EcopointDetailScreen from "../screens/EcopointDetailScreen";
+import EcopointFaqScreen from "../screens/EcopointFaqScreen";
+import GeneralDonationsScreen from "../screens/GeneralDonationsScreen";
+import RecentDonationsScreen from "../screens/RecentDonationsScreen";
+import MyDonationsScreen from "../screens/MyDonationsScreen";
+import { createDonationsTabPressListener } from "../utils/donationsNavigation";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -39,10 +47,30 @@ function ContentScreen() {
   );
 }
 
-// Stack Navigator para Doações (OverviewScreen + fluxo de criação)
+// Stack Navigator para Doações (DashboardScreen é a raiz; OverviewScreen acessível via "Doações Gerais")
 function DonationsStack() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="DashboardScreen"
+        component={DashboardScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GeneralDonationsScreen"
+        component={GeneralDonationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RecentDonationsScreen"
+        component={RecentDonationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyDonationsScreen"
+        component={MyDonationsScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="OverviewScreen"
         component={OverviewScreen}
@@ -68,11 +96,26 @@ function DonationsStack() {
         component={PickUpScreenMap}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="AvailableEcopointsScreen"
+        component={AvailableEcopointsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EcopointDetailScreen"
+        component={EcopointDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EcopointFaqScreen"
+        component={EcopointFaqScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
 
-// Stack Navigator para Mapa (pode adicionar telas relacionadas)
+// Stack Navigator para Mapa (a implementar)
 function MapStack() {
   return (
     <Stack.Navigator>
@@ -156,6 +199,7 @@ export default function BottomNav({ onLogout }) {
           options={{
             tabBarLabel: t("BottomNav.donations"),
           }}
+          listeners={createDonationsTabPressListener}
         />
         <Tab.Screen
           name="Mapa"

@@ -1,165 +1,171 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Alert,
-  Platform,
   ActivityIndicator,
   Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "@react-navigation/native";
-import { Camera } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import ErrorModal from "../components/ErrorModal";
+import { api, ECOPOINT_ROUTES } from "../config/api";
 import { styles } from "../styles/screens/QRScannerScreen.styles";
+
+const NAVIGATION_DELAY_MS = 1200;
 
 const QRScannerScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const [hasPermission, setHasPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [scanState, setScanState] = useState("idle"); // idle, scanning, loading, success
-  const checkmarkScale = new Animated.Value(0);
+  const [scanState, setScanState] = useState("idle");
+  const [loadingTitle, setLoadingTitle] = useState("");
+  const [errorModal, setErrorModal] = useState({
+    visible: false,
+    title: "",
+    message: "",
+  });
+  const checkmarkScale = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    requestCameraPermission();
-  }, []);
+  const resetScannerState = useCallback(() => {
+    setScanned(false);
+    setShowCamera(false);
+    setScanState("idle");
+    setLoadingTitle("");
+    checkmarkScale.setValue(0);
+  }, [checkmarkScale]);
 
-  // Resetar estado quando a tela recebe foco
   useFocusEffect(
-    React.useCallback(() => {
-      console.log("🔄 QRScannerScreen: Resetando estado ao receber foco");
-      // Reset quando entra na tela
-      setScanned(false);
-      setShowCamera(false);
-      setScanState("idle");
-      checkmarkScale.setValue(0);
-
-      return () => {
-        // Cleanup quando sai da tela
-        console.log("🔄 QRScannerScreen: Limpando ao sair");
-      };
-    }, [])
+    useCallback(() => {
+      resetScannerState();
+    }, [resetScannerState]),
   );
 
-  // Listener adicional para navegação
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      console.log("🎯 QRScannerScreen: Focus listener ativado");
-      setScanned(false);
-      setShowCamera(false);
-      setScanState("idle");
-      checkmarkScale.setValue(0);
+  const showScanError = (title, message) => {
+    setShowCamera(false);
+    setScanState("idle");
+    setScanned(false);
+    setLoadingTitle("");
+    checkmarkScale.setValue(0);
+    setErrorModal({ visible: true, title, message });
+  };
+
+  const resolveEcopoint = async (rawQrValue) => {
+    const response = await api.get(ECOPOINT_ROUTES.BY_QR_CODE(rawQrValue));
+    return response.data?.ecopoint;
+  };
+
+  const navigateToPickup = (ecopoint) => {
+    navigation.navigate("PickUpScreen", {
+      ecoPontoId: ecopoint.id,
+      ecoPontoName: ecopoint.label,
+      locationName: ecopoint.locationName,
+      acceptedMaterials: ecopoint.acceptedMaterials ?? [],
     });
-
-    return unsubscribe;
-  }, [navigation]);
-
-  const requestCameraPermission = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setHasPermission(status === "granted");
   };
 
-  const handleOpenCamera = async () => {
-    // MODO DE TESTE: Simular scan sem câmera (para testar no computador)
-    console.log("🔄 Simulando scan de QR Code...");
+  const playSuccessAnimation = (onComplete) => {
+    setScanState("success");
+    Animated.spring(checkmarkScale, {
+      toValue: 1,
+      friction: 8,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
 
-    // Simular abertura da câmera
-    setShowCamera(true);
-    setScanState("scanning");
-
-    // Simular scan automático após 2 segundos
-    setTimeout(() => {
-      handleBarCodeScanned({
-        type: "QR",
-        data: "ECOPONTO_MOCK_123",
-      });
-    }, 2000);
-
-    /* 
-    // CÓDIGO ORIGINAL (descomentar quando testar em dispositivo móvel):
-    if (hasPermission === null) {
-      Alert.alert(
-        t('QRScanner.permissionPending'),
-        t('QRScanner.permissionPendingMessage')
-      );
-      return;
-    }
-
-    if (hasPermission === false) {
-      Alert.alert(
-        t('QRScanner.permissionDenied'),
-        t('QRScanner.permissionDeniedMessage')
-      );
-      return;
-    }
-
-    // Abrir câmera
-    setShowCamera(true);
-    setScanState('scanning');
-    */
+    setTimeout(onComplete, NAVIGATION_DELAY_MS);
   };
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    if (scanned) return;
+  const handleBarCodeScanned = async ({ data }) => {
+    if (scanned || !data?.trim()) {
+      return;
+    }
 
     setScanned(true);
     setScanState("loading");
+    setLoadingTitle(t("QRScanner.validatingTitle"));
 
-    // Simular processamento
-    setTimeout(() => {
-      setScanState("success");
+    try {
+      const ecopoint = await resolveEcopoint(data.trim());
 
-      // Animar checkmark
-      Animated.spring(checkmarkScale, {
-        toValue: 1,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: true,
-      }).start();
+      if (!ecopoint?.id) {
+        showScanError(
+          t("QRScanner.errorGenericTitle"),
+          t("QRScanner.errorGenericMessage"),
+        );
+        return;
+      }
 
-      // Navegar após 1.5s
-      setTimeout(() => {
-        navigation.navigate("PickUpScreen", {
-          ecoPontoId: data,
-          ecoPontoName: "EcoPonto Identificado",
-        });
-      }, 1500);
-    }, 1500);
+      setLoadingTitle(t("QRScanner.openingTitle"));
+      playSuccessAnimation(() => navigateToPickup(ecopoint));
+    } catch (error) {
+      const status = error?.status;
+      const serverMessage = error?.message;
+
+      if (status === 404) {
+        showScanError(
+          t("QRScanner.errorNotFoundTitle"),
+          t("QRScanner.errorNotFoundMessage"),
+        );
+        return;
+      }
+
+      if (status === 409) {
+        showScanError(
+          t("QRScanner.errorUnavailableTitle"),
+          serverMessage || t("QRScanner.errorUnavailableMessage"),
+        );
+        return;
+      }
+
+      showScanError(
+        t("QRScanner.errorGenericTitle"),
+        serverMessage || t("QRScanner.errorGenericMessage"),
+      );
+    }
   };
 
-  // Renderizar tela de câmera
+  const handleOpenCamera = async () => {
+    if (!permission?.granted) {
+      const result = await requestPermission();
+
+      if (!result?.granted) {
+        Alert.alert(
+          t("QRScanner.permissionDenied"),
+          t("QRScanner.permissionDeniedMessage"),
+        );
+        return;
+      }
+    }
+
+    resetScannerState();
+    setShowCamera(true);
+    setScanState("scanning");
+  };
+
+  const handleCloseCamera = () => {
+    resetScannerState();
+  };
+
   if (showCamera) {
     return (
       <View style={styles.cameraContainer}>
         {scanState === "scanning" && (
           <>
-            {/* MODO DE TESTE: Placeholder visual ao invés de câmera */}
-            {/* <View style={styles.cameraPlaceholder}>
-              <Text style={styles.placeholderText}>📷 Simulando Câmera</Text>
-              <Text style={styles.placeholderSubtext}>
-                Escaneando QR Code...
-              </Text>
-            </View> */}
-            {/* CÓDIGO ORIGINAL (descomentar quando testar em dispositivo móvel):
-            <Camera
+            <CameraView
               style={styles.camera}
-              type={Camera.Constants.Type.back}
-              onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-              barCodeScannerSettings={{
-                barCodeTypes: ["qr"],
-              }}
-            /> */}
-            {/* Overlay com cantos */}
-            <View style={styles.overlay}>
+              facing="back"
+              barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+              onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            />
+            <View style={styles.overlay} pointerEvents="box-none">
               <TouchableOpacity
                 style={styles.cameraBackButton}
-                onPress={() => {
-                  setShowCamera(false);
-                  setScanState("idle");
-                  setScanned(false);
-                }}
+                onPress={handleCloseCamera}
                 activeOpacity={0.7}
               >
                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -170,13 +176,9 @@ const QRScannerScreen = ({ navigation }) => {
               </Text>
 
               <View style={styles.scanFrame}>
-                {/* Canto superior esquerdo */}
                 <View style={[styles.corner, styles.topLeft]} />
-                {/* Canto superior direito */}
                 <View style={[styles.corner, styles.topRight]} />
-                {/* Canto inferior esquerdo */}
                 <View style={[styles.corner, styles.bottomLeft]} />
-                {/* Canto inferior direito */}
                 <View style={[styles.corner, styles.bottomRight]} />
               </View>
             </View>
@@ -187,35 +189,18 @@ const QRScannerScreen = ({ navigation }) => {
           <View style={styles.loadingOverlay}>
             <TouchableOpacity
               style={styles.cameraBackButton}
-              onPress={() => {
-                setShowCamera(false);
-                setScanState("idle");
-                setScanned(false);
-              }}
+              onPress={handleCloseCamera}
               activeOpacity={0.7}
             >
               <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-            <Text style={styles.loadingTitle}>
-              {t("QRScanner.loadingTitle")}
-            </Text>
+            <Text style={styles.loadingTitle}>{loadingTitle}</Text>
             <ActivityIndicator size="large" color="#FFFFFF" />
           </View>
         )}
 
         {scanState === "success" && (
           <View style={styles.successOverlay}>
-            <TouchableOpacity
-              style={styles.cameraBackButton}
-              onPress={() => {
-                setShowCamera(false);
-                setScanState("idle");
-                setScanned(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
             <Text style={styles.successTitle}>
               {t("QRScanner.successTitle")}
             </Text>
@@ -224,14 +209,19 @@ const QRScannerScreen = ({ navigation }) => {
             </Animated.View>
           </View>
         )}
+
+        <ErrorModal
+          visible={errorModal.visible}
+          title={errorModal.title}
+          message={errorModal.message}
+          onConfirm={() => setErrorModal((prev) => ({ ...prev, visible: false }))}
+        />
       </View>
     );
   }
 
-  // Tela inicial
   return (
     <View style={styles.container}>
-      {/* Header with Back Button */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -241,7 +231,6 @@ const QRScannerScreen = ({ navigation }) => {
         <Text style={styles.backButtonText}>{t("QRScanner.backButton")}</Text>
       </TouchableOpacity>
 
-      {/* Content */}
       <View style={styles.content}>
         <Text style={styles.title}>{t("QRScanner.title")}</Text>
 
@@ -255,7 +244,6 @@ const QRScannerScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Camera Button */}
         <TouchableOpacity
           style={styles.cameraButton}
           onPress={handleOpenCamera}
@@ -266,6 +254,13 @@ const QRScannerScreen = ({ navigation }) => {
 
         <Text style={styles.helperText}>{t("QRScanner.helperText")}</Text>
       </View>
+
+      <ErrorModal
+        visible={errorModal.visible}
+        title={errorModal.title}
+        message={errorModal.message}
+        onConfirm={() => setErrorModal((prev) => ({ ...prev, visible: false }))}
+      />
     </View>
   );
 };

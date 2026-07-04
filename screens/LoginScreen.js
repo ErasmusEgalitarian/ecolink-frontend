@@ -30,6 +30,7 @@ const LoginScreen = ({ onLogin }) => {
   const [passwordError, setPasswordError] = useState("");
   const [formError, setFormError] = useState("");
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationNotice, setVerificationNotice] = useState("");
   const [connectionError, setConnectionError] = useState(false);
 
   const handleNavigateToRegister = () => {
@@ -81,6 +82,13 @@ const LoginScreen = ({ onLogin }) => {
     setPasswordError(t("Login.invalidCredentials"));
   };
 
+  const getRateLimitMessage = (retryAfter) => {
+    const seconds = Number(retryAfter);
+    return Number.isFinite(seconds) && seconds > 0
+      ? t("Login.tooManyAttemptsWithTime", { seconds })
+      : t("Login.tooManyAttempts");
+  };
+
   const handleLogin = async () => {
     if (!validateForm()) {
       return;
@@ -115,10 +123,16 @@ const LoginScreen = ({ onLogin }) => {
         return;
       }
 
+      if (error.status === 403 && data.code === "EMAIL_UNVERIFIED") {
+        setVerificationNotice(t("Login.emailUnverified"));
+        setVerificationEmail(normalizedEmail);
+        return;
+      }
+
       if (error.status === 429 || data.code === "LOGIN_RATE_LIMIT_EXCEEDED") {
         setEmailError("");
         setPasswordError("");
-        setFormError(t("Login.tooManyAttempts"));
+        setFormError(getRateLimitMessage(data.retryAfter));
         return;
       }
 
@@ -136,6 +150,7 @@ const LoginScreen = ({ onLogin }) => {
         t("EmailVerification.verifiedLoginMessage"),
       );
       setVerificationEmail("");
+      setVerificationNotice("");
       setPassword("");
       return;
     }
@@ -146,6 +161,11 @@ const LoginScreen = ({ onLogin }) => {
       t("EmailVerification.verifiedLoginMessage"),
     );
     onLogin(token);
+  };
+
+  const handleBackFromVerification = () => {
+    setVerificationEmail("");
+    setVerificationNotice("");
   };
 
   const registerFooter = (
@@ -162,6 +182,8 @@ const LoginScreen = ({ onLogin }) => {
       <AuthScreenShell footer={registerFooter}>
         <VerificationCodeCard
           email={verificationEmail}
+          initialSuccessMessage={verificationNotice}
+          onBack={handleBackFromVerification}
           onVerified={handleVerificationComplete}
         />
       </AuthScreenShell>

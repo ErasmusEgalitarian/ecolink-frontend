@@ -95,6 +95,17 @@ export const styles = StyleSheet.create({
   optionTextActive: {
     color: "#FFFFFF",
   },
+  languageBadge: {
+    backgroundColor: "#E8F5E9",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  languageBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#2D6A4F",
+  },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",

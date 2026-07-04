@@ -21,9 +21,12 @@ import { debugAdminStatus } from "../utils/debugAdmin";
 import { api, DONATION_ROUTES, isApiConnectionError } from "../config/api";
 import { styles } from "../styles/screens/OverviewScreen.styles";
 
-const ScheduledPickUpScreen = ({ navigation }) => {
+const ScheduledPickUpScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
-  const [selectedTab, setSelectedTab] = useState("myDonations");
+  const initialTab = route.params?.initialTab;
+  const [selectedTab, setSelectedTab] = useState(
+    initialTab === "allDonations" ? "allDonations" : "myDonations",
+  );
   const [pickupData, setPickupData] = useState([]);
   const [donationData, setDonationData] = useState([]);
   const [allDonationsData, setAllDonationsData] = useState([]);
@@ -38,6 +41,14 @@ const ScheduledPickUpScreen = ({ navigation }) => {
     checkUserRole();
     checkAndShowWelcomeModal();
   }, []);
+
+  useEffect(() => {
+    if (initialTab === "allDonations" && isAdmin) {
+      setSelectedTab("allDonations");
+    } else if (initialTab === "myDonations") {
+      setSelectedTab("myDonations");
+    }
+  }, [initialTab, isAdmin]);
 
   // Fetch user donations
   useEffect(() => {
