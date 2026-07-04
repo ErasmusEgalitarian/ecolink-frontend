@@ -19,7 +19,13 @@
       ],
       "expo-asset",
       "expo-localization",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "We need your location to find the recycling ecopoints nearest to you."
+        }
+      ]
     ],
     "newArchEnabled": true,
     "version": "1.0.0",
