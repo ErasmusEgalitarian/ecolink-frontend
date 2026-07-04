@@ -21,11 +21,17 @@
       "expo-localization",
       "expo-font",
       [
-        "expo-location",
-        {
-          "locationWhenInUsePermission": "We need your location to find the recycling ecopoints nearest to you."
-        }
-      ]
+      "expo-location",
+      {
+        "locationWhenInUsePermission": "We need your location to find the recycling ecopoints nearest to you."
+      }
+    ],
+    [
+      "expo-camera",
+      {
+        "cameraPermission": "Allow EcoLink to access your camera to scan the ecopoint QR code and start a donation."
+      }
+    ]
     ],
     "newArchEnabled": true,
     "version": "1.0.0",

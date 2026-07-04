@@ -1,25 +1,45 @@
-import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { View, ScrollView, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 import HeaderWithBack from "../components/HeaderWithBack";
 import InstructionText from "../components/InstructionText";
 import WasteTypeButton from "../components/WasteTypeButton";
 import ErrorModal from "../components/ErrorModal";
 import ActionButton from "../components/ActionButton";
+import { getPickupWasteTypes } from "../utils/pickupMaterials";
 import { styles } from "../styles/screens/PickUpScreen.styles";
 
 const PickUpScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const [selectedItems, setSelectedItems] = useState([]);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const { ecoPontoId, ecoPontoName } = route.params || {};
+  const [showNoMaterialsModal, setShowNoMaterialsModal] = useState(false);
+  const {
+    ecoPontoId,
+    ecoPontoName,
+    locationName,
+    acceptedMaterials = [],
+  } = route.params || {};
 
-  const wasteTypes = [
-    { id: "plastic", label: t("Pickup.plastic"), icon: "water-outline" },
-    { id: "paper", label: t("Pickup.paper"), icon: "document-text-outline" },
-    { id: "glass", label: t("Pickup.glass"), icon: "wine-outline" },
-    { id: "metal", label: t("Pickup.metal"), icon: "hardware-chip-outline" },
-  ];
+  const wasteTypes = useMemo(
+    () => getPickupWasteTypes(acceptedMaterials, t),
+    [acceptedMaterials, t],
+  );
+
+  const ecopointDisplayName = [ecoPontoName, locationName]
+    .filter(Boolean)
+    .join(" · ");
+
+  useEffect(() => {
+    if (!ecoPontoId) {
+      navigation.replace("QRScannerScreen");
+      return;
+    }
+
+    if (wasteTypes.length === 0) {
+      setShowNoMaterialsModal(true);
+    }
+  }, [ecoPontoId, navigation, wasteTypes.length]);
 
   const handleSelectWaste = (wasteId) => {
     if (selectedItems.includes(wasteId)) {
@@ -35,12 +55,16 @@ const PickUpScreen = ({ navigation, route }) => {
       return;
     }
 
-    // Avança direto para a tela de foto
     navigation.navigate("PickUpScreenFinalStep", {
       items: selectedItems,
       ecoPontoId,
       ecoPontoName,
     });
+  };
+
+  const handleNoMaterialsConfirm = () => {
+    setShowNoMaterialsModal(false);
+    navigation.navigate("QRScannerScreen");
   };
 
   return (
@@ -52,6 +76,12 @@ const PickUpScreen = ({ navigation, route }) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {ecopointDisplayName ? (
+          <Text style={styles.ecopointLabel}>
+            {t("Pickup.ecopointLabel", { name: ecopointDisplayName })}
+          </Text>
+        ) : null}
+
         <InstructionText
           part1={t("Pickup.instructionPart1")}
           boldText={t("Pickup.instructionBold")}
@@ -78,10 +108,17 @@ const PickUpScreen = ({ navigation, route }) => {
         onConfirm={() => setShowErrorModal(false)}
       />
 
+      <ErrorModal
+        visible={showNoMaterialsModal}
+        title={t("Pickup.noMaterialsTitle")}
+        message={t("Pickup.noMaterialsMessage")}
+        onConfirm={handleNoMaterialsConfirm}
+      />
+
       <ActionButton
         onPress={handleContinue}
         text={t("Pickup.continueButton")}
-        disabled={selectedItems.length === 0}
+        disabled={selectedItems.length === 0 || wasteTypes.length === 0}
       />
     </View>
   );

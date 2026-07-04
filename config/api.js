@@ -184,6 +184,8 @@ export const DONATION_ROUTES = {
 
 export const ECOPOINT_ROUTES = {
   AVAILABLE: "/ecopoints/available",
+  BY_QR_CODE: (qrCode) =>
+    `/ecopoints/by-qrcode/${encodeURIComponent(qrCode)}`,
 };
 
 export const LOCATION_ROUTES = {

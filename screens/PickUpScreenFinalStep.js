@@ -1,33 +1,25 @@
-import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
 import HeaderWithBack from "../components/HeaderWithBack";
 import InstructionText from "../components/InstructionText";
-import CameraSimulator from "../components/CameraSimulator";
-import ImageGallery from "../components/ImageGallery";
 import ActionButton from "../components/ActionButton";
 import SuccessModal from "../components/SuccessModal";
 import ErrorModal from "../components/ErrorModal";
 import CancelModal from "../components/CancelModal";
 import ConfirmationModal from "../components/ConfirmationModal";
-import { useCameraSimulator, useAuth } from "../hooks/useDonationHelpers";
-import {
-  api,
-  API_UPLOAD_TIMEOUT_MS,
-  MEDIA_ROUTES,
-  DONATION_ROUTES,
-  isApiConnectionError,
-} from "../config/api";
+import { useAuth } from "../hooks/useDonationHelpers";
+import { api, DONATION_ROUTES, isApiConnectionError } from "../config/api";
+import { DONATIONS_STACK_ROOT } from "../utils/donationsNavigation";
+import { getDonationMaterialLabelKey } from "../utils/donationDisplay";
 import { styles } from "../styles/screens/PickUpScreenFinalStep.styles";
 
-const MOCK_MEDIA_ID = "6976eb4ce17e92b4602d49fc";
-const MOCK_IMAGE_URL = "https://via.placeholder.com/300x300.png?text=Foto+Mock";
+const randomDonationWeightGrams = () => Math.floor(Math.random() * 10) + 1;
 
 const PickUpScreenFinalStep = ({ route, navigation }) => {
   const { t } = useTranslation();
-  const { items, ecoPontoId } = route.params || {};
-  const [images, setImages] = useState([]);
+  const { items = [], ecoPontoId, ecoPontoName } = route.params || {};
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -38,68 +30,43 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
     message: "",
   });
   const [errorMessage, setErrorMessage] = useState({ title: "", message: "" });
-  const { showCameraModal, cameraState, startCapture, closeCamera } =
-    useCameraSimulator();
   const { getCredentials } = useAuth();
 
-  const handleOpenCamera = () => {
-    startCapture(() => setImages((prev) => [...prev, MOCK_IMAGE_URL]));
-  };
+  const selectedMaterials = useMemo(
+    () =>
+      items.map((itemId) => ({
+        id: itemId,
+        label: t(getDonationMaterialLabelKey(itemId)),
+      })),
+    [items, t],
+  );
 
-  const removeImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  const returnToDonationsHome = () => {
+    const state = navigation.getState();
+    const hasDashboard = state.routes.some(
+      (route) => route.name === DONATIONS_STACK_ROOT,
+    );
 
-  const handleBack = () => {
-    setShowCancelModal(true);
+    if (hasDashboard) {
+      navigation.popToTop();
+      return;
+    }
+
+    navigation.replace(DONATIONS_STACK_ROOT);
   };
 
   const handleCancelDonation = () => {
     setShowCancelModal(false);
-    navigation.navigate("OverviewScreen");
-  };
-
-  const handleContinueDonation = () => {
-    setShowCancelModal(false);
-  };
-
-  const isMockMode = (imageUri) =>
-    imageUri?.startsWith("https://via.placeholder.com");
-
-  const uploadImage = async (imageUri) => {
-    if (isMockMode(imageUri)) return null;
-
-    try {
-      const formData = new FormData();
-
-      formData.append("file", {
-        uri: imageUri,
-        name: "donation-photo.jpg",
-        type: "image/jpeg",
-      });
-      formData.append("category", "Storage");
-
-      const response = await api.post(MEDIA_ROUTES.UPLOAD, formData, {
-        timeout: API_UPLOAD_TIMEOUT_MS,
-      });
-
-      return response.data?._id || response.data?.data?._id;
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
-    }
+    returnToDonationsHome();
   };
 
   const createWasteEntry = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     try {
-      if (images.length === 0) {
-        setErrorMessage({
-          title: t("PickupFinal.noPhotoTitle"),
-          message: t("PickupFinal.noPhotoMessage"),
-        });
-        setShowErrorModal(true);
-        return;
-      }
+      setIsSubmitting(true);
       const { userId, success } = await getCredentials();
 
       if (!success) {
@@ -112,15 +79,6 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         return;
       }
 
-      const firstImage = images[0];
-      const mediaId = isMockMode(firstImage)
-        ? MOCK_MEDIA_ID
-        : await uploadImage(firstImage);
-
-      if (!mediaId && !isMockMode(firstImage)) {
-        throw new Error("Falha ao fazer upload da imagem");
-      }
-
       let successCount = 0;
       let failedItems = [];
       let hasConnectionFailure = false;
@@ -130,8 +88,7 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
           userId,
           ecopointId: ecoPontoId,
           materialType: itemId,
-          qtdMaterial: 1,
-          mediaId,
+          qtdMaterial: randomDonationWeightGrams(),
         };
 
         try {
@@ -170,35 +127,30 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
           : error.message || "Ocorreu um erro ao criar a doação.",
       });
       setShowErrorModal(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSuccessConfirm = () => {
     setShowSuccessModal(false);
-    // Após fechar modal de sucesso, mostra modal de "fazer outra doação"
     setShowAnotherDonationModal(true);
   };
 
   const handleMakeAnotherDonation = () => {
-    // Usuário quer fazer outra doação
     setShowAnotherDonationModal(false);
     navigation.navigate("QRScannerScreen");
   };
 
-  const handleGoToOverview = () => {
-    // Usuário NÃO quer fazer outra doação
+  const handleGoToDonationsHome = () => {
     setShowAnotherDonationModal(false);
-    navigation.navigate("OverviewScreen");
-  };
-
-  const handleErrorConfirm = () => {
-    setShowErrorModal(false);
+    returnToDonationsHome();
   };
 
   return (
     <View style={styles.container}>
       <HeaderWithBack
-        onBack={handleBack}
+        onBack={() => setShowCancelModal(true)}
         rightIcon="checkmark-circle"
         rightIconColor="#52B788"
       />
@@ -214,31 +166,29 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
           part2={t("PickupFinal.instructionPart2")}
         />
 
-        <TouchableOpacity
-          style={styles.cameraButton}
-          onPress={handleOpenCamera}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="camera" size={48} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.helperText}>{t("PickupFinal.helperText")}</Text>
+        {ecoPontoName ? (
+          <Text style={styles.ecopointLabel}>
+            {t("Pickup.ecopointLabel", { name: ecoPontoName })}
+          </Text>
+        ) : null}
 
-        <ImageGallery
-          images={images}
-          onRemove={removeImage}
-          title={t("PickupFinal.photosTitle")}
-        />
+        <View style={styles.materialsSummary}>
+          {selectedMaterials.map((material) => (
+            <View key={material.id} style={styles.materialChip}>
+              <Text style={styles.materialChipText}>{material.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {isSubmitting ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#52B788" />
+            <Text style={styles.loadingText}>
+              {t("PickupFinal.submitting")}
+            </Text>
+          </View>
+        ) : null}
       </ScrollView>
-
-      <CameraSimulator
-        visible={showCameraModal}
-        cameraState={cameraState}
-        onClose={closeCamera}
-        onCapture={() => {}}
-        captureTitle={t("PickupFinal.cameraTitle")}
-        loadingTitle={t("PickupFinal.loadingTitle")}
-        successTitle={t("PickupFinal.captureSuccessTitle")}
-      />
 
       <CancelModal
         visible={showCancelModal}
@@ -247,7 +197,7 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         subtitle={t("PickupFinal.cancelSubtitle")}
         cancelText={t("PickupFinal.cancelNo")}
         confirmText={t("PickupFinal.cancelYes")}
-        onCancel={handleContinueDonation}
+        onCancel={() => setShowCancelModal(false)}
         onConfirm={handleCancelDonation}
       />
 
@@ -266,7 +216,7 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         message={t("PickupFinal.anotherDonationQuestion")}
         cancelText={t("PickupFinal.anotherDonationNo")}
         confirmText={t("PickupFinal.anotherDonationYes")}
-        onCancel={handleGoToOverview}
+        onCancel={handleGoToDonationsHome}
         onConfirm={handleMakeAnotherDonation}
       />
 
@@ -274,13 +224,13 @@ const PickUpScreenFinalStep = ({ route, navigation }) => {
         visible={showErrorModal}
         title={errorMessage.title}
         message={errorMessage.message}
-        onConfirm={handleErrorConfirm}
+        onConfirm={() => setShowErrorModal(false)}
       />
 
       <ActionButton
         onPress={createWasteEntry}
         text={t("PickupFinal.finishButton")}
-        disabled={images.length === 0}
+        disabled={isSubmitting || items.length === 0}
       />
     </View>
   );
