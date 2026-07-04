@@ -3,7 +3,8 @@ FROM node:20-bookworm-slim AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+# Dev deps (babel-preset-expo, etc.) are required for expo export
+RUN npm ci --include=dev
 
 COPY . .
 
