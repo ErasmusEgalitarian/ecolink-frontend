@@ -241,5 +241,34 @@
     "comingSoon": "Coming soon",
     "chartFeatureMessage": "The charts feature will be available soon!",
     "passwordFeatureMessage": "The password change feature will be available soon!"
+  },
+  "Ecopoints": {
+    "title": "Available ecopoints",
+    "nearestTitle": "Nearest ecopoint",
+    "othersTitle": "Other ecopoints",
+    "donate": "Make a donation",
+    "statusOpen": "Open",
+    "statusFull": "Full",
+    "statusClosed": "Closed",
+    "statusOffline": "Offline",
+    "distanceMeters": "{{value}} meters",
+    "distanceKm": "{{value}} km",
+    "collectPrefix": "Collects",
+    "materialAnd": "and",
+    "materials": {
+      "plastic": "plastic",
+      "metal": "metal",
+      "glass": "glass",
+      "paper": "paper"
+    },
+    "noMaterials": "Collects recyclable materials",
+    "emptyTitle": "No ecopoints available",
+    "emptySubtitle": "There are no ecopoints near you right now. Please try again later.",
+    "emptyButton": "Try again",
+    "loading": "Looking for nearby ecopoints...",
+    "locationBlockedTitle": "Location required",
+    "locationDeniedSubtitle": "We need access to your location to find the nearest ecopoints. Please allow location access.",
+    "locationUnavailableSubtitle": "Location services are turned off. Please enable them to find the nearest ecopoints.",
+    "enableLocation": "Enable location"
   }
 }

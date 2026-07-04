@@ -245,5 +245,34 @@
     "comingSoon": "Em breve",
     "chartFeatureMessage": "A funcionalidade de gráficos estará disponível em breve!",
     "passwordFeatureMessage": "A funcionalidade de alteração de senha estará disponível em breve!"
+  },
+  "Ecopoints": {
+    "title": "Ecopontos disponíveis",
+    "nearestTitle": "Ecoponto mais próximo",
+    "othersTitle": "Demais Ecopontos",
+    "donate": "Realizar doação",
+    "statusOpen": "Ativo",
+    "statusFull": "Cheio",
+    "statusClosed": "Fechado",
+    "statusOffline": "Offline",
+    "distanceMeters": "{{value}} metros",
+    "distanceKm": "{{value}} km",
+    "collectPrefix": "Coleta",
+    "materialAnd": "e",
+    "materials": {
+      "plastic": "plástico",
+      "metal": "metal",
+      "glass": "vidro",
+      "paper": "papel"
+    },
+    "noMaterials": "Coleta de materiais recicláveis",
+    "emptyTitle": "Nenhum ecoponto disponível",
+    "emptySubtitle": "No momento não há ecopontos perto de você. Tente novamente mais tarde.",
+    "emptyButton": "Tentar novamente",
+    "loading": "Buscando ecopontos próximos...",
+    "locationBlockedTitle": "Localização necessária",
+    "locationDeniedSubtitle": "Precisamos de acesso à sua localização para encontrar os ecopontos mais próximos. Permita o acesso à localização.",
+    "locationUnavailableSubtitle": "Os serviços de localização estão desativados. Ative-os para encontrar os ecopontos mais próximos.",
+    "enableLocation": "Ativar localização"
   }
 }
