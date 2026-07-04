@@ -6,9 +6,10 @@ import '../i18n';
 
 test('renders the OverviewScreen correctly', () => {
     const navigation = { navigate: jest.fn() };
+    const route = { params: {} };
     const { getByText } = render(
         <NavigationContainer>
-            <OverviewScreen navigation={navigation} />
+            <OverviewScreen navigation={navigation} route={route} />
         </NavigationContainer>
     );
 

@@ -4,34 +4,22 @@
     "slug": "client",
     "icon": "./assets/AppIcons/ecoLinkLogo.png",
     "plugins": [
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsImpl": "mapbox",
-          "android": {
-            "compileSdkVersion": 33,
-            "minSdkVersion": 21
-          },
-          "ios": {
-            "deploymentTarget": "13.0"
-          }
-        }
-      ],
       "expo-asset",
       "expo-localization",
       "expo-font",
       [
-      "expo-location",
-      {
-        "locationWhenInUsePermission": "We need your location to find the recycling ecopoints nearest to you."
-      }
-    ],
-    [
-      "expo-camera",
-      {
-        "cameraPermission": "Allow EcoLink to access your camera to scan the ecopoint QR code and start a donation."
-      }
-    ]
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "We need your location to find the recycling ecopoints nearest to you."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow EcoLink to access your camera to scan the ecopoint QR code and start a donation."
+        }
+      ],
+      "expo-status-bar"
     ],
     "newArchEnabled": true,
     "version": "1.0.0",
