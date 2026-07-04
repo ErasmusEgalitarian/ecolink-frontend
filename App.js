@@ -19,6 +19,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
 import { setOnAuthExpired } from './config/api';
 import { clearAuthStorage, getStoredAuthToken } from './utils/authToken';
+import { appLinking, authLinking } from './navigation/linking';
 import './i18n';
 
 const Stack = createNativeStackNavigator();
@@ -86,7 +87,7 @@ export default function App() {
         return (
             <SafeAreaProvider>
                 <AppShell>
-                    <NavigationContainer theme={MyTheme}>
+                    <NavigationContainer theme={MyTheme} linking={appLinking}>
                         <BottomNav onLogout={handleLogout} />
                     </NavigationContainer>
                 </AppShell>
@@ -97,7 +98,7 @@ export default function App() {
     // ── Auth screens: unchanged, full-width, as they were before ──────────────
     return (
         <SafeAreaProvider>
-            <NavigationContainer theme={MyTheme}>
+            <NavigationContainer theme={MyTheme} linking={authLinking}>
                 <Stack.Navigator>
                     <Stack.Screen
                         name="Login"

@@ -19,6 +19,8 @@ import MediaListScreen from "../screens/MediaListScreen";
 import MediaStackNavigator from "../navigation/MediaStackNav";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
+import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -74,11 +76,21 @@ function DonationsStack() {
         component={PickUpScreenMap}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="AvailableEcopointsScreen"
+        component={AvailableEcopointsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EcopointDetailScreen"
+        component={EcopointDetailScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
 
-// Stack Navigator para Mapa (pode adicionar telas relacionadas)
+// Stack Navigator para Mapa (a implementar)
 function MapStack() {
   return (
     <Stack.Navigator>

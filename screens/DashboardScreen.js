@@ -184,8 +184,7 @@ const DashboardScreen = ({ navigation }) => {
 
   const handleDonate    = () => navigation.navigate("QRScannerScreen");
   const handleOverview  = () => navigation.navigate("OverviewScreen");
-  const handleEcopoints = () =>
-    navigation.getParent()?.navigate("Mapa") ?? navigation.navigate("Mapa");
+  const handleEcopoints = () => navigation.navigate("AvailableEcopointsScreen");
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
