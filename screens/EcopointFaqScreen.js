@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import { ECOPOINT_STATUS_COLORS } from "../utils/ecopoints";
+import { returnToScreen } from "../utils/donationsNavigation";
 import { styles } from "../styles/screens/EcopointFaqScreen.styles";
 
 const FAQ_SECTIONS = [
@@ -42,9 +43,7 @@ const EcopointFaqScreen = ({ navigation }) => {
   const { t } = useTranslation();
 
   const handleBack = () => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
+    returnToScreen(navigation, "AvailableEcopointsScreen");
   };
 
   return (

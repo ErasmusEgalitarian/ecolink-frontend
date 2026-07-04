@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import LocationEcopointItem from "../components/LocationEcopointItem";
 import { useLocationDetail } from "../hooks/useLocationDetail";
+import { returnToScreen } from "../utils/donationsNavigation";
 import { getStatusMeta } from "../utils/ecopoints";
 import { styles } from "../styles/screens/EcopointDetailScreen.styles";
 
@@ -35,9 +36,7 @@ const EcopointDetailScreen = ({ navigation, route }) => {
   );
 
   const handleBack = () => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
+    returnToScreen(navigation, "AvailableEcopointsScreen");
   };
 
   const handleRetry = () => {

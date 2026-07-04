@@ -22,6 +22,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
+import { createDonationsTabPressListener } from "../utils/donationsNavigation";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -180,6 +181,7 @@ export default function BottomNav({ onLogout }) {
           options={{
             tabBarLabel: t("BottomNav.donations"),
           }}
+          listeners={createDonationsTabPressListener}
         />
         <Tab.Screen
           name="Mapa"
