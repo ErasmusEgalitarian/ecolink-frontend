@@ -270,5 +270,20 @@
     "locationDeniedSubtitle": "We need access to your location to find the nearest ecopoints. Please allow location access.",
     "locationUnavailableSubtitle": "Location services are turned off. Please enable them to find the nearest ecopoints.",
     "enableLocation": "Enable location"
+  },
+  "EcopointDetail": {
+    "loading": "Loading ecopoint details...",
+    "notFound": "Location not found",
+    "route": "Route",
+    "addressLabel": "Address:",
+    "spaceLabel": "Space:",
+    "spaceExternal": "Outdoor space",
+    "spaceInternal": "Indoor space",
+    "hoursLabel": "Opening hours:",
+    "hoursUnavailable": "Hours not available",
+    "ecopointsLabel": "Available ecopoints:",
+    "activeLabel": "Active?",
+    "activeYes": "Yes",
+    "activeNo": "No"
   }
 }

@@ -274,5 +274,20 @@
     "locationDeniedSubtitle": "Precisamos de acesso à sua localização para encontrar os ecopontos mais próximos. Permita o acesso à localização.",
     "locationUnavailableSubtitle": "Os serviços de localização estão desativados. Ative-os para encontrar os ecopontos mais próximos.",
     "enableLocation": "Ativar localização"
+  },
+  "EcopointDetail": {
+    "loading": "Carregando detalhes do ecoponto...",
+    "notFound": "Local não encontrado",
+    "route": "Rota",
+    "addressLabel": "Endereço:",
+    "spaceLabel": "Espaço:",
+    "spaceExternal": "Espaço externo",
+    "spaceInternal": "Espaço interno",
+    "hoursLabel": "Horário de funcionamento:",
+    "hoursUnavailable": "Horário não informado",
+    "ecopointsLabel": "Ecopontos disponíveis:",
+    "activeLabel": "Ativo?",
+    "activeYes": "Sim",
+    "activeNo": "Não"
   }
 }
