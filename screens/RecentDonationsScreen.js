@@ -37,7 +37,7 @@ const RecentDonationsScreen = ({ navigation }) => {
         return;
       }
 
-      const response = await api.get(DONATION_ROUTES.MY, {
+      const response = await api.get(DONATION_ROUTES.LIST, {
         params: { page: 1, limit: RECENT_DONATIONS_LIMIT },
       });
       setDonations(response.data?.data ?? []);
