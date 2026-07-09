@@ -211,4 +211,16 @@ export const MEDIA_ROUTES = {
   DELETE: (id) => `/media/${id}`,
 };
 
+export const CONTENT_ROUTES = {
+  CATEGORIES: "/content/categories",
+  LIST: "/content",
+  BY_SLUG: (slug) => `/content/slug/${slug}`,
+  MANAGE_BY_ID: (id) => `/content/manage/${id}`,
+  UPLOAD_IMAGE: "/content/upload-image",
+  CREATE: "/content",
+  UPDATE: (id) => `/content/${id}`,
+  PUBLISH: (id) => `/content/${id}/publish`,
+  DELETE: (id) => `/content/${id}`,
+};
+
 export default API_BASE_URL;

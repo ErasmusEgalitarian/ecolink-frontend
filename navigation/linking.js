@@ -45,12 +45,9 @@ export const appLinking = {
       Conteúdo: {
         path: "conteudo",
         screens: {
-          ContentScreen: {
-            screens: {
-              MediaList: "",
-              MediaUpload: "upload",
-            },
-          },
+          ContentList: "",
+          ContentDetail: ":slug",
+          ContentEditor: "editar",
         },
       },
       Perfil: {

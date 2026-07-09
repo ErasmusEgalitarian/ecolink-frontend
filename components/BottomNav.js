@@ -9,14 +9,11 @@ import { styles } from "../styles/components/BottomNav.styles";
 import LandingScreen from "../screens/LandingScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 
-import AdminRoleScreen from "../screens/AdminRoleScreen";
 import PickUpScreen from "../screens/PickUpScreen";
 import OverviewScreen from "../screens/OverviewScreen";
 import PickUpScreenFinalStep from "../screens/PickUpScreenFinalStep";
 import PickUpScreenMap from "../screens/PickUpScreenMap";
-import MediaUploadScreen from "../screens/MediaUploadScreen";
-import MediaListScreen from "../screens/MediaListScreen";
-import MediaStackNavigator from "../navigation/MediaStackNav";
+import ContentStackNavigator from "../navigation/ContentStackNav";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import DonationHistoryScreen from "../screens/DonationHistoryScreen";
@@ -136,17 +133,9 @@ function MapStack() {
   );
 }
 
-// Stack Navigator para Conteúdo/Mídia
+// Stack Navigator para Conteúdo educativo
 function ContentStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="ContentScreen"
-        component={MediaStackNavigator}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
+  return <ContentStackNavigator />;
 }
 
 // Stack Navigator para Perfil
