@@ -19,6 +19,7 @@ import WelcomeModal from "../components/WelcomeModal";
 import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import { debugAdminStatus } from "../utils/debugAdmin";
 import { api, DONATION_ROUTES, isApiConnectionError } from "../config/api";
+import { useUserRole } from "../hooks/useUserRole";
 import { styles } from "../styles/screens/OverviewScreen.styles";
 
 const ScheduledPickUpScreen = ({ navigation, route }) => {
@@ -32,15 +33,25 @@ const ScheduledPickUpScreen = ({ navigation, route }) => {
   const [allDonationsData, setAllDonationsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showEmptyState, setShowEmptyState] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin, loading: loadingRole } = useUserRole();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
 
-  // Check if user is admin
   useEffect(() => {
-    checkUserRole();
     checkAndShowWelcomeModal();
   }, []);
+
+  useEffect(() => {
+    if (!loadingRole && initialTab === "allDonations" && !isAdmin) {
+      navigation.replace("DashboardScreen");
+    }
+  }, [initialTab, isAdmin, loadingRole, navigation]);
+
+  useEffect(() => {
+    if (!loadingRole && !isAdmin && selectedTab === "allDonations") {
+      setSelectedTab("myDonations");
+    }
+  }, [isAdmin, loadingRole, selectedTab]);
 
   useEffect(() => {
     if (initialTab === "allDonations" && isAdmin) {
@@ -52,41 +63,32 @@ const ScheduledPickUpScreen = ({ navigation, route }) => {
 
   // Fetch user donations
   useEffect(() => {
+    if (loadingRole) {
+      return;
+    }
+
     if (selectedTab === "myDonations") {
       fetchUserDonations();
     } else if (selectedTab === "allDonations" && isAdmin) {
       fetchAllDonations();
     }
-  }, [selectedTab, isAdmin]);
+  }, [selectedTab, isAdmin, loadingRole]);
 
   // Recarregar doações quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
+      if (loadingRole) {
+        return;
+      }
+
       console.log("🔄 OverviewScreen: Recarregando doações ao receber foco");
       if (selectedTab === "myDonations") {
         fetchUserDonations();
       } else if (selectedTab === "allDonations" && isAdmin) {
         fetchAllDonations();
       }
-    }, [selectedTab, isAdmin]),
+    }, [selectedTab, isAdmin, loadingRole]),
   );
-
-  // Check if user is admin
-  // Admin users have access to ALL functionalities:
-  // - "My Donations" (normal user functionality)
-  // - "All Donations" (admin-only functionality - shows all system donations)
-  const checkUserRole = async () => {
-    try {
-      const role = await AsyncStorage.getItem("userRole");
-      console.log("🔍 [OverviewScreen] User role from AsyncStorage:", role);
-      const adminStatus = role === "Admin";
-      console.log("🔍 [OverviewScreen] Is Admin?", adminStatus);
-      setIsAdmin(adminStatus);
-    } catch (error) {
-      console.error("Error checking user role:", error);
-      setIsAdmin(false);
-    }
-  };
 
   // Verificar se deve mostrar o modal de boas-vindas (uma vez por dia)
   const checkAndShowWelcomeModal = async () => {
