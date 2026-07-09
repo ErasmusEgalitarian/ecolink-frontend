@@ -323,6 +323,19 @@
     "activeYes": "Yes",
     "activeNo": "No"
   },
+  "DonationsFaq": {
+    "helpButton": "Help about donations",
+    "whatIsEcolinkTitle": "What is Ecolink?",
+    "whatIsEcolinkBody": "A project developed to <bold>promote sustainability and the proper disposal of recyclable materials.</bold> The initiative seeks to facilitate conscious disposal by making materials deposited by UnB students available to recycling cooperative collectors.",
+    "whatAreEcopointsTitle": "What are Ecopoints?",
+    "whatAreEcopointsBody": "They are the <bold>collection locations</bold> where recyclable materials can be dropped off. They can be found at various points on the Darcy Ribeiro Campus. Open the <bold>\"Available Ecopoints\"</bold> section and find the Ecopoint nearest to you!",
+    "howItWorksTitle": "How does it work?",
+    "howItWorksBody": "To donate, you need a <bold>registered account with your student ID</bold> and an Ecopoint with available capacity. Scan the QR Code and follow the step-by-step instructions!",
+    "howToParticipateTitle": "How can I participate?",
+    "howToParticipateBody": "At the beginning of each semester, the <bold>course \"Ecolink Descarte que vale muito\"</bold> is offered to students from all programs. To participate, simply enroll through SIGAA during the available enrollment period.",
+    "howToGetCreditsTitle": "How do I earn credits by donating?",
+    "howToGetCreditsBody": "To earn credits, the student must <bold>complete the required donations for the enrolled semester by the end of the term</bold>. You can check the previous screen to find out what the limit is."
+  },
   "EcopointFaq": {
     "helpButton": "Help about ecopoint status",
     "title": "How to know the Ecopoint status?",

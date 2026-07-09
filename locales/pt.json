@@ -327,6 +327,19 @@
     "activeYes": "Sim",
     "activeNo": "Não"
   },
+  "DonationsFaq": {
+    "helpButton": "Ajuda sobre doações",
+    "whatIsEcolinkTitle": "O que é o Ecolink?",
+    "whatIsEcolinkBody": "Projeto desenvolvido para <bold>promover a sustentabilidade e o descarte correto de materiais recicláveis.</bold> A iniciativa busca facilitar o processo de descarte consciente ao disponibilizar os materiais depositados por estudantes da UnB aos catadores de cooperativas de reciclagem.",
+    "whatAreEcopointsTitle": "O que são Ecopontos?",
+    "whatAreEcopointsBody": "São os <bold>locais de colheita</bold> onde é possível descartar os materiais recicláveis. Eles podem ser encontrados em diversos pontos do Campus Darcy Ribeiro. Abra a seção <bold>\"Ecopontos disponíveis\"</bold> e veja o Ecoponto mais próximo de você!",
+    "howItWorksTitle": "Como funciona?",
+    "howItWorksBody": "Para doar, é necessário ter uma <bold>conta registrada com sua matrícula</bold> e encontrar um Ecoponto com capacidade disponível. Escaneie o QR Code e siga o passo a passo!",
+    "howToParticipateTitle": "Como posso participar?",
+    "howToParticipateBody": "A cada início de semestre, a <bold>matéria \"Ecolink Descarte que vale muito\"</bold> é ofertada para os alunos de todos os cursos. Para participar, basta se matricular no SIGAA durante o período disponível de matrícula.",
+    "howToGetCreditsTitle": "Como conseguir créditos doando?",
+    "howToGetCreditsBody": "Para adquirir os créditos, o estudante deve <bold>completar as doações necessárias do semestre inscrito até o final</bold>. Você pode verificar na tela anterior para saber qual é o limite."
+  },
   "EcopointFaq": {
     "helpButton": "Ajuda sobre status do ecoponto",
     "title": "Como saber o status do Ecoponto?",

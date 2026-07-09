@@ -186,6 +186,7 @@ const DashboardScreen = ({ navigation }) => {
   const handleOverview  = () => navigation.navigate("GeneralDonationsScreen");
   const handleEcopoints = () => navigation.navigate("AvailableEcopointsScreen");
   const handleMyDonations = () => navigation.navigate("MyDonationsScreen");
+  const handleHelp = () => navigation.navigate("DonationsFaqScreen");
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -206,8 +207,9 @@ const DashboardScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity
             style={styles.helpButton}
+            onPress={handleHelp}
             activeOpacity={0.8}
-            accessibilityLabel="Ajuda"
+            accessibilityLabel={t("DonationsFaq.helpButton")}
           >
             <Text style={styles.helpButtonText}>?</Text>
           </TouchableOpacity>

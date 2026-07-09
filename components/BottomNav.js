@@ -22,6 +22,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
+import DonationsFaqScreen from "../screens/DonationsFaqScreen";
 import GeneralDonationsScreen from "../screens/GeneralDonationsScreen";
 import RecentDonationsScreen from "../screens/RecentDonationsScreen";
 import MyDonationsScreen from "../screens/MyDonationsScreen";
@@ -109,6 +110,11 @@ function DonationsStack() {
       <Stack.Screen
         name="EcopointFaqScreen"
         component={EcopointFaqScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DonationsFaqScreen"
+        component={DonationsFaqScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

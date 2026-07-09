@@ -33,6 +33,7 @@ export const appLinking = {
           AvailableEcopointsScreen: "ecopontos",
           EcopointDetailScreen: "ecopontos/:locationId",
           EcopointFaqScreen: "ecopontos/faq",
+          DonationsFaqScreen: "faq",
         },
       },
       Mapa: {
