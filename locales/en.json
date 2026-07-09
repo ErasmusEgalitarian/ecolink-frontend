@@ -53,6 +53,14 @@
     "emptyTitle": "No donations this semester",
     "emptyMessage": "Your donations for this semester will appear here after you make your first one."
   },
+  "DonationHistory": {
+    "title": "Donation history",
+    "subtitle": "Select a semester to view your donations.",
+    "donatedAmount": "{{amount}}g donated",
+    "semesterCardLabel": "Semester {{name}}, {{donated}} grams donated",
+    "emptyTitle": "No donations recorded",
+    "emptyMessage": "When you make donations, the corresponding semesters will appear here."
+  },
   "BottomNav": {
     "donations": "Donations",
     "map": "Map",

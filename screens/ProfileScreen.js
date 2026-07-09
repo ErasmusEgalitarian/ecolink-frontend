@@ -46,8 +46,7 @@ const ProfileScreen = ({ navigation, onLogout }) => {
   };
 
   const handleDonationHistory = () => {
-    // Navegar para histórico de doações (já existe no OverviewScreen)
-    navigation.navigate("OverviewScreen");
+    navigation.navigate("DonationHistoryScreen");
   };
 
   const handleDonationChart = () => {

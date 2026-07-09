@@ -53,6 +53,14 @@
     "emptyTitle": "Nenhuma doação neste semestre",
     "emptyMessage": "Suas doações deste semestre aparecerão aqui assim que você realizar a primeira."
   },
+  "DonationHistory": {
+    "title": "Histórico de doações",
+    "subtitle": "Selecione um semestre para ver suas doações.",
+    "donatedAmount": "{{amount}}g doados",
+    "semesterCardLabel": "Semestre {{name}}, {{donated}} gramas doados",
+    "emptyTitle": "Nenhuma doação registrada",
+    "emptyMessage": "Quando você realizar doações, os semestres correspondentes aparecerão aqui."
+  },
   "BottomNav": {
     "donations": "Doações",
     "map": "Mapa",

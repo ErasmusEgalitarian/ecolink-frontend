@@ -19,6 +19,8 @@ import MediaListScreen from "../screens/MediaListScreen";
 import MediaStackNavigator from "../navigation/MediaStackNav";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import DonationHistoryScreen from "../screens/DonationHistoryScreen";
+import ProfileSemesterDonationsScreen from "../screens/ProfileSemesterDonationsScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
@@ -157,6 +159,16 @@ function ProfileStack({ onLogout }) {
       >
         {(props) => <ProfileScreen {...props} onLogout={onLogout} />}
       </Stack.Screen>
+      <Stack.Screen
+        name="DonationHistoryScreen"
+        component={DonationHistoryScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileSemesterDonationsScreen"
+        component={ProfileSemesterDonationsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }

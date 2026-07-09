@@ -57,6 +57,8 @@ export const appLinking = {
         path: "perfil",
         screens: {
           ProfileScreen: "",
+          DonationHistoryScreen: "historico",
+          ProfileSemesterDonationsScreen: "historico/:semesterId",
         },
       },
     },
