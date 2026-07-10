@@ -223,4 +223,14 @@ export const CONTENT_ROUTES = {
   DELETE: (id) => `/content/${id}`,
 };
 
+export const PICKUP_ROUTES = {
+  LIST: "/pickups",
+  PENDING: "/pickups/pending",
+  ACCEPTED: "/pickups/accepted",
+  BY_ID: (id) => `/pickups/${id}`,
+  ACCEPT: (id) => `/pickups/${id}/accept`,
+  COMPLETE: (id) => `/pickups/${id}/complete`,
+  CANCEL: (id) => `/pickups/${id}/cancel`,
+};
+
 export default API_BASE_URL;

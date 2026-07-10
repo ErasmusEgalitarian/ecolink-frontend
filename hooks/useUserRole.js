@@ -4,6 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 import { api, USER_ROUTES } from "../config/api";
 import { canManageContent } from "../utils/contentPermissions";
+import { canCollectPickups } from "../utils/collectorPermissions";
 
 const ADMIN_ROLE = "Admin";
 
@@ -48,6 +49,7 @@ export const useUserRole = () => {
     role,
     loading,
     isEditor: canManageContent(role),
+    isCollector: canCollectPickups(role),
     isAdmin: role === ADMIN_ROLE,
     refreshRole: loadRole,
   };

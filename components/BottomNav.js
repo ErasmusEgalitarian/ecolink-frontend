@@ -25,10 +25,51 @@ import DonationsFaqScreen from "../screens/DonationsFaqScreen";
 import GeneralDonationsScreen from "../screens/GeneralDonationsScreen";
 import RecentDonationsScreen from "../screens/RecentDonationsScreen";
 import MyDonationsScreen from "../screens/MyDonationsScreen";
+import PendingPickupsScreen from "../screens/PendingPickupsScreen";
+import CollectorPickupsScreen from "../screens/CollectorPickupsScreen";
+import CollectorPickupScreen from "../screens/CollectorPickupScreen";
+import RequireRoleScreen from "./guards/RequireRoleScreen";
+import { COLLECTOR_ROLES } from "../utils/collectorPermissions";
 import { createDonationsTabPressListener } from "../utils/donationsNavigation";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+function PendingPickupsGuardedScreen(props) {
+  return (
+    <RequireRoleScreen
+      allowedRoles={[...COLLECTOR_ROLES]}
+      navigation={props.navigation}
+      redirectTo="DashboardScreen"
+    >
+      <PendingPickupsScreen {...props} />
+    </RequireRoleScreen>
+  );
+}
+
+function CollectorPickupsGuardedScreen(props) {
+  return (
+    <RequireRoleScreen
+      allowedRoles={[...COLLECTOR_ROLES]}
+      navigation={props.navigation}
+      redirectTo="DashboardScreen"
+    >
+      <CollectorPickupsScreen {...props} />
+    </RequireRoleScreen>
+  );
+}
+
+function CollectorPickupGuardedScreen(props) {
+  return (
+    <RequireRoleScreen
+      allowedRoles={[...COLLECTOR_ROLES]}
+      navigation={props.navigation}
+      redirectTo="DashboardScreen"
+    >
+      <CollectorPickupScreen {...props} />
+    </RequireRoleScreen>
+  );
+}
 
 // Placeholder screens for new tabs (você pode substituir depois)
 function MapScreen() {
@@ -114,6 +155,21 @@ function DonationsStack() {
       <Stack.Screen
         name="DonationsFaqScreen"
         component={DonationsFaqScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PendingPickupsScreen"
+        component={PendingPickupsGuardedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CollectorPickupsScreen"
+        component={CollectorPickupsGuardedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CollectorPickupScreen"
+        component={CollectorPickupGuardedScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

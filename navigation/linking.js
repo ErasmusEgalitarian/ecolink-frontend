@@ -34,6 +34,9 @@ export const appLinking = {
           EcopointDetailScreen: "ecopontos/:locationId",
           EcopointFaqScreen: "ecopontos/faq",
           DonationsFaqScreen: "faq",
+          PendingPickupsScreen: "coletas/pendentes",
+          CollectorPickupsScreen: "coletas",
+          CollectorPickupScreen: "coletas/:pickupId",
         },
       },
       Mapa: {

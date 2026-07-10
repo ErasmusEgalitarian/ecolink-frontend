@@ -8,7 +8,8 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontFamily: "Montserrat_600SemiBold",
-    fontSize: 11,
-    lineHeight: 14,
+    fontSize: 12,
+    lineHeight: 16,
+    textDecorationLine: "none",
   },
 });
