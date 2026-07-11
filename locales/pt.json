@@ -366,6 +366,26 @@
     "cancel": "Cancelar",
     "back": "Voltar",
     "myDataSubtitle": "Informações da sua conta no Ecolink.",
+    "myDataEditSubtitle": "Atualize seus dados pessoais e foto de perfil.",
+    "saveChanges": "Salvar alterações",
+    "saveSuccessTitle": "Dados atualizados",
+    "saveSuccessMessage": "Suas informações foram salvas com sucesso.",
+    "saveErrorTitle": "Erro ao salvar",
+    "saveError": "Não foi possível salvar suas alterações. Tente novamente.",
+    "ok": "OK",
+    "avatarHelper": "Toque para alterar a foto de perfil",
+    "avatarUploadError": "Não foi possível enviar a foto de perfil.",
+    "permissionDeniedTitle": "Permissão necessária",
+    "galleryPermission": "Precisamos de acesso à galeria para escolher a foto.",
+    "placeholders": {
+      "name": "Seu nome",
+      "phone": "11999999999",
+      "address": "Seu endereço"
+    },
+    "validation": {
+      "usernameRequired": "Informe seu nome.",
+      "phoneInvalid": "Informe um telefone válido com 10 ou 11 dígitos."
+    },
     "myDataEmptyTitle": "Dados indisponíveis",
     "myDataEmptyMessage": "Não foi possível carregar seus dados. Tente novamente.",
     "notProvided": "Não informado",

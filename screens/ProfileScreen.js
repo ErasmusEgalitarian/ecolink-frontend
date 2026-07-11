@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppConfirmationModal from "../components/AppConfirmationModal";
 import { clearAuthStorage } from "../utils/authToken";
 import { LANGUAGE_STORAGE_KEY, normalizeLanguage } from "../utils/language";
+import { api, USER_ROUTES } from "../config/api";
 import { styles } from "../styles/screens/ProfileScreen.styles";
 
 const MENU_ITEMS = [
@@ -48,6 +49,7 @@ const ProfileScreen = ({ navigation, onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [userName, setUserName] = useState("Avatar Name");
   const [userEmail, setUserEmail] = useState("avatar@email.com");
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [currentLanguage, setCurrentLanguage] = useState(
     normalizeLanguage(i18n.language),
   );
@@ -70,6 +72,16 @@ const ProfileScreen = ({ navigation, onLogout }) => {
 
       if (name) setUserName(name);
       if (email) setUserEmail(email);
+
+      try {
+        const response = await api.get(USER_ROUTES.ME);
+        const profile = response.data?.data;
+        if (profile?.username) setUserName(profile.username);
+        if (profile?.email) setUserEmail(profile.email);
+        setAvatarUrl(profile?.avatarUrl ?? null);
+      } catch (error) {
+        console.error("[ProfileScreen] Error loading profile:", error);
+      }
     } catch (error) {
       console.error("Error loading user data:", error);
     }
@@ -156,7 +168,11 @@ const ProfileScreen = ({ navigation, onLogout }) => {
 
         <View style={styles.userCard}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={32} color="#52B788" />
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <Ionicons name="person" size={32} color="#52B788" />
+            )}
           </View>
           <View style={styles.userInfo}>
             <Text style={styles.userName}>{userName}</Text>

@@ -3,15 +3,20 @@ import {
   ActivityIndicator,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 
 import ConnectionErrorCard from "../components/ConnectionErrorCard";
+import ProfileAvatarUploader from "../components/profile/ProfileAvatarUploader";
+import SuccessModal from "../components/SuccessModal";
+import ErrorModal from "../components/ErrorModal";
 import { api, USER_ROUTES, isApiConnectionError } from "../config/api";
 import { canCollectPickups } from "../utils/collectorPermissions";
 import { styles } from "../styles/screens/ProfileMyDataScreen.styles";
@@ -20,17 +25,6 @@ const formatCpf = (cpf) => {
   const digits = String(cpf || "").replace(/\D/g, "");
   if (digits.length !== 11) return cpf || "—";
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
-};
-
-const formatPhone = (phone) => {
-  const digits = String(phone || "").replace(/\D/g, "");
-  if (digits.length === 11) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-  }
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  }
-  return phone || "—";
 };
 
 const formatDate = (value, locale) => {
@@ -51,11 +45,42 @@ const ProfileDataRow = ({ label, value }) => (
   </View>
 );
 
+const ProfileFormField = ({ label, value, onChangeText, placeholder, keyboardType }) => (
+  <View style={styles.fieldGroup}>
+    <Text style={styles.fieldLabel}>{label}</Text>
+    <TextInput
+      style={styles.fieldInput}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      placeholderTextColor="#9CA3AF"
+      keyboardType={keyboardType}
+      autoCapitalize="sentences"
+    />
+  </View>
+);
+
 const ProfileMyDataScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState(null);
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const applyProfile = useCallback((data) => {
+    setProfile(data);
+    setUsername(data?.username ?? "");
+    setPhone(String(data?.phone ?? "").replace(/\D/g, ""));
+    setAddress(data?.address ?? "");
+    setAvatarUrl(data?.avatarUrl ?? null);
+  }, []);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -63,7 +88,7 @@ const ProfileMyDataScreen = ({ navigation }) => {
 
     try {
       const response = await api.get(USER_ROUTES.ME);
-      setProfile(response.data?.data ?? null);
+      applyProfile(response.data?.data ?? null);
     } catch (error) {
       console.error("[ProfileMyDataScreen] Error loading profile:", error);
       if (isApiConnectionError(error)) {
@@ -74,7 +99,7 @@ const ProfileMyDataScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyProfile]);
 
   useFocusEffect(
     useCallback(() => {
@@ -92,6 +117,45 @@ const ProfileMyDataScreen = ({ navigation }) => {
     const translated = t(key);
     return translated === key ? roleName : translated;
   }, [roleName, t]);
+
+  const handleSave = async () => {
+    if (!username.trim()) {
+      setErrorMessage(t("Profile.validation.usernameRequired"));
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (phone && !/^\d{10,11}$/.test(phone)) {
+      setErrorMessage(t("Profile.validation.phoneInvalid"));
+      setShowErrorModal(true);
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const response = await api.put(USER_ROUTES.UPDATE_ME, {
+        username: username.trim(),
+        phone,
+        address: address.trim(),
+      });
+
+      const updatedProfile = response.data?.data ?? null;
+      applyProfile(updatedProfile);
+
+      if (updatedProfile?.username) {
+        await AsyncStorage.setItem("userName", updatedProfile.username);
+      }
+
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("[ProfileMyDataScreen] Error saving profile:", error);
+      setErrorMessage(error?.message || t("Profile.saveError"));
+      setShowErrorModal(true);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -116,41 +180,76 @@ const ProfileMyDataScreen = ({ navigation }) => {
     }
 
     return (
-      <View style={styles.card}>
-        <ProfileDataRow label={t("Profile.fields.name")} value={profile.username} />
-        <ProfileDataRow label={t("Profile.fields.email")} value={profile.email} />
-        <ProfileDataRow
-          label={t("Profile.fields.phone")}
-          value={formatPhone(profile.phone)}
-        />
-        <ProfileDataRow
-          label={t("Profile.fields.cpf")}
-          value={formatCpf(profile.cpf)}
-        />
-        <ProfileDataRow
-          label={t("Profile.fields.address")}
-          value={profile.address || t("Profile.notProvided")}
-        />
-        <ProfileDataRow label={t("Profile.fields.role")} value={roleLabel} />
-        <ProfileDataRow
-          label={t("Profile.fields.memberSince")}
-          value={formatDate(profile.createdAt, locale)}
+      <>
+        <ProfileAvatarUploader
+          avatarUrl={avatarUrl}
+          onUploaded={(nextAvatarUrl) => {
+            setAvatarUrl(nextAvatarUrl);
+            setProfile((current) =>
+              current ? { ...current, avatarUrl: nextAvatarUrl } : current,
+            );
+          }}
         />
 
-        {isCollector ? (
-          <ProfileDataRow
-            label={t("Profile.fields.totalPickups")}
-            value={String(profile.totalPickups ?? 0)}
+        <View style={styles.card}>
+          <ProfileFormField
+            label={t("Profile.fields.name")}
+            value={username}
+            onChangeText={setUsername}
+            placeholder={t("Profile.placeholders.name")}
           />
-        ) : (
-          <ProfileDataRow
-            label={t("Profile.fields.wasteSaved")}
-            value={t("Profile.wasteSavedValue", {
-              amount: profile.wasteSaved ?? 0,
-            })}
+          <ProfileDataRow label={t("Profile.fields.email")} value={profile.email} />
+          <ProfileFormField
+            label={t("Profile.fields.phone")}
+            value={phone}
+            onChangeText={(value) => setPhone(value.replace(/\D/g, ""))}
+            placeholder={t("Profile.placeholders.phone")}
+            keyboardType="phone-pad"
           />
-        )}
-      </View>
+          <ProfileDataRow
+            label={t("Profile.fields.cpf")}
+            value={formatCpf(profile.cpf)}
+          />
+          <ProfileFormField
+            label={t("Profile.fields.address")}
+            value={address}
+            onChangeText={setAddress}
+            placeholder={t("Profile.placeholders.address")}
+          />
+          <ProfileDataRow label={t("Profile.fields.role")} value={roleLabel} />
+          <ProfileDataRow
+            label={t("Profile.fields.memberSince")}
+            value={formatDate(profile.createdAt, locale)}
+          />
+
+          {isCollector ? (
+            <ProfileDataRow
+              label={t("Profile.fields.totalPickups")}
+              value={String(profile.totalPickups ?? 0)}
+            />
+          ) : (
+            <ProfileDataRow
+              label={t("Profile.fields.wasteSaved")}
+              value={t("Profile.wasteSavedValue", {
+                amount: profile.wasteSaved ?? 0,
+              })}
+            />
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          onPress={handleSave}
+          activeOpacity={0.85}
+          disabled={saving}
+        >
+          {saving ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Text style={styles.saveButtonText}>{t("Profile.saveChanges")}</Text>
+          )}
+        </TouchableOpacity>
+      </>
     );
   };
 
@@ -172,10 +271,25 @@ const ProfileMyDataScreen = ({ navigation }) => {
         </View>
 
         <Text style={styles.title}>{t("Profile.myData")}</Text>
-        <Text style={styles.subtitle}>{t("Profile.myDataSubtitle")}</Text>
+        <Text style={styles.subtitle}>{t("Profile.myDataEditSubtitle")}</Text>
 
         {renderContent()}
       </ScrollView>
+
+      <SuccessModal
+        visible={showSuccessModal}
+        title={t("Profile.saveSuccessTitle")}
+        message={t("Profile.saveSuccessMessage")}
+        buttonText={t("Profile.ok")}
+        onConfirm={() => setShowSuccessModal(false)}
+      />
+
+      <ErrorModal
+        visible={showErrorModal}
+        title={t("Profile.saveErrorTitle")}
+        message={errorMessage}
+        onConfirm={() => setShowErrorModal(false)}
+      />
     </SafeAreaView>
   );
 };

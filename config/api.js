@@ -166,8 +166,8 @@ export const AUTH_ROUTES = {
 export const USER_ROUTES = {
   LIST: "/users",
   ME: "/users/me",
-  PROFILE: "/users/profile",
-  UPDATE: "/users/update",
+  UPDATE_ME: "/users/me",
+  AVATAR: "/users/me/avatar",
 };
 
 export const ROLE_ROUTES = {
