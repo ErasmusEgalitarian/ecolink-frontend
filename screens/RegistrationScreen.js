@@ -371,19 +371,7 @@ const RegistrationScreen = ({ navigation, onLogin }) => {
           Alert.alert(t("Register.errorTitle"), t("Register.errorMessage"));
         }
       } else if (error.status === 409) {
-        const conflictField = data.field || "";
-        const conflictCode = data.code || "";
-        const conflictMessage = data.message?.toLowerCase() || "";
-
-        if (
-          conflictField === "cpf" ||
-          conflictCode.includes("CPF") ||
-          conflictMessage.includes("cpf")
-        ) {
-          setCpfError(t("Register.cpfExists"));
-        } else {
-          setEmailError(t("Register.emailExists"));
-        }
+        setEmailError(t("Register.emailExists"));
       } else {
         Alert.alert(t("Register.errorTitle"), t("Register.errorMessage"));
       }

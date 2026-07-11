@@ -221,7 +221,6 @@
     "phoneInvalid": "Invalid phone number (use 10 or 11 digits)",
     "cpfRequired": "Please enter your CPF",
     "cpfInvalid": "Invalid CPF (use 11 valid digits)",
-    "cpfExists": "This CPF is already registered",
     "addressRequired": "Please enter your address",
     "addressTooShort": "Address must be at least 5 characters",
     "emailExists": "This email is already registered",
