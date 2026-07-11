@@ -1,6 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Image,
   Platform,
@@ -12,36 +11,28 @@ import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
-import { uploadProfileImage } from "../../utils/profileImageUpload";
-import { isApiConnectionError } from "../../config/api";
 import { styles } from "../../styles/components/ProfileAvatarUploader.styles";
 
-const ProfileAvatarUploader = ({ avatarUrl, onUploaded }) => {
+const ProfileAvatarUploader = ({
+  avatarUrl,
+  previewUri = null,
+  onImageSelected,
+  disabled = false,
+}) => {
   const { t } = useTranslation();
   const inputRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleUpload = async (file) => {
-    setUploading(true);
-    setErrorMessage("");
+  const displayUri = previewUri || avatarUrl;
 
-    try {
-      const updatedProfile = await uploadProfileImage(file);
-      onUploaded?.(updatedProfile?.avatarUrl || null);
-    } catch (error) {
-      console.error("[ProfileAvatarUploader] Upload failed:", error);
-      if (isApiConnectionError(error)) {
-        setErrorMessage(t("Api.connectionMessage"));
-      } else {
-        setErrorMessage(error?.message || t("Profile.avatarUploadError"));
-      }
-    } finally {
-      setUploading(false);
-    }
+  const notifySelection = (file, preview) => {
+    onImageSelected?.(file, preview);
   };
 
   const pickFromGallery = async () => {
+    if (disabled) {
+      return;
+    }
+
     if (Platform.OS === "web") {
       inputRef.current?.click();
       return;
@@ -68,20 +59,23 @@ const ProfileAvatarUploader = ({ avatarUrl, onUploaded }) => {
     }
 
     const asset = result.assets[0];
-    await handleUpload({
-      uri: asset.uri,
-      fileName: asset.fileName || `profile-${Date.now()}.jpg`,
-      type: asset.mimeType || "image/jpeg",
-    });
+    notifySelection(
+      {
+        uri: asset.uri,
+        fileName: asset.fileName || `profile-${Date.now()}.jpg`,
+        type: asset.mimeType || "image/jpeg",
+      },
+      asset.uri,
+    );
   };
 
-  const onWebFileChange = async (event) => {
+  const onWebFileChange = (event) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) {
       return;
     }
 
-    await handleUpload(selectedFile);
+    notifySelection(selectedFile, URL.createObjectURL(selectedFile));
     event.target.value = "";
   };
 
@@ -94,6 +88,7 @@ const ProfileAvatarUploader = ({ avatarUrl, onUploaded }) => {
           accept="image/jpeg,image/png,image/webp"
           style={{ display: "none" }}
           onChange={onWebFileChange}
+          disabled={disabled}
         />
       ) : null}
 
@@ -101,10 +96,14 @@ const ProfileAvatarUploader = ({ avatarUrl, onUploaded }) => {
         style={styles.avatarButton}
         onPress={pickFromGallery}
         activeOpacity={0.85}
-        disabled={uploading}
+        disabled={disabled}
       >
-        {avatarUrl ? (
-          <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+        {displayUri ? (
+          <Image
+            key={displayUri}
+            source={{ uri: displayUri }}
+            style={styles.avatarImage}
+          />
         ) : (
           <View style={styles.avatarPlaceholder}>
             <Ionicons name="person" size={36} color="#52B788" />
@@ -112,16 +111,11 @@ const ProfileAvatarUploader = ({ avatarUrl, onUploaded }) => {
         )}
 
         <View style={styles.editBadge}>
-          {uploading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Ionicons name="camera" size={14} color="#FFFFFF" />
-          )}
+          <Ionicons name="camera" size={14} color="#FFFFFF" />
         </View>
       </TouchableOpacity>
 
       <Text style={styles.helperText}>{t("Profile.avatarHelper")}</Text>
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
     </View>
   );
 };

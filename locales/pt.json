@@ -373,7 +373,7 @@
     "saveErrorTitle": "Erro ao salvar",
     "saveError": "Não foi possível salvar suas alterações. Tente novamente.",
     "ok": "OK",
-    "avatarHelper": "Toque para alterar a foto de perfil",
+    "avatarHelper": "Toque para escolher uma foto. Ela será salva ao clicar em Salvar alterações.",
     "avatarUploadError": "Não foi possível enviar a foto de perfil.",
     "permissionDeniedTitle": "Permissão necessária",
     "galleryPermission": "Precisamos de acesso à galeria para escolher a foto.",

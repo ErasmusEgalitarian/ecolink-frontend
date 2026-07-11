@@ -18,6 +18,7 @@ import ProfileAvatarUploader from "../components/profile/ProfileAvatarUploader";
 import SuccessModal from "../components/SuccessModal";
 import ErrorModal from "../components/ErrorModal";
 import { api, USER_ROUTES, isApiConnectionError } from "../config/api";
+import { uploadProfileImage } from "../utils/profileImageUpload";
 import { canCollectPickups } from "../utils/collectorPermissions";
 import { styles } from "../styles/screens/ProfileMyDataScreen.styles";
 
@@ -67,6 +68,8 @@ const ProfileMyDataScreen = ({ navigation }) => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
+  const [pendingAvatarPreview, setPendingAvatarPreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
@@ -79,7 +82,9 @@ const ProfileMyDataScreen = ({ navigation }) => {
     setUsername(data?.username ?? "");
     setPhone(String(data?.phone ?? "").replace(/\D/g, ""));
     setAddress(data?.address ?? "");
-    setAvatarUrl(data?.avatarUrl ?? null);
+    setAvatarUrl(data?.avatarUrl || null);
+    setPendingAvatarFile(null);
+    setPendingAvatarPreview(null);
   }, []);
 
   const fetchProfile = useCallback(async () => {
@@ -134,13 +139,24 @@ const ProfileMyDataScreen = ({ navigation }) => {
     setSaving(true);
 
     try {
+      let savedProfile = null;
+
+      if (pendingAvatarFile) {
+        savedProfile = await uploadProfileImage(pendingAvatarFile);
+      }
+
       const response = await api.put(USER_ROUTES.UPDATE_ME, {
         username: username.trim(),
         phone,
         address: address.trim(),
       });
 
-      const updatedProfile = response.data?.data ?? null;
+      const updatedProfile = {
+        ...(response.data?.data ?? {}),
+        ...(savedProfile ?? {}),
+        avatarUrl: savedProfile?.avatarUrl || response.data?.data?.avatarUrl || null,
+      };
+
       applyProfile(updatedProfile);
 
       if (updatedProfile?.username) {
@@ -183,11 +199,11 @@ const ProfileMyDataScreen = ({ navigation }) => {
       <>
         <ProfileAvatarUploader
           avatarUrl={avatarUrl}
-          onUploaded={(nextAvatarUrl) => {
-            setAvatarUrl(nextAvatarUrl);
-            setProfile((current) =>
-              current ? { ...current, avatarUrl: nextAvatarUrl } : current,
-            );
+          previewUri={pendingAvatarPreview}
+          disabled={saving}
+          onImageSelected={(file, preview) => {
+            setPendingAvatarFile(file);
+            setPendingAvatarPreview(preview);
           }}
         />
 

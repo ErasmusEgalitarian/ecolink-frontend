@@ -168,9 +168,13 @@ const ProfileScreen = ({ navigation, onLogout }) => {
 
         <View style={styles.userCard}>
           <View style={styles.avatarContainer}>
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
-            ) : (
+        {avatarUrl ? (
+          <Image
+            key={avatarUrl}
+            source={{ uri: avatarUrl }}
+            style={styles.avatarImage}
+          />
+        ) : (
               <Ionicons name="person" size={32} color="#52B788" />
             )}
           </View>

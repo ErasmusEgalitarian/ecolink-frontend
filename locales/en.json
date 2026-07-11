@@ -369,7 +369,7 @@
     "saveErrorTitle": "Save failed",
     "saveError": "We couldn't save your changes. Please try again.",
     "ok": "OK",
-    "avatarHelper": "Tap to change your profile photo",
+    "avatarHelper": "Tap to choose a photo. It will be saved when you tap Save changes.",
     "avatarUploadError": "Could not upload the profile photo.",
     "permissionDeniedTitle": "Permission required",
     "galleryPermission": "We need gallery access to choose a photo.",
