@@ -9,6 +9,7 @@ const PROFILE_STACK_ROUTES = new Set([
   "ProfileMyDataScreen",
   "ProfileChangePasswordScreen",
   "ProfileDeleteAccountScreen",
+  "ProfileDeleteAccountConfirmScreen",
   "DonationHistoryScreen",
   "ProfileSemesterDonationsScreen",
   "DonationsFaqScreen",

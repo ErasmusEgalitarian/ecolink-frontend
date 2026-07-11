@@ -21,6 +21,7 @@ import ProfileSemesterDonationsScreen from "../screens/ProfileSemesterDonationsS
 import ProfileMyDataScreen from "../screens/ProfileMyDataScreen";
 import ProfileChangePasswordScreen from "../screens/ProfileChangePasswordScreen";
 import ProfileDeleteAccountScreen from "../screens/ProfileDeleteAccountScreen";
+import ProfileDeleteAccountConfirmScreen from "../screens/ProfileDeleteAccountConfirmScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
@@ -238,6 +239,14 @@ function ProfileStack({ onLogout }) {
         component={ProfileDeleteAccountScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="ProfileDeleteAccountConfirmScreen"
+        options={{ headerShown: false }}
+      >
+        {(props) => (
+          <ProfileDeleteAccountConfirmScreen {...props} onLogout={onLogout} />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }

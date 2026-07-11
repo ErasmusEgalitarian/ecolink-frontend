@@ -402,7 +402,25 @@
       "Admin": "Administrator"
     },
     "stubMessage": "This feature will be available soon.",
-    "deleteAccountStubMessage": "Account deletion will be available soon."
+    "deleteAccountSubtitle": "Permanently remove your account and personal data from Ecolink.",
+    "deleteAccountWarningTitle": "Before you continue",
+    "deleteAccountWarningIntro": "When you delete your account:",
+    "deleteAccountWarningProfile": "Your personal data and profile photo will be removed.",
+    "deleteAccountWarningDonations": "Your donations will remain in the system, but anonymized.",
+    "deleteAccountWarningPickups": "In-progress pickups will be cancelled and returned to other collectors; completed pickups will be anonymized.",
+    "deleteAccountWarningIrreversible": "This action cannot be undone.",
+    "deleteAccountContinue": "Continue",
+    "deleteAccountFinalTitle": "Final confirmation",
+    "deleteAccountFinalMessage": "This is the last step. Once confirmed, your account will be permanently deleted and cannot be recovered.",
+    "deleteAccountFinalDonations": "Your donations will be kept anonymously.",
+    "deleteAccountFinalPickups": "Your in-progress pickups will be released to other collectors and your history will be anonymized.",
+    "deleteAccountConfirmButton": "Delete account",
+    "deleteAccountConfirmTitle": "Confirm deletion",
+    "deleteAccountConfirmMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+    "deleteAccountSuccessTitle": "Account deleted",
+    "deleteAccountSuccessMessage": "Your account was deleted successfully.",
+    "deleteAccountErrorTitle": "Deletion failed",
+    "deleteAccountErrorMessage": "We couldn't delete your account. Please try again."
   },
   "Ecopoints": {
     "title": "Available ecopoints",

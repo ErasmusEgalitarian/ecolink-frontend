@@ -168,6 +168,7 @@ export const USER_ROUTES = {
   ME: "/users/me",
   UPDATE_ME: "/users/me",
   AVATAR: "/users/me/avatar",
+  DELETE_ME: "/users/me",
 };
 
 export const ROLE_ROUTES = {

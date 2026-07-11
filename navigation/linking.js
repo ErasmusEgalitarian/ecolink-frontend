@@ -63,6 +63,7 @@ export const appLinking = {
           DonationsFaqScreen: "sobre",
           ProfileChangePasswordScreen: "senha",
           ProfileDeleteAccountScreen: "excluir-conta",
+          ProfileDeleteAccountConfirmScreen: "excluir-conta/confirmar",
         },
       },
     },

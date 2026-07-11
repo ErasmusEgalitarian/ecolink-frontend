@@ -406,7 +406,25 @@
       "Admin": "Administrador"
     },
     "stubMessage": "Esta funcionalidade será implementada em breve.",
-    "deleteAccountStubMessage": "A exclusão de conta será implementada em breve."
+    "deleteAccountSubtitle": "Remova permanentemente sua conta e dados pessoais do Ecolink.",
+    "deleteAccountWarningTitle": "Antes de continuar",
+    "deleteAccountWarningIntro": "Ao excluir sua conta:",
+    "deleteAccountWarningProfile": "Seus dados pessoais e foto de perfil serão removidos.",
+    "deleteAccountWarningDonations": "Suas doações permanecerão no sistema, porém anonimizadas.",
+    "deleteAccountWarningPickups": "Coletas em andamento serão canceladas e devolvidas para outros catadores; coletas concluídas serão anonimizadas.",
+    "deleteAccountWarningIrreversible": "Esta ação é irreversível.",
+    "deleteAccountContinue": "Continuar",
+    "deleteAccountFinalTitle": "Última confirmação",
+    "deleteAccountFinalMessage": "Esta é a última etapa. Ao confirmar, sua conta será excluída permanentemente e não poderá ser recuperada.",
+    "deleteAccountFinalDonations": "Suas doações serão mantidas de forma anônima.",
+    "deleteAccountFinalPickups": "Suas coletas em andamento serão liberadas para outros catadores e o histórico será anonimizado.",
+    "deleteAccountConfirmButton": "Excluir conta",
+    "deleteAccountConfirmTitle": "Confirmar exclusão",
+    "deleteAccountConfirmMessage": "Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.",
+    "deleteAccountSuccessTitle": "Conta excluída",
+    "deleteAccountSuccessMessage": "Sua conta foi excluída com sucesso.",
+    "deleteAccountErrorTitle": "Erro ao excluir",
+    "deleteAccountErrorMessage": "Não foi possível excluir sua conta. Tente novamente."
   },
   "Ecopoints": {
     "title": "Ecopontos disponíveis",
