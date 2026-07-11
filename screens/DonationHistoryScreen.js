@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import ConnectionErrorCard from "../components/ConnectionErrorCard";
 import SemesterHistoryCard from "../components/SemesterHistoryCard";
 import { api, SEMESTER_ROUTES, isApiConnectionError } from "../config/api";
+import { goBackInProfileStack } from "../utils/profileNavigation";
 import { styles } from "../styles/screens/DonationHistoryScreen.styles";
 
 const DonationHistoryScreen = ({ navigation }) => {
@@ -51,7 +52,7 @@ const DonationHistoryScreen = ({ navigation }) => {
     }, [fetchSemesters]),
   );
 
-  const handleBack = () => navigation.goBack();
+  const handleBack = () => goBackInProfileStack(navigation);
 
   const handleSemesterPress = (semester) => {
     navigation.navigate("ProfileSemesterDonationsScreen", {

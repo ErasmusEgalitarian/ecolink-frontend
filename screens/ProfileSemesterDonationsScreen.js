@@ -4,6 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 import SemesterDonationsView from "../components/SemesterDonationsView";
 import { useSemesterDonations } from "../hooks/useSemesterDonations";
+import { goBackInProfileStack } from "../utils/profileNavigation";
 import { styles } from "../styles/screens/MyDonationsScreen.styles";
 
 const ProfileSemesterDonationsScreen = ({ navigation, route }) => {
@@ -24,7 +25,10 @@ const ProfileSemesterDonationsScreen = ({ navigation, route }) => {
     }, [fetchData]),
   );
 
-  const handleBack = () => navigation.goBack();
+  const handleBack = () =>
+    goBackInProfileStack(navigation, {
+      fallbackScreen: "DonationHistoryScreen",
+    });
 
   const handleExportHistory = () => {
     // Reservado para exportação futura do histórico do semestre.

@@ -25,6 +25,7 @@ import {
   formatPhone,
   stripDigits,
 } from "../utils/brazilianInputMasks";
+import { goBackInProfileStack } from "../utils/profileNavigation";
 import { styles } from "../styles/screens/ProfileMyDataScreen.styles";
 
 const formatDate = (value, locale) => {
@@ -277,7 +278,7 @@ const ProfileMyDataScreen = ({ navigation }) => {
         <View style={styles.topBar}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => goBackInProfileStack(navigation)}
             activeOpacity={0.8}
             accessibilityLabel={t("Profile.back")}
           >

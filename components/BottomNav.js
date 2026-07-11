@@ -34,6 +34,7 @@ import CollectorPickupScreen from "../screens/CollectorPickupScreen";
 import RequireRoleScreen from "./guards/RequireRoleScreen";
 import { COLLECTOR_ROLES } from "../utils/collectorPermissions";
 import { createDonationsTabPressListener } from "../utils/donationsNavigation";
+import { createProfileTabPressListener } from "../utils/profileNavigation";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -306,6 +307,7 @@ export default function BottomNav({ onLogout }) {
           options={{
             tabBarLabel: t("BottomNav.profile"),
           }}
+          listeners={createProfileTabPressListener}
         >
           {() => <ProfileStack onLogout={onLogout} />}
         </Tab.Screen>

@@ -1,7 +1,7 @@
 import React from "react";
 
 import FaqView from "../components/FaqView";
-import { goBackInDonationsStack } from "../utils/donationsNavigation";
+import { goBackInProfileOrDonationsStack } from "../utils/profileNavigation";
 
 const DONATIONS_FAQ_SECTIONS = [
   { titleKey: "whatIsEcolinkTitle", bodyKey: "whatIsEcolinkBody" },
@@ -12,7 +12,7 @@ const DONATIONS_FAQ_SECTIONS = [
 ];
 
 const DonationsFaqScreen = ({ navigation }) => {
-  const handleBack = () => goBackInDonationsStack(navigation);
+  const handleBack = () => goBackInProfileOrDonationsStack(navigation);
 
   return (
     <FaqView

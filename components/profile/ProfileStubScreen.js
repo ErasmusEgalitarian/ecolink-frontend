@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
+import { goBackInProfileStack } from "../../utils/profileNavigation";
 import { styles } from "../../styles/components/ProfileStubScreen.styles";
 
 const ProfileStubScreen = ({ navigation, titleKey, messageKey = "Profile.stubMessage" }) => {
@@ -18,7 +19,7 @@ const ProfileStubScreen = ({ navigation, titleKey, messageKey = "Profile.stubMes
         <View style={styles.topBar}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => goBackInProfileStack(navigation)}
             activeOpacity={0.8}
             accessibilityLabel={t("Profile.back")}
           >
