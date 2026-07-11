@@ -7,7 +7,12 @@ import { useTranslation } from "react-i18next";
 import { goBackInProfileStack } from "../../utils/profileNavigation";
 import { styles } from "../../styles/components/ProfileStubScreen.styles";
 
-const ProfileStubScreen = ({ navigation, titleKey, messageKey = "Profile.stubMessage" }) => {
+const ProfileStubScreen = ({
+  navigation,
+  titleKey,
+  messageKey = "Profile.stubMessage",
+  showBack = true,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -16,16 +21,18 @@ const ProfileStubScreen = ({ navigation, titleKey, messageKey = "Profile.stubMes
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => goBackInProfileStack(navigation)}
-            activeOpacity={0.8}
-            accessibilityLabel={t("Profile.back")}
-          >
-            <Ionicons name="arrow-back" size={16} color="#FDFEFF" />
-          </TouchableOpacity>
-        </View>
+        {showBack ? (
+          <View style={styles.topBar}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => goBackInProfileStack(navigation)}
+              activeOpacity={0.8}
+              accessibilityLabel={t("Profile.back")}
+            >
+              <Ionicons name="arrow-back" size={16} color="#FDFEFF" />
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         <Text style={styles.title}>{t(titleKey)}</Text>
         <View style={styles.stubCard}>

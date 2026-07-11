@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +16,7 @@ import PickUpScreenMap from "../screens/PickUpScreenMap";
 import ContentStackNavigator from "../navigation/ContentStackNav";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import MapScreen from "../screens/MapScreen";
 import DonationHistoryScreen from "../screens/DonationHistoryScreen";
 import ProfileSemesterDonationsScreen from "../screens/ProfileSemesterDonationsScreen";
 import ProfileMyDataScreen from "../screens/ProfileMyDataScreen";
@@ -73,23 +74,6 @@ function CollectorPickupGuardedScreen(props) {
     >
       <CollectorPickupScreen {...props} />
     </RequireRoleScreen>
-  );
-}
-
-// Placeholder screens for new tabs (você pode substituir depois)
-function MapScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Mapa Screen</Text>
-    </View>
-  );
-}
-
-function ContentScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Conteúdo Screen</Text>
-    </View>
   );
 }
 
