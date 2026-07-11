@@ -57,8 +57,12 @@ export const appLinking = {
         path: "perfil",
         screens: {
           ProfileScreen: "",
+          ProfileMyDataScreen: "meus-dados",
           DonationHistoryScreen: "historico",
           ProfileSemesterDonationsScreen: "historico/:semesterId",
+          DonationsFaqScreen: "sobre",
+          ProfileChangePasswordScreen: "senha",
+          ProfileDeleteAccountScreen: "excluir-conta",
         },
       },
     },

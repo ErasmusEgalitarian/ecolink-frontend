@@ -349,18 +349,20 @@
   },
   "Profile": {
     "title": "My profile",
-    "donationHistory": "Donations history",
-    "donationChart": "Donations chart",
+    "myData": "My data",
+    "changeLanguage": "Language",
+    "donationHistory": "Donation history",
+    "aboutProject": "About the project",
     "changePassword": "Change password",
+    "deleteAccount": "Delete account",
     "logout": "Logout",
     "logoutTitle": "Confirm logout",
     "logoutMessage": "Are you sure you want to logout?",
     "logoutConfirm": "Logout",
     "cancel": "Cancel",
-    "changeLanguage": "Language",
-    "comingSoon": "Coming soon",
-    "chartFeatureMessage": "The charts feature will be available soon!",
-    "passwordFeatureMessage": "The password change feature will be available soon!"
+    "back": "Back",
+    "stubMessage": "This feature will be available soon.",
+    "deleteAccountStubMessage": "Account deletion will be available soon."
   },
   "Ecopoints": {
     "title": "Available ecopoints",

@@ -18,6 +18,9 @@ import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import DonationHistoryScreen from "../screens/DonationHistoryScreen";
 import ProfileSemesterDonationsScreen from "../screens/ProfileSemesterDonationsScreen";
+import ProfileMyDataScreen from "../screens/ProfileMyDataScreen";
+import ProfileChangePasswordScreen from "../screens/ProfileChangePasswordScreen";
+import ProfileDeleteAccountScreen from "../screens/ProfileDeleteAccountScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
@@ -212,6 +215,26 @@ function ProfileStack({ onLogout }) {
       <Stack.Screen
         name="ProfileSemesterDonationsScreen"
         component={ProfileSemesterDonationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileMyDataScreen"
+        component={ProfileMyDataScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DonationsFaqScreen"
+        component={DonationsFaqScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileChangePasswordScreen"
+        component={ProfileChangePasswordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileDeleteAccountScreen"
+        component={ProfileDeleteAccountScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

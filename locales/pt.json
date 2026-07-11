@@ -353,18 +353,20 @@
   },
   "Profile": {
     "title": "Meu perfil",
+    "myData": "Meus dados",
+    "changeLanguage": "Idioma",
     "donationHistory": "Histórico de doações",
-    "donationChart": "Gráfico de doações",
-    "changePassword": "Alterar senha",
+    "aboutProject": "Sobre o projeto",
+    "changePassword": "Trocar senha",
+    "deleteAccount": "Excluir conta",
     "logout": "Sair",
     "logoutTitle": "Confirmar saída",
     "logoutMessage": "Tem certeza que deseja sair?",
     "logoutConfirm": "Sair",
     "cancel": "Cancelar",
-    "changeLanguage": "Idioma",
-    "comingSoon": "Em breve",
-    "chartFeatureMessage": "A funcionalidade de gráficos estará disponível em breve!",
-    "passwordFeatureMessage": "A funcionalidade de alteração de senha estará disponível em breve!"
+    "back": "Voltar",
+    "stubMessage": "Esta funcionalidade será implementada em breve.",
+    "deleteAccountStubMessage": "A exclusão de conta será implementada em breve."
   },
   "Ecopoints": {
     "title": "Ecopontos disponíveis",
