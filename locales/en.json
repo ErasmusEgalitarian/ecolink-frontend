@@ -374,7 +374,7 @@
     "galleryPermission": "We need gallery access to choose a photo.",
     "placeholders": {
       "name": "Your name",
-      "phone": "11999999999",
+      "phone": "(11) 99999-9999",
       "address": "Your address"
     },
     "validation": {

@@ -20,13 +20,12 @@ import ErrorModal from "../components/ErrorModal";
 import { api, USER_ROUTES, isApiConnectionError } from "../config/api";
 import { uploadProfileImage } from "../utils/profileImageUpload";
 import { canCollectPickups } from "../utils/collectorPermissions";
+import {
+  formatCpfDisplay,
+  formatPhone,
+  stripDigits,
+} from "../utils/brazilianInputMasks";
 import { styles } from "../styles/screens/ProfileMyDataScreen.styles";
-
-const formatCpf = (cpf) => {
-  const digits = String(cpf || "").replace(/\D/g, "");
-  if (digits.length !== 11) return cpf || "—";
-  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
-};
 
 const formatDate = (value, locale) => {
   if (!value) return "—";
@@ -80,7 +79,7 @@ const ProfileMyDataScreen = ({ navigation }) => {
   const applyProfile = useCallback((data) => {
     setProfile(data);
     setUsername(data?.username ?? "");
-    setPhone(String(data?.phone ?? "").replace(/\D/g, ""));
+    setPhone(stripDigits(data?.phone).slice(0, 11));
     setAddress(data?.address ?? "");
     setAvatarUrl(data?.avatarUrl || null);
     setPendingAvatarFile(null);
@@ -217,14 +216,14 @@ const ProfileMyDataScreen = ({ navigation }) => {
           <ProfileDataRow label={t("Profile.fields.email")} value={profile.email} />
           <ProfileFormField
             label={t("Profile.fields.phone")}
-            value={phone}
-            onChangeText={(value) => setPhone(value.replace(/\D/g, ""))}
+            value={formatPhone(phone)}
+            onChangeText={(value) => setPhone(stripDigits(value).slice(0, 11))}
             placeholder={t("Profile.placeholders.phone")}
             keyboardType="phone-pad"
           />
           <ProfileDataRow
             label={t("Profile.fields.cpf")}
-            value={formatCpf(profile.cpf)}
+            value={formatCpfDisplay(profile.cpf)}
           />
           <ProfileFormField
             label={t("Profile.fields.address")}
