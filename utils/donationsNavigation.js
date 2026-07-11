@@ -42,7 +42,7 @@ export const returnToScreen = (navigation, screenName) => {
  * já ativa e a pilha interna não está na raiz.
  */
 export const createDonationsTabPressListener = ({ navigation, route }) => ({
-  tabPress: () => {
+  tabPress: (event) => {
     const tabState = navigation.getState();
     const routeIndex = tabState.routes.findIndex((r) => r.name === route.name);
 
@@ -50,8 +50,14 @@ export const createDonationsTabPressListener = ({ navigation, route }) => ({
       return;
     }
 
-    const stackIndex = tabState.routes[routeIndex]?.state?.index ?? 0;
-    if (stackIndex > 0) {
+    event.preventDefault();
+
+    const stackState = tabState.routes[routeIndex]?.state;
+    const stackIndex = stackState?.index ?? 0;
+    const focusedRouteName =
+      stackState?.routes?.[stackIndex]?.name ?? DONATIONS_STACK_ROOT;
+
+    if (stackIndex > 0 || focusedRouteName !== DONATIONS_STACK_ROOT) {
       navigation.navigate("Doações", { screen: DONATIONS_STACK_ROOT });
     }
   },
