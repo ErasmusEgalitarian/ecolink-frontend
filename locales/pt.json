@@ -365,6 +365,27 @@
     "logoutConfirm": "Sair",
     "cancel": "Cancelar",
     "back": "Voltar",
+    "myDataSubtitle": "Informações da sua conta no Ecolink.",
+    "myDataEmptyTitle": "Dados indisponíveis",
+    "myDataEmptyMessage": "Não foi possível carregar seus dados. Tente novamente.",
+    "notProvided": "Não informado",
+    "wasteSavedValue": "{{amount}} g",
+    "fields": {
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "cpf": "CPF",
+      "address": "Endereço",
+      "role": "Perfil",
+      "memberSince": "Membro desde",
+      "wasteSaved": "Resíduos doados",
+      "totalPickups": "Coletas realizadas"
+    },
+    "roles": {
+      "Viewer": "Aluno",
+      "Editor": "Catador",
+      "Admin": "Administrador"
+    },
     "stubMessage": "Esta funcionalidade será implementada em breve.",
     "deleteAccountStubMessage": "A exclusão de conta será implementada em breve."
   },

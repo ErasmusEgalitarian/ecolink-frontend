@@ -361,6 +361,27 @@
     "logoutConfirm": "Logout",
     "cancel": "Cancel",
     "back": "Back",
+    "myDataSubtitle": "Your Ecolink account information.",
+    "myDataEmptyTitle": "Data unavailable",
+    "myDataEmptyMessage": "We couldn't load your data. Please try again.",
+    "notProvided": "Not provided",
+    "wasteSavedValue": "{{amount}} g",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "cpf": "CPF",
+      "address": "Address",
+      "role": "Role",
+      "memberSince": "Member since",
+      "wasteSaved": "Waste donated",
+      "totalPickups": "Pickups completed"
+    },
+    "roles": {
+      "Viewer": "Student",
+      "Editor": "Collector",
+      "Admin": "Administrator"
+    },
     "stubMessage": "This feature will be available soon.",
     "deleteAccountStubMessage": "Account deletion will be available soon."
   },
