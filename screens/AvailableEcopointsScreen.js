@@ -20,8 +20,9 @@ import { useUserLocation } from "../hooks/useUserLocation";
 import { useAvailableEcopoints } from "../hooks/useAvailableEcopoints";
 import { styles } from "../styles/screens/AvailableEcopointsScreen.styles";
 
-const AvailableEcopointsScreen = ({ navigation }) => {
+const AvailableEcopointsScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
+  const monitorMode = route?.params?.monitorMode === true;
   const {
     coords,
     loading: locationLoading,
@@ -216,19 +217,23 @@ const AvailableEcopointsScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.title}>{t("Ecopoints.title")}</Text>
+        <Text style={styles.title}>
+          {monitorMode ? t("Collector.ecopointsMonitorTitle") : t("Ecopoints.title")}
+        </Text>
 
         {renderContent()}
       </ScrollView>
 
       {/* CTA flutuante — Realizar doação */}
-      <TouchableOpacity
-        style={styles.donateButton}
-        onPress={handleDonate}
-        activeOpacity={0.85}
-      >
-        <Text style={styles.donateButtonText}>{t("Ecopoints.donate")}</Text>
-      </TouchableOpacity>
+      {!monitorMode ? (
+        <TouchableOpacity
+          style={styles.donateButton}
+          onPress={handleDonate}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.donateButtonText}>{t("Ecopoints.donate")}</Text>
+        </TouchableOpacity>
+      ) : null}
     </SafeAreaView>
   );
 };

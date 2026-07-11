@@ -166,8 +166,9 @@ export const AUTH_ROUTES = {
 export const USER_ROUTES = {
   LIST: "/users",
   ME: "/users/me",
-  PROFILE: "/users/profile",
-  UPDATE: "/users/update",
+  UPDATE_ME: "/users/me",
+  AVATAR: "/users/me/avatar",
+  DELETE_ME: "/users/me",
 };
 
 export const ROLE_ROUTES = {
@@ -209,6 +210,28 @@ export const MEDIA_ROUTES = {
   BY_ID: (id) => `/media/${id}`,
   UPDATE: (id) => `/media/${id}`,
   DELETE: (id) => `/media/${id}`,
+};
+
+export const CONTENT_ROUTES = {
+  CATEGORIES: "/content/categories",
+  LIST: "/content",
+  BY_SLUG: (slug) => `/content/slug/${slug}`,
+  MANAGE_BY_ID: (id) => `/content/manage/${id}`,
+  UPLOAD_IMAGE: "/content/upload-image",
+  CREATE: "/content",
+  UPDATE: (id) => `/content/${id}`,
+  PUBLISH: (id) => `/content/${id}/publish`,
+  DELETE: (id) => `/content/${id}`,
+};
+
+export const PICKUP_ROUTES = {
+  LIST: "/pickups",
+  PENDING: "/pickups/pending",
+  ACCEPTED: "/pickups/accepted",
+  BY_ID: (id) => `/pickups/${id}`,
+  ACCEPT: (id) => `/pickups/${id}/accept`,
+  COMPLETE: (id) => `/pickups/${id}/complete`,
+  CANCEL: (id) => `/pickups/${id}/cancel`,
 };
 
 export default API_BASE_URL;

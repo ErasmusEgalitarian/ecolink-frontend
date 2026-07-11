@@ -1,0 +1,143 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F8F9FA",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    paddingBottom: 120,
+    gap: 16,
+    width: "100%",
+    maxWidth: 800,
+    alignSelf: "center",
+  },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 999,
+    backgroundColor: "#29A66C",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1F2937",
+  },
+  subtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#6B7280",
+  },
+  loadingContainer: {
+    paddingVertical: 48,
+    alignItems: "center",
+  },
+  warningCard: {
+    backgroundColor: "#FEF2F2",
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    gap: 12,
+  },
+  warningTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#991B1B",
+  },
+  warningText: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: "#7F1D1D",
+  },
+  bulletList: {
+    gap: 8,
+  },
+  bulletItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  bulletDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 999,
+    backgroundColor: "#DC2626",
+    marginTop: 8,
+  },
+  bulletText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#7F1D1D",
+  },
+  finalCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    alignItems: "center",
+    gap: 12,
+  },
+  finalIconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 999,
+    backgroundColor: "#FEF2F2",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  finalMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#1F2937",
+    textAlign: "center",
+    fontWeight: "600",
+  },
+  finalConsequence: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#7F1D1D",
+    textAlign: "center",
+  },
+  deleteButton: {
+    marginTop: 8,
+    backgroundColor: "#E63946",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+  },
+  deleteButtonDisabled: {
+    opacity: 0.6,
+  },
+  deleteButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  cancelButton: {
+    marginTop: 4,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelButtonText: {
+    color: "#6B7280",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+});

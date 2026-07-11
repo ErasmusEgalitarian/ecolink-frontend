@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,41 +9,71 @@ import { styles } from "../styles/components/BottomNav.styles";
 import LandingScreen from "../screens/LandingScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 
-import AdminRoleScreen from "../screens/AdminRoleScreen";
 import PickUpScreen from "../screens/PickUpScreen";
 import OverviewScreen from "../screens/OverviewScreen";
 import PickUpScreenFinalStep from "../screens/PickUpScreenFinalStep";
 import PickUpScreenMap from "../screens/PickUpScreenMap";
-import MediaUploadScreen from "../screens/MediaUploadScreen";
-import MediaListScreen from "../screens/MediaListScreen";
-import MediaStackNavigator from "../navigation/MediaStackNav";
+import ContentStackNavigator from "../navigation/ContentStackNav";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import MapScreen from "../screens/MapScreen";
+import DonationHistoryScreen from "../screens/DonationHistoryScreen";
+import ProfileSemesterDonationsScreen from "../screens/ProfileSemesterDonationsScreen";
+import ProfileMyDataScreen from "../screens/ProfileMyDataScreen";
+import ProfileChangePasswordScreen from "../screens/ProfileChangePasswordScreen";
+import ProfileDeleteAccountScreen from "../screens/ProfileDeleteAccountScreen";
+import ProfileDeleteAccountConfirmScreen from "../screens/ProfileDeleteAccountConfirmScreen";
 import AvailableEcopointsScreen from "../screens/AvailableEcopointsScreen";
 import EcopointDetailScreen from "../screens/EcopointDetailScreen";
 import EcopointFaqScreen from "../screens/EcopointFaqScreen";
+import DonationsFaqScreen from "../screens/DonationsFaqScreen";
 import GeneralDonationsScreen from "../screens/GeneralDonationsScreen";
 import RecentDonationsScreen from "../screens/RecentDonationsScreen";
 import MyDonationsScreen from "../screens/MyDonationsScreen";
+import PendingPickupsScreen from "../screens/PendingPickupsScreen";
+import CollectorPickupsScreen from "../screens/CollectorPickupsScreen";
+import CollectorPickupScreen from "../screens/CollectorPickupScreen";
+import RequireRoleScreen from "./guards/RequireRoleScreen";
+import { COLLECTOR_ROLES } from "../utils/collectorPermissions";
 import { createDonationsTabPressListener } from "../utils/donationsNavigation";
+import { createProfileTabPressListener } from "../utils/profileNavigation";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Placeholder screens for new tabs (você pode substituir depois)
-function MapScreen() {
+function PendingPickupsGuardedScreen(props) {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Mapa Screen</Text>
-    </View>
+    <RequireRoleScreen
+      allowedRoles={[...COLLECTOR_ROLES]}
+      navigation={props.navigation}
+      redirectTo="DashboardScreen"
+    >
+      <PendingPickupsScreen {...props} />
+    </RequireRoleScreen>
   );
 }
 
-function ContentScreen() {
+function CollectorPickupsGuardedScreen(props) {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Conteúdo Screen</Text>
-    </View>
+    <RequireRoleScreen
+      allowedRoles={[...COLLECTOR_ROLES]}
+      navigation={props.navigation}
+      redirectTo="DashboardScreen"
+    >
+      <CollectorPickupsScreen {...props} />
+    </RequireRoleScreen>
+  );
+}
+
+function CollectorPickupGuardedScreen(props) {
+  return (
+    <RequireRoleScreen
+      allowedRoles={[...COLLECTOR_ROLES]}
+      navigation={props.navigation}
+      redirectTo="DashboardScreen"
+    >
+      <CollectorPickupScreen {...props} />
+    </RequireRoleScreen>
   );
 }
 
@@ -111,6 +141,26 @@ function DonationsStack() {
         component={EcopointFaqScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="DonationsFaqScreen"
+        component={DonationsFaqScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PendingPickupsScreen"
+        component={PendingPickupsGuardedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CollectorPickupsScreen"
+        component={CollectorPickupsGuardedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CollectorPickupScreen"
+        component={CollectorPickupGuardedScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -128,17 +178,9 @@ function MapStack() {
   );
 }
 
-// Stack Navigator para Conteúdo/Mídia
+// Stack Navigator para Conteúdo educativo
 function ContentStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="ContentScreen"
-        component={MediaStackNavigator}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
+  return <ContentStackNavigator />;
 }
 
 // Stack Navigator para Perfil
@@ -150,6 +192,44 @@ function ProfileStack({ onLogout }) {
         options={{ headerShown: false }}
       >
         {(props) => <ProfileScreen {...props} onLogout={onLogout} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="DonationHistoryScreen"
+        component={DonationHistoryScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileSemesterDonationsScreen"
+        component={ProfileSemesterDonationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileMyDataScreen"
+        component={ProfileMyDataScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DonationsFaqScreen"
+        component={DonationsFaqScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileChangePasswordScreen"
+        component={ProfileChangePasswordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileDeleteAccountScreen"
+        component={ProfileDeleteAccountScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileDeleteAccountConfirmScreen"
+        options={{ headerShown: false }}
+      >
+        {(props) => (
+          <ProfileDeleteAccountConfirmScreen {...props} onLogout={onLogout} />
+        )}
       </Stack.Screen>
     </Stack.Navigator>
   );
@@ -220,6 +300,7 @@ export default function BottomNav({ onLogout }) {
           options={{
             tabBarLabel: t("BottomNav.profile"),
           }}
+          listeners={createProfileTabPressListener}
         >
           {() => <ProfileStack onLogout={onLogout} />}
         </Tab.Screen>

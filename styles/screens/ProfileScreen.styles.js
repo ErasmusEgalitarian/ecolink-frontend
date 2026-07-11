@@ -10,7 +10,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 100,
-    // Web responsiveness
     width: "100%",
     maxWidth: 800,
     alignSelf: "center",
@@ -28,9 +27,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 24,
-    marginBottom: 32,
+    marginBottom: 24,
     alignItems: "center",
-    // Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -45,6 +43,12 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   userInfo: {
     alignItems: "center",
@@ -59,11 +63,11 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
   },
-  optionsContainer: {
-    gap: 12,
-    marginBottom: 32,
+  menuContainer: {
+    gap: 10,
+    marginBottom: 24,
   },
-  optionButton: {
+  menuItem: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
@@ -72,28 +76,42 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    // Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
     shadowRadius: 4,
     elevation: 1,
   },
-  optionButtonActive: {
-    backgroundColor: "#52B788",
-    borderColor: "#52B788",
+  menuItemDanger: {
+    borderColor: "#FECACA",
+    backgroundColor: "#FFFBFB",
   },
-  optionIcon: {
+  menuIcon: {
     marginRight: 12,
   },
-  optionText: {
+  menuText: {
     fontSize: 16,
     fontWeight: "500",
     color: "#1F2937",
     flex: 1,
   },
-  optionTextActive: {
-    color: "#FFFFFF",
+  menuTextDanger: {
+    color: "#E63946",
+  },
+  languageOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   languageBadge: {
     backgroundColor: "#E8F5E9",
@@ -116,7 +134,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: "#FCA5A5",
-    // Shadow
     shadowColor: "#E63946",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

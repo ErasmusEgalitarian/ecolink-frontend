@@ -33,6 +33,10 @@ export const appLinking = {
           AvailableEcopointsScreen: "ecopontos",
           EcopointDetailScreen: "ecopontos/:locationId",
           EcopointFaqScreen: "ecopontos/faq",
+          DonationsFaqScreen: "faq",
+          PendingPickupsScreen: "coletas/pendentes",
+          CollectorPickupsScreen: "coletas",
+          CollectorPickupScreen: "coletas/:pickupId",
         },
       },
       Mapa: {
@@ -44,18 +48,22 @@ export const appLinking = {
       Conteúdo: {
         path: "conteudo",
         screens: {
-          ContentScreen: {
-            screens: {
-              MediaList: "",
-              MediaUpload: "upload",
-            },
-          },
+          ContentList: "",
+          ContentDetail: ":slug",
+          ContentEditor: "editar",
         },
       },
       Perfil: {
         path: "perfil",
         screens: {
           ProfileScreen: "",
+          ProfileMyDataScreen: "meus-dados",
+          DonationHistoryScreen: "historico",
+          ProfileSemesterDonationsScreen: "historico/:semesterId",
+          DonationsFaqScreen: "sobre",
+          ProfileChangePasswordScreen: "senha",
+          ProfileDeleteAccountScreen: "excluir-conta",
+          ProfileDeleteAccountConfirmScreen: "excluir-conta/confirmar",
         },
       },
     },

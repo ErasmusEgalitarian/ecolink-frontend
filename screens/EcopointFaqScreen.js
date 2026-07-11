@@ -1,12 +1,8 @@
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useTranslation } from "react-i18next";
 
+import FaqView from "../components/FaqView";
 import { ECOPOINT_STATUS_COLORS } from "../utils/ecopoints";
 import { goBackInDonationsStack } from "../utils/donationsNavigation";
-import { styles } from "../styles/screens/EcopointFaqScreen.styles";
 
 const FAQ_SECTIONS = [
   {
@@ -37,50 +33,21 @@ const FAQ_SECTIONS = [
     boldKey: "closedDescriptionBold",
     part2Key: "closedDescriptionPart2",
   },
-];
+].map(({ color, ...section }) => ({
+  ...section,
+  titleColor: color,
+}));
 
 const EcopointFaqScreen = ({ navigation }) => {
-  const { t } = useTranslation();
-
   const handleBack = () => goBackInDonationsStack(navigation);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBack}
-            activeOpacity={0.8}
-            accessibilityLabel={t("QRScanner.backButton")}
-          >
-            <Ionicons name="arrow-back" size={16} color="#FDFEFF" />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.title}>{t("EcopointFaq.title")}</Text>
-
-        <View style={styles.sections}>
-          {FAQ_SECTIONS.map((section) => (
-            <View key={section.titleKey} style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: section.color }]}>
-                {t(`EcopointFaq.${section.titleKey}`)}
-              </Text>
-              <Text style={styles.sectionBody}>
-                {t(`EcopointFaq.${section.part1Key}`)}
-                <Text style={styles.sectionBodyBold}>
-                  {t(`EcopointFaq.${section.boldKey}`)}
-                </Text>
-                {t(`EcopointFaq.${section.part2Key}`)}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <FaqView
+      titleKey="title"
+      translationNamespace="EcopointFaq"
+      sections={FAQ_SECTIONS}
+      onBack={handleBack}
+    />
   );
 };
 
