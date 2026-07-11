@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { StackActions } from "@react-navigation/native";
 
 import { goBackInDonationsStack } from "./donationsNavigation";
 
@@ -41,11 +42,36 @@ export const goBackInProfileStack = (
 
   const currentRoute = state?.routes?.[stackIndex]?.name;
   if (currentRoute && currentRoute !== fallbackScreen) {
-    navigation.navigate(fallbackScreen);
+    navigation.replace(fallbackScreen);
   }
 };
 
 export const resetProfileTabToRoot = (navigation) => {
+  const tabState = navigation.getState();
+  const profileTab = tabState.routes.find((route) => route.name === "Perfil");
+  const profileStackState = profileTab?.state;
+  const stackIndex = profileStackState?.index ?? 0;
+  const focusedRouteName =
+    profileStackState?.routes?.[stackIndex]?.name ?? PROFILE_STACK_ROOT;
+
+  if (focusedRouteName === PROFILE_STACK_ROOT && stackIndex === 0) {
+    return;
+  }
+
+  // Deep link / refresh: pilha só com a sub-rota no índice 0 — replace evita
+  // empilhar /perfil no histórico do navegador (segundo toque voltava para a sub-rota).
+  if (
+    profileStackState?.key &&
+    stackIndex === 0 &&
+    focusedRouteName !== PROFILE_STACK_ROOT
+  ) {
+    navigation.dispatch({
+      ...StackActions.replace(PROFILE_STACK_ROOT),
+      target: profileStackState.key,
+    });
+    return;
+  }
+
   navigation.navigate("Perfil", { screen: PROFILE_STACK_ROOT });
 };
 
@@ -99,7 +125,7 @@ export const goBackInProfileOrDonationsStack = (navigation) => {
  * estando em qualquer sub-rota (inclusive após refresh em deep link).
  */
 export const createProfileTabPressListener = ({ navigation, route }) => ({
-  tabPress: () => {
+  tabPress: (event) => {
     const tabState = navigation.getState();
     const routeIndex = tabState.routes.findIndex((item) => item.name === route.name);
 
@@ -107,11 +133,14 @@ export const createProfileTabPressListener = ({ navigation, route }) => ({
       return;
     }
 
-    const profileState = tabState.routes[routeIndex]?.state;
-    const focusedRouteName =
-      profileState?.routes?.[profileState.index ?? 0]?.name ?? PROFILE_STACK_ROOT;
+    event.preventDefault();
 
-    if (focusedRouteName !== PROFILE_STACK_ROOT) {
+    const profileState = tabState.routes[routeIndex]?.state;
+    const stackIndex = profileState?.index ?? 0;
+    const focusedRouteName =
+      profileState?.routes?.[stackIndex]?.name ?? PROFILE_STACK_ROOT;
+
+    if (stackIndex > 0 || focusedRouteName !== PROFILE_STACK_ROOT) {
       resetProfileTabToRoot(navigation);
     }
   },
