@@ -21,7 +21,7 @@
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
-    "axios": "^1.9.0",
+    "axios": "^1.18.0",
     "expo": "^56.0.11",
     "expo-asset": "~56.0.18",
     "expo-camera": "~56.0.8",
